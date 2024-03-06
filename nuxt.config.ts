@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxtjs/cloudinary',
+    '@nuxt/content',
     '@nuxtjs/critters',
     '@nuxtjs/fontaine',
     '@nuxt/image',
@@ -10,6 +11,28 @@ export default defineNuxtConfig({
     'nuxt-delay-hydration',
     'nuxt-purgecss',
   ],
+  content: {
+    // Configuring code highlighting
+    // https://content.nuxtjs.org/api/configuration
+    highlight: {
+        theme: 'github-dark',
+        // Define languages you expect to use
+        preload: ['java','javascript']
+    },
+    markdown: {
+        // Configuring external link processing
+        // https://github.com/rehypejs/rehype-external-links
+        rehypePlugins: [
+            [
+                'rehype-external-links',
+                {
+                    target: '_blank',
+                    rel: 'noopener noreferer'
+                }
+            ]
+        ]
+    }
+  },
   delayHydration: {
     mode: 'init',
     // enables nuxt-delay-hydration in dev mode for testing
