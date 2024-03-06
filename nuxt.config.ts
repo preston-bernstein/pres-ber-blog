@@ -15,9 +15,6 @@ export default defineNuxtConfig({
     // enables nuxt-delay-hydration in dev mode for testing
     debug: process.env.NODE_ENV === 'development'
   },
-  purgecss: {
-    enabled: true, // Always enable purgecss
-  },
   critters: {
     config: {
       preload: 'swap'
