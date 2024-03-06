@@ -7,11 +7,21 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lhci:mobile": "lhci autorun",
+    "lhci:desktop": "lhci autorun --collect.settings.preset=desktop"
   },
   "dependencies": {
+    "@nuxtjs/critters": "^0.6.0",
+    "@vueuse/core": "^10.9.0",
     "nuxt": "^3.10.3",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@nuxtjs/fontaine": "^0.4.1",
+    "@nuxtjs/tailwindcss": "^6.11.4",
+    "@nuxtjs/web-vitals": "^0.2.6",
+    "nuxt-purgecss": "^2.0.0"
   }
 }
