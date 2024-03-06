@@ -1,12 +1,20 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
+    '@nuxtjs/cloudinary',
     '@nuxtjs/critters',
     '@nuxtjs/fontaine',
+    '@nuxt/image',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/web-vitals',
+    'nuxt-delay-hydration',
     'nuxt-purgecss',
   ],
+  delayHydration: {
+    mode: 'init',
+    // enables nuxt-delay-hydration in dev mode for testing
+    debug: process.env.NODE_ENV === 'development'
+  },
   purgecss: {
     enabled: true, // Always enable purgecss
   },
