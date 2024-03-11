@@ -1,26 +1,26 @@
 {
-    "Sample Author": {
+    "Preston Bernstein": {
         "@context": "http://www.schema.org",
         "@type": "Person",
-        "@id": "https://example.com/",
-        "name": "Sample Author",
-        "alternateName": "Sample Author",
-        "nationality": "Nationality",
-        "gender": "Gender",
-        "jobTitle": "Job Title",
+        "@id": "1",
+        "name": "Preston Bernstein",
+        "alternateName": "Preston Bernstein",
+        "nationality": "United States of America",
+        "gender": "Male",
+        "jobTitle": "Software Developer",
         "worksFor": [
-            {
-                "@type": "Organization",
-                "name": "Sample Organization",
-                "sameAs": [
-                    "https://www.sample-organization.com/"
-                ]
-            }
+            // {
+            //     "@type": "Organization",
+            //     "name": "Sample Organization",
+            //     "sameAs": [
+            //         "https://www.sample-organization.com/"
+            //     ]
+            // }
         ],
-        "url": "https://example.com/",
+        "url": "https://prestonbernstein.com/",
         "image": "https://example.com/meta-img.jpg",
         "sameAs": [
-            "https://example.com/"
+            "https://prestonbernstein.com/"
         ]
     }
 }
