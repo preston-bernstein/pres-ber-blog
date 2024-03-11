@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/web-vitals',
     'nuxt-delay-hydration',
+    '@pinia/nuxt',
     'nuxt-purgecss',
   ],
   content: {

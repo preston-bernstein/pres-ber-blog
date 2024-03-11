@@ -10,9 +10,7 @@
                 href="https://prestonbernstein.com"
                 text="Preston Bernstein"
             />
-            <button class="text-x leading-tight border-0 py-1 px-2 m-0 mr-1 transition-colors  text-center rounded-sm cursor-pointer uppercase">
-                Menu
-              </button>            
+            <HeaderMenuButton :text="{ open: 'Menu', closed: 'Close' }"/>
         </div>
     </header>
 </template>
