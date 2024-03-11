@@ -2,20 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global CSS Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    background: 0 0;
+    text-decoration: none;
+    outline: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    color: inherit;
+    touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "onum", "kern", "liga", "clig", "calt";
+    font-variation-settings: "slnt" 0deg;
+    transition-delay: 0ms;
+    transition-duration: 150ms;
+    transition-property: none;
+    transition-timing-function: ease-out;
+    font-style: normal;
+    appearance: none;
+}
+
+/* Layouts */
+
+html, body {
+    width: 100%;
+}
+
 html {
     scroll-behavior: smooth;
+}
+
+body {
+    @apply relative;
+    @apply pt-24;
+    display: block;
+    min-height: calc(100vh +4rem);
 }
 
 @font-face {
     font-family: 'Inter';
     src: url('../fonts/Inter/Inter-Regular.woff2') format('woff2'),
          url('../fonts/Inter/Inter-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
   }
   
   @font-face {
     font-family: 'Inter';
     src: url('../fonts/Inter/Inter-Bold.woff2') format('woff2'),
          url('../fonts/Inter/Inter-Bold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
   }
 
 /* Headings */
