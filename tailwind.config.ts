@@ -14,6 +14,9 @@ module.exports = {
         fontFamily: {
           sans: ['Inter', 'sans-serif'],
         },
+        justifySelf: {
+          end: 'end',
+        },
         colors: {
           'brand_primary': '#124BCF',
           'brand_secondary': '#5eceeb',
@@ -72,5 +75,8 @@ module.exports = {
       },
     },
     plugins: [],
+    variants: {
+      justifySelf: ['responsive']
+    }
   }
   
