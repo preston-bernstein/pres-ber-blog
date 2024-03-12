@@ -22,7 +22,8 @@ module.exports = {
           'brand_secondary': '#5eceeb',
           'brand_secondary_saturated': '#5eceeb',
           'typography_primary': '#000000',
-          'background': '#ffffff'
+          'background': '#ffffff',
+          'brand_gray': '#ebebeb'
         },
         fontSize: {
           'xxs': '0.5rem',
