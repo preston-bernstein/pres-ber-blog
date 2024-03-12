@@ -9,7 +9,7 @@ import { HeaderNavMenu } from '#build/components';
             data-js="header"
         >
             <HeaderSiteLink
-                href="https://prestonbernstein.com"
+                href='/'
                 text="Preston Bernstein"
             />
             <HeaderMenuButton :text="{ open: 'Menu', closed: 'Close' }"/>

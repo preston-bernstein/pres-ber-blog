@@ -1,13 +1,10 @@
 <template>
-    <a
-      :href="href"
-      target="_blank"
-      rel="noopener noreferrer"
+    <NuxtLink
       class="text-xs leading-tight uppercase ml-4 transition-colors"
-      data-js="menu-button"
+      :to="href"
     >
       {{ text }}
-    </a>
+    </NuxtLink>
   </template>
   
   <script>

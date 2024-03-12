@@ -2,6 +2,15 @@
 import { useHeaderMenuStore } from '~/store/headerMenu';
 
 const store = useHeaderMenuStore();
+const route = useRoute();
+
+// Method to toggle the menu state
+const close = () => store.close();
+
+watch(() => route.fullPath, () => {
+    // Close the menu whenever the route changes
+    close();
+})
 
 const isLastItem = (index: number) => {
     return index === store.menuItems.length - 1;

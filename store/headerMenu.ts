@@ -20,5 +20,8 @@ export const useHeaderMenuStore = defineStore('headerMenu', {
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
     },
+    close() {
+      this.isMenuOpen = false;
+    }
   },
 });
