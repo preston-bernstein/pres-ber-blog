@@ -10,8 +10,10 @@ const store = useHeaderMenuStore();
     class="bg-white font-normal leading-relaxed text-base text-black"
     >
         <LayoutHeader />
-        <div :class="{'opacity-0': store.isMenuOpen}">
+        <LayoutMain :class="{'opacity-0': store.isMenuOpen}">
             <slot />
-        </div>
+        </LayoutMain>
+        <LayoutFooter />
+        <LayoutFooterLegal />
     </div>
 </template>
