@@ -36,13 +36,29 @@ html, body {
 
 html {
     scroll-behavior: smooth;
+    max-width: 70ch;
+    margin: auto;
+    line-height: 1.75;
+    font-size: 1.25em;
 }
 
 body {
     @apply relative;
-    @apply pt-24;
+    padding: 6rem 0 0;
     display: block;
     min-height: calc(100vh +4rem);
+}
+
+/* Text */
+
+h1,h2,h3,h4,h5,h6 {
+  margin: 3em 0 1em;
+}
+
+p,ul,ol {
+  margin-bottom: 2em;
+  color: #1d1d1d;
+  font-family: sans-serif;
 }
 
 @font-face {

@@ -24,6 +24,7 @@ module.exports = {
           'typography_primary': '#000000',
           'typography_secondary': '#737373',
           'background': '#ffffff',
+          'background_secondary': "#f7f7f7",
           'brand_gray': '#ebebeb'
         },
         fontSize: {

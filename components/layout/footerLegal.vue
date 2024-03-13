@@ -1,5 +1,5 @@
 <template>
-    <div class="md:absolute md:bottom-0 md:left-0 md:right-0 md:px-0 md:py-0 md:pb-4 md:grid-cols-3 sm:gap-6 max-w-[960px] mx-auto">
+    <div class="lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:px-0 lg:py-0 lg:pb-4 lg:grid-cols-3 md:gap-6">
         <div class="z-50 w-full flex justify-between bg-white outline-gray py-3 px-4">
             Footer Legal
         </div>
