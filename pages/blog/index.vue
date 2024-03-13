@@ -16,6 +16,136 @@
                 </div>
             </div>
         </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
+        <div class="outline-hover-effect">
+            <div class="w-12 h-12 rounded-full self-start overflow-hidden">
+                Picture
+            </div>
+            <div>
+                <div>
+                    <h1>How are you</h1>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- <Section id="main" class="!pt-0">
         <ContentQuery

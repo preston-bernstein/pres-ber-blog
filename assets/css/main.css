@@ -83,3 +83,9 @@ body {
     /* Outline color changes on hover */
     outline-color: black;
   }
+
+  .outline-gray {
+    @apply rounded-md;
+    outline: 2px solid #ebebeb;
+
+  }
