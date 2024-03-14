@@ -11,12 +11,21 @@ module.exports = {
     ],
     theme: {
       extend: {
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+        },
+        justifySelf: {
+          end: 'end',
+        },
         colors: {
           'brand_primary': '#124BCF',
           'brand_secondary': '#5eceeb',
           'brand_secondary_saturated': '#5eceeb',
           'typography_primary': '#000000',
-          'background': '#ffffff'
+          'typography_secondary': '#737373',
+          'background': '#ffffff',
+          'background_secondary': "#f7f7f7",
+          'brand_gray': '#ebebeb'
         },
         fontSize: {
           'xxs': '0.5rem',
@@ -69,5 +78,8 @@ module.exports = {
       },
     },
     plugins: [],
+    variants: {
+      justifySelf: ['responsive']
+    }
   }
   

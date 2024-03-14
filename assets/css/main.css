@@ -2,56 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global CSS Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    background: 0 0;
+    text-decoration: none;
+    outline: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    color: inherit;
+    touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "onum", "kern", "liga", "clig", "calt";
+    font-variation-settings: "slnt" 0deg;
+    transition-delay: 0ms;
+    transition-duration: 150ms;
+    transition-property: none;
+    transition-timing-function: ease-out;
+    font-style: normal;
+    appearance: none;
+}
+
+/* Layouts */
+
+html, body {
+    width: 100%;
+}
+
 html {
     scroll-behavior: smooth;
+    max-width: 70ch;
+    margin: auto;
+    line-height: 1.75;
+    font-size: 1.25em;
 }
 
-/* Headings */
-
-h1 {
-    @apply text-h1_sm leading-h1_sm mb-6;
+body {
+    @apply relative;
+    padding: 6rem 0 0;
+    display: block;
+    min-height: calc(100vh +4rem);
 }
 
-h2 {
-    @apply text-h2_sm leading-h2_sm mb-4;
+/* Text */
+
+h1,h2,h3,h4,h5,h6 {
+  margin: 3em 0 1em;
 }
 
-h3 {
-    @apply text-h3_sm leading-h3_sm mb-4;
+p,ul,ol {
+  margin-bottom: 2em;
+  color: #1d1d1d;
+  font-family: sans-serif;
 }
 
-h4 {
-    @apply text-h4_sm leading-h4_sm mb-2;
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter/Inter-Regular.woff2') format('woff2'),
+         url('../fonts/Inter/Inter-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter/Inter-Bold.woff2') format('woff2'),
+         url('../fonts/Inter/Inter-Bold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+  }
+
+.grid-layout {
+    grid-template-areas: "content content content";
 }
 
-h5 {
-    @apply text-h5_sm leading-h5_sm mb-1;
+.grid-list {
+    grid-template-areas: "sidebar items items";
 }
 
-@screen md {
-    h1 {
-        @apply text-h1 leading-h1;
-    }
+/* Outline */
 
-    h2 {
-        @apply text-h2 leading-h2;
-    }
+.outline-hover-effect {
+    @apply rounded-md;
+    /* Initial state with a transparent outline */
+    outline: 2px solid transparent;
+    /* Transition for the outline color */
+    transition: outline-color 300ms ease;
+  }
+  
+  .outline-hover-effect:hover {
+    /* Outline color changes on hover */
+    outline-color: black;
+  }
 
-    h3 {
-        @apply text-h3 leading-h3;
-    }
+  .outline-gray {
+    @apply rounded-md;
+    outline: 2px solid #ebebeb;
 
-    h4 {
-        @apply text-h4 leading-h4;
-    }
-
-    h5 {
-        @apply text-h5 leading-h5;
-    }
-}
-
-/* Body Text */
-
-p {
-    @apply text-base leading-base;
-}
+  }
