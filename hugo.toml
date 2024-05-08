@@ -1,3 +1,17 @@
-baseURL = 'https://example.org/'
+baseURL = "https://prestonbernstein.com"
 languageCode = 'en-us'
-title = 'My New Hugo Site'
+theme = "coming-soon"
+
+[params]
+    title = "Preston Bernstein's Blog" 
+    description = "A personal website"
+    favicon = ""
+    message = "COMING SOON!" 
+    release = "June 30, 2024" 
+    background = "" 
+
+socialIcons = [
+    {name = "email", url = "contact@prestonbernstein.com"},
+    {name = "github", url = "https://github.com/preston-bernstein"},
+    {name = "linkedin", url = "https://linkedin.com/in/prestonbernstein"},    
+] 
