@@ -1,0 +1,28 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4.1.4
+    - name: Checkout repository
+
+    - uses: peaceiris/action-hugo@v3.0.0
+    - name: Set up Hugo
+      with:
+        hugo-version: 'latest'
+        
+    - name: Build Hugo Site
+      run: hugo --minify
+
+    - name: Upload site
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        source: 'public/'
+        target: '/path/to/cpanel/website/public_html/'
