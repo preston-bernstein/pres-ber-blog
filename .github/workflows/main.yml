@@ -44,4 +44,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: './public/'
-          server-dir: '/home/ceykodyqla/${{ env.SITE_FOLDER }}/'
+          server-dir: './public_html/'
