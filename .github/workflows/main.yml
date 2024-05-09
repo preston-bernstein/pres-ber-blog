@@ -39,8 +39,9 @@ jobs:
       - name: Deploy toServer
         uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
-          ftp-server: ${{ secrets.FTP_SERVER }}
-          ftp-username: ${{ secrets.FTP_USERNAME }}
-          ftp-password: ${{ secrets.FTP_PASSWORD }}
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
           local-dir: ./public/
           server-dir: ${{ env.SITE_FOLDER }}
