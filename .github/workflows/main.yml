@@ -28,7 +28,7 @@ jobs:
           submodules: false
 
       - name: Download Hugo v${{ env.HUGO_VERSION }} Linux x64
-        run: wget https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_${{ env.HUGO_VERSION }}_Linux-64bit.deb -O hugo_${{ env.HUGO_VERSION }}_Linux-64bit.deb
+        run: wget https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_${{ env.HUGO_VERSION }}_linux-amd64.deb -O hugo_${{ env.HUGO_VERSION }}_linux-amd64.deb
 
       - name: Install Hugo
         run: sudo dpkg -i hugo*.deb
