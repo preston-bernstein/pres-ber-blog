@@ -39,8 +39,7 @@ jobs:
       - name: Deploy site
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ env.SITE_FOLDER }}
           key: ${{ secrets.SSH_KEY }}
           source: 'public/'
           target: '/home/ceykodyqla/${{ env.SITE_FOLDER }}/'
