@@ -37,9 +37,10 @@ jobs:
         run: hugo -b '${{ env.SITE_BASEURL }}' --minify
 
       - name: Deploy site
-        uses: appleboy/scp-action@v0.1.7
+        uses: SamKirkland/FTP-Deploy-Action@4.0.0
         with:
-          host: ${{ env.SITE_FOLDER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: 'public/'
-          target: '/home/ceykodyqla/${{ env.SITE_FOLDER }}/'
+          server: ${{ env.SITE_FOLDER }}
+          username: git
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: './public/'
+          server-dir: '/home/ceykodyqla/${{ env.SITE_FOLDER }}/'
