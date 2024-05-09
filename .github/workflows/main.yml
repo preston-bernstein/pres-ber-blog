@@ -1,6 +1,13 @@
 name: CI
 
-on: [push, pull_request]
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
