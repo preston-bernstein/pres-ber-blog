@@ -1,0 +1,47 @@
+name: CI
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  HUGO_VERSION: 0.125.7
+  SITE_BASEURL: https://www.prestonbernstein.com
+  SITE_FOLDER: prestonbernstein.com
+
+jobs:
+  build-deploy:
+    name: Build and deploy
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo codebase
+        uses: actions/checkout@v4.1.4
+        with:
+          fetch-depth: 1
+          clean: true
+          submodules: false
+
+      - name: Download Hugo v${{ env.HUGO_VERSION }} Linux x64
+        run: wget https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_${{ env.HUGO_VERSION }}_linux-amd64.deb -O hugo_${{ env.HUGO_VERSION }}_linux-amd64.deb
+
+      - name: Install Hugo
+        run: sudo dpkg -i hugo*.deb
+
+      - name: Build site with Hugo
+        run: hugo -b '${{ env.SITE_BASEURL }}' --minify
+
+      - name: Deploy toServer
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ./public/
+          server-dir: ./${{ env.SITE_FOLDER }}/
