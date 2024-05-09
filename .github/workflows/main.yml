@@ -34,7 +34,7 @@ jobs:
         run: sudo dpkg -i hugo*.deb
 
       - name: Build site with Hugo
-        run: hugo --b '${{ env.SITE_BASEURL }}' --minify
+        run: hugo -b '${{ env.SITE_BASEURL }}' --minify
 
       - name: Deploy site
         uses: appleboy/scp-action@v0.1.7
