@@ -36,8 +36,8 @@ steps:
 # download & install Hugo (line break added in URL for readability)
 ######################################################################
 - name: Download Hugo v${{ env.HUGO_VERSION }} Linux x64
-  run: "wget https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}
-  /hugo_${{ env.HUGO_VERSION }}_Linux-64bit.deb -O hugo_${{ env.HUGO_VERSION }}_Linux-64bit.deb"
+
+  run: "wget https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_${{ env.HUGO_VERSION }}_Linux-64bit.deb -O hugo_${{ env.HUGO_VERSION }}_Linux-64bit.deb"
 - name: Install Hugo
   run: sudo dpkg -i hugo*.deb
 ######################################################################
