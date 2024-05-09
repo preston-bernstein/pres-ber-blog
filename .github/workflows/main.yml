@@ -12,6 +12,7 @@ on:
 env:
   HUGO_VERSION: 0.125.7
   SITE_BASEURL: https://www.prestonbernstein.com
+  SITE_FOLDER: prestonbernstein.com
 
 jobs:
 ######################################################################
@@ -43,38 +44,15 @@ steps:
 # build site with Hugo
 ######################################################################
 - name: Build site with Hugo
-  run: hugo --baseUrl '${{ env.SITE_BASEURL }}'
+  run: hugo --baseUrl '${{ env.SITE_BASEURL }}' --minify
 ######################################################################
 # deploy site with Hugo deploy comment (only deploys diff)
 ######################################################################
-- name: Deploy build to static site
-  run: hugo deploy --maxDeletes -1
-  env:
-    AZURE_STORAGE_ACCOUNT: ${{ env.AZURE_STORAGE_ACCOUNT }}
-    AZURE_STORAGE_KEY: ${{ secrets.LIVE_AZURE_STORAGE_KEY }}
-
-jobs:
-  
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4.1.4
-    - name: Checkout repository
-
-    - uses: peaceiris/action-hugo@v3.0.0
-    - name: Set up Hugo
-      with:
-        hugo-version: 'latest'
-        
-    - name: Build Hugo Site
-      run: hugo --minify
-
-    - name: Upload site
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        source: 'public/'
-        target: '/path/to/cpanel/website/public_html/'
+- name: Deploy site
+  uses: appleboy/scp-action@v0.1.7
+  with:
+    host: ${{ secrets.HOST }}
+    username: ${{ secrets.USERNAME }}
+    key: ${{ secrets.SSH_KEY }}
+    source: 'public/'
+    target: '/home/ceykodyqla/${{ env.SITE_FOLDER }}/'
