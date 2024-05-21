@@ -13,16 +13,16 @@
     <img src="https://img.shields.io/static/v1?label=min-HUGO-version&message=0.126.0&color=f00&logo=hugo" />
   </a>
 
-  <a href="https://github.com/preston-bernstein/pres-ber-blog/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/preston-bernstein/pres-ber-blog" alt="license">
+  <a href="https://github.com/DigitalMast/pres-ber-blog/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/DigitalMast/pres-ber-blog" alt="license">
   </a>
 
-  <a href="https://github.com/preston-bernstein/pres-ber-blog">
-    <img src="https://img.shields.io/github/languages/code-size/preston-bernstein/pres-ber-blog" alt="code size">
+  <a href="https://github.com/DigitalMast/pres-ber-blog">
+    <img src="https://img.shields.io/github/languages/code-size/DigitalMast/pres-ber-blog" alt="code size">
   </a>
 
-  <a href="https://github.com/preston-bernstein/pres-ber-blog/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/preston-bernstein/pres-ber-blog" alt="contributors">
+  <a href="https://github.com/DigitalMast/pres-ber-blog/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/DigitalMast/pres-ber-blog" alt="contributors">
   </a>
 </p>
 
@@ -205,29 +205,11 @@ And if you want to Host some other hosting platforms. then you can build your pr
 
 ### 🐞 Reporting Issues
 
-We use GitHub Issues as the official bug tracker for this Template. Please Search [existing issues](https://github.com/zeon-studio/hugoplate/issues). It’s possible someone has already reported the same problem.
-If your problem or idea has not been addressed yet, feel free to [open a new issue](https://github.com/zeon-studio/hugoplate/issues).
+We use GitHub Issues as the official bug tracker for this Template. Please Search [existing issues](https://github.com/DigitalMast/pres-ber-blog/issues). It’s possible someone has already reported the same problem.
+If your problem or idea has not been addressed yet, feel free to [open a new issue](https://github.com/DigitalMast/pres-ber-blog/issues).
 
 ### 📝 License
 
-Copyright (c) 2023 - Present, Designed & Developed by [Zeon Studio](https://zeon.studio/)
+Copyright (c) 2024 - Present, Designed, Developed, and Maintained by [DigitalMast](https://digitalmast.tech/)
 
-**Code License:** Released under the [MIT](https://github.com/zeon-studio/hugoplate/blob/main/LICENSE) license.
-
-**Image license:** The images are only for demonstration purposes. They have their license, we don't have permission to share those images.
-
----
-
-## 🖼️ Showcase
-
-List of some projects people are building with **Hugoplate**!
-
-| [![Open Neuromorphic](https://tinyurl.com/hp7avtje)](https://open-neuromorphic.org/) | [![AI Models](https://tinyurl.com/mu4p7dhb)](https://aimodels.org/) | [![Hugobricks](https://tinyurl.com/4x3uwhm9)](https://www.hugobricks.preview.usecue.com/) | [![ONO LLC](https://tinyurl.com/2fbjzwzn)](https://ono.day/)
-|:---:|:---:|:---:|:---:|
-| **Open Neuromorphic** | **AI Models** | **Hugobricks** | **ONO LLC** |
-
----
-
-## 💻 Need Customization?
-
-If you need a custom theme, theme customization, or complete website development services from scratch you can [Hire Us](https://zeon.studio/estimate-project).
+**Code License:** Released under the [CC BY-NC-ND](https://github.com/DigitalMast/pres-ber-blog/blob/main/LICENSE) license.
