@@ -1,50 +1,48 @@
 <h1 align="center">Hugo + Tailwind CSS Starter and Boilerplate</h1>
 
-<p align="center">Hugoplate is a free starter template built with Hugo, and TailwindCSS, providing everything you need to jumpstart your Hugo project and save valuable time.</p>
+<p align="center">pres-ber-blog is a personal blog built with Hugo and TailwindCSS.</p>
 
-<p align="center">Made with ♥ by <a href="https://zeon.studio/"> Zeon Studio</a></p>
-<p align=center> If you find this project useful, please give it a ⭐ to show your support.</p>
+<p align="center">Made with ♥ by <a href="https://digitalmast.tech/"> DigitalMast</a></p>
+<p align=center> If you like this project, please give it a ⭐ to show your support.</p>
 
-<h2 align="center"> <a target="_blank" href="https://zeon.studio/preview?project=hugoplate" rel="nofollow">👀 Demo</a> | <a  target="_blank" href="https://pagespeed.web.dev/analysis/https-hugoplate-netlify-app/6lyxjw6t4r?form_factor=desktop">Page Speed (95+)🚀</a>
-</h2>
+<!-- <h2 align="center"> <a target="_blank" href="https://zeon.studio/preview?project=hugoplate" rel="nofollow">👀 Demo</a> | <a  target="_blank" href="https://pagespeed.web.dev/analysis/https-hugoplate-netlify-app/6lyxjw6t4r?form_factor=desktop">Page Speed (95+)🚀</a>
+</h2> -->
 
 <p align="center">
   <a href="https://github.com/gohugoio/hugo/releases/tag/v0.126.0" alt="Contributors">
     <img src="https://img.shields.io/static/v1?label=min-HUGO-version&message=0.126.0&color=f00&logo=hugo" />
   </a>
 
-  <a href="https://github.com/zeon-studio/hugoplate/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/zeon-studio/hugoplate" alt="license">
+  <a href="https://github.com/preston-bernstein/pres-ber-blog/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/preston-bernstein/pres-ber-blog" alt="license">
   </a>
 
-  <a href="https://github.com/zeon-studio/hugoplate">
-    <img src="https://img.shields.io/github/languages/code-size/zeon-studio/hugoplate" alt="code size">
+  <a href="https://github.com/preston-bernstein/pres-ber-blog">
+    <img src="https://img.shields.io/github/languages/code-size/preston-bernstein/pres-ber-blog" alt="code size">
   </a>
 
-  <a href="https://github.com/zeon-studio/hugoplate/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/zeon-studio/hugoplate" alt="contributors">
+  <a href="https://github.com/preston-bernstein/pres-ber-blog/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/preston-bernstein/pres-ber-blog" alt="contributors">
   </a>
 </p>
 
 ## 🎁 What's Included
 
-We have included almost everything you need to start your Hugo project. Let's see what's included in this template:
-
-### 📌 Key Features
+### 📌 Technical Features
 
 - 👥 Multi-Authors
 - 🎯 Similar Posts Suggestion
 - 🔍 Search Functionality
 - 🌑 Dark Mode
 - 🏷️ Tags & Categories
-- 🔗 Netlify setting pre-configured
+- 🔗 Netlify
 - 📞 Support contact form
 - 📱 Fully responsive
 - 📝 Write and update content in Markdown
 - 💬 Disqus Comment
 - 🔳 Syntax Highlighting
 
-### 📄 15+ Pre-designed Pages
+### 📄 15+ Pages
 
 - 🏠 Homepage
 - 👤 About
@@ -81,13 +79,13 @@ We have included almost everything you need to start your Hugo project. Let's se
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Running Locally
 
-First you need to [clone](https://github.com/zeon-studio/hugoplate) or [download](https://github.com/zeon-studio/hugoplate/archive/refs/heads/main.zip) the template repository, and then let's get started with the following process:
+First you need to [clone](https://github.com/preston-bernstein/pres-ber-blog) or [download](https://github.com/preston-bernstein/pres-ber-blog/archive/refs/heads/main.zip) the repository.
 
 ### ⚙️ Prerequisites
 
-To start using this template, you need to have some prerequisites installed on your machine.
+To start using this site locally, you need to have some prerequisites installed on your machine.
 
 - [Hugo Extended v0.124+](https://gohugo.io/installation/)
 - [Node v20+](https://nodejs.org/en/download/)
@@ -95,7 +93,7 @@ To start using this template, you need to have some prerequisites installed on y
 
 ### 👉 Project Setup
 
-We build this custom script to make your project setup easier. It will create a new Hugo theme folder, and clone the Hugoplate theme into it. Then move the exampleSite folder into the root directory. So that you can start your Hugo server without going into the exampleSite folder. Use the following command to setup your project.
+Please use this custom script to make the project setup easier. It will create a new Hugo theme folder, and clone the Hugoplate theme into it. Then move the exampleSite folder into the root directory. So that you can start your Hugo server without going into the exampleSite folder. Use the following command to setup your project.
 
 ```bash
 npm run project-setup
@@ -116,10 +114,6 @@ Start the development server using the following command.
 ```bash
 npm run dev
 ```
-
-### 🎬 Still Confused? Watch a Quick Video
-
-https://github.com/zeon-studio/hugoplate/assets/58769763/c260c0ae-91be-42ce-b8db-aa7f11f777bd
 
 ---
 

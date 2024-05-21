@@ -1,9 +1,9 @@
 {
-  "name": "hugoplate",
-  "description": "hugo tailwindcss boilerplate",
+  "name": "pres-ber-blog",
+  "description": "hugo tailwindcss blog",
   "version": "1.15.1",
-  "license": "MIT",
-  "author": "zeon.studio",
+  "license": "CC BY-NC-ND",
+  "author": "digital.mast",
   "scripts": {
     "dev": "hugo server",
     "build": "hugo --gc --minify --templateMetrics --templateMetricsHints --forceSyncStatic",
