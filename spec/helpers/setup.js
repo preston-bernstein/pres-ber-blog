@@ -13,10 +13,7 @@ beforeAll(() => {
   };
   global.HTMLElement = dom.window.HTMLElement;
   global.sinon = sinon; // Make Sinon globally available
-
-  global.window.Swiper = function() {
-    this.init = sinon.stub();
-  };
+  global.Swiper = function(){};
 });
 
 afterAll(() => {
@@ -25,4 +22,5 @@ afterAll(() => {
   delete global.navigator;
   delete global.HTMLElement;
   delete global.sinon;
+  delete global.Swiper
 });

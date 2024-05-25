@@ -3,21 +3,23 @@ describe("Main Script Tests", function() {
     let swiperSpy;
 
     beforeEach(function() {
+
         // Set up the DOM for testing
         document.body.innerHTML = `
           <div class="nav-dropdown">
-            <a class="nav-link">Dropdown</a>
-            <div class="nav-item"></div>
+            <div class="nav-item">
+              <a class="nav-link">Dropdown</a>
+            </div>
           </div>
           <div class="testimonial-slider"></div>
           <div class="testimonial-slider-pagination"></div>
         `;
     
         // Select the dropdown menu togglers
-        dropdownMenuToggler = document.querySelectorAll(".nav-dropdown > .nav-link");
+        dropdownMenuToggler = document.querySelectorAll(".nav-dropdown > .nav-item > .nav-link");
     
         // Spy on the Swiper constructor
-        swiperSpy = sinon.spy(global.window, "Swiper");
+        swiperSpy = sinon.spy(global, "Swiper");
     
         // Run the main script
         (function () {
