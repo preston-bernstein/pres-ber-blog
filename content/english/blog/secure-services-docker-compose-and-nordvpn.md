@@ -34,31 +34,34 @@ draft: false
 
 ## Introduction
 
-In today's digital landscape, safeguarding your online activities is more important than ever. As many of us use Docker to deploy and manage applications efficiently, ensuring their security becomes crucial. VPNs, or Virtual Private Networks, offer a robust solution to this challenge by protecting your services from unauthorized access and keeping your data private.
+In today's digital landscape, safeguarding online activities is crucial. Docker is widely used for deploying and managing applications, making their security essential. VPNs (Virtual Private Networks) offer a robust solution by protecting services from unauthorized access and keeping data private.
 
-This guide will show you how to create a Docker Compose script that places each service securely behind a VPN. Whether you're handling a small project or a large-scale application, integrating a VPN with Docker Compose can enhance your security significantly. We'll start with the basics of Docker Compose and VPNs, then provide step-by-step instructions for setting up and configuring your environment. By the end of this guide, you'll have a secure setup where your Docker services are safely behind a VPN, keeping your data and applications protected from potential threats.
+This guide will show you how to create a Docker Compose script that places each service securely behind a VPN. Whether you're working on a small project or a large-scale application, integrating a VPN with Docker Compose can significantly enhance your security. We'll cover the basics of Docker Compose and VPNs, followed by step-by-step instructions for setup and configuration. By the end of this guide, you'll have a secure setup with your Docker services protected by a VPN, safeguarding your data and applications from potential threats.
 
-While it is not necessary, it is recommended to have at least a basic grasp of how Docker works before reading through this article. If you would like to learn more about Docker, [the official Docker documentation](https://docs.docker.com/) is a great resource.
+While it's not required, having a basic understanding of Docker is recommended before reading this article. If you need to learn more about Docker, [the official Docker documentation](https://docs.docker.com/) is a great resource.
 
 ## Overview of Docker Compose and VPNs
 
 {{< image src="images/blog/secure-services-docker-compose-and-nordvpn/dockerComposeWithVPNDiagram.png" caption="A diagram of docker compose with a vpn" alt="alter-text" height="" width="" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
 
 ### What is Docker Compose?
-Docker Compose is a tool that simplifies the deployment of multi-container Docker applications. By defining services, networks, and volumes in a single YAML file, Docker Compose streamlines the management of containerized applications. This approach allows developers to easily configure and launch complex applications with just a few commands.
+
+Docker Compose simplifies the deployment of multi-container Docker applications by allowing developers to define services, networks, and volumes in a single YAML file. This approach streamlines the management of containerized applications, enabling easy configuration and launching of complex applications with just a few commands.
 
 ### Benefits of Docker Compose
+
 * Simplifies multi-container deployments
 * Ensures consistency across development, testing, and production environments
 * Streamlines application scaling and maintenance
 
 ## Typical Use Cases
+
 * Microservices architecture
 * Development environments
 * Continuous integration and continuous deployment (CI/CD) pipelines
 
 ### Why Use a VPN with Docker Services?
-Integrating a VPN with you Docker services enhances both security and privacy. A VPN encrypts your network traffic, preventing unauthorized access and protecting sensitive data. This is especially important when your Docker services interact with external networks or handle confidential information.
+Integrating a VPN with your Docker services enhances both security and privacy. A VPN encrypts network traffic, preventing unauthorized access and protecting sensitive data. This is especially important when Docker services interact with external networks or handle confidential information.
 
 ### Common Scenarios and Benefits:
 
@@ -69,7 +72,7 @@ Integrating a VPN with you Docker services enhances both security and privacy. A
 {{< image src="images/blog/secure-services-docker-compose-and-nordvpn/secureNetworkCommunication.png" caption="Using a VPN allows for more secure communication across your Docker services." alt="secure-communication-across-your-network" height="400" width="400" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
 
 ### Understanding the Challenge
-Configuring networking and container isolation in Docker can be challenging. By default, Docker containers share the host's network stack, which can lead to potential security risks. Isolating each service behind a VPN helps to mitigate those risks.
+Configuring networking and container isolation in Docker can be challenging. By default, Docker containers share the host's network stack, which can lead to potential security risks. Isolating each service behind a VPN helps mitigate those risks.
 
 ### Issues with Networking and Container Isolation
 * Potential exposure of sensitive data
@@ -153,7 +156,7 @@ By understanding these challenges and implementing a VPN within your Docker Comp
 
 ##### Basic Structure of a `docker-compose.yml` File:
 
-A `docker-compose.yml` file defines the services, network, and volumes used in your application. Here is the basice structure:
+A `docker-compose.yml` file defines the services, network, and volumes used in your application. Here is the basic structure:
 
 ```yaml
 version: '3.8'
@@ -210,13 +213,13 @@ volumes:
   db-data:
 ```
 
-By following these steps and understanding the basic structure, you can create a Docker Compose file that sets up and manages your services efficiently.
+By understanding the basic structure and following these steps, you can create a Docker Compose file that efficiently sets up and manages your services.
 
 ## Configuring Each Service to Use the VPN
 
 ### Choosing a VPN Provider
 
-When selecting a VPN provider for your Docker setup, it's esential to consider several key factors to ensure optimal performance and security.
+When selecting a VPN provider for your Docker setup, it's essential to consider several key factors to ensure optimal performance and security:
 
 {{< image src="images/blog/secure-services-docker-compose-and-nordvpn/choosingAVPN.png" alt="choosing-a-vpn" height="400" width="400" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
 
@@ -230,7 +233,7 @@ When selecting a VPN provider for your Docker setup, it's esential to consider s
 
 ### Example: Using OpenVPN or Another Common VPN Service:
 
-[OpenVPN]("https://openvpn.net/") is a popular choice due to its flexibility, strong security, and open-source nature. Another option could be [WireGuard]("https://www.wireguard.com/"), known for its simplicity and performance. Both can be used effectively with Docker.
+[OpenVPN](https://openvpn.net/) is a popular choice due to its flexibility, strong security, and open-source nature. Another option is [WireGuard](https://www.wireguard.com/), known for its simplicity and performance. Both can be used effectively with Docker.
 
 {{< image src="images/blog/secure-services-docker-compose-and-nordvpn/openVPN.png" caption="OpenVPN is a popular choice." alt="open-vpn" height="200" width="200" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
 
@@ -244,37 +247,47 @@ To set up a VPN container, you will first need to pull the appropriate image fro
 docker pull kylemanna/openvpn
 ```
 
+This command downloads the OpenVPN image, which you can then use to create and configure your VPN container.
+
 ##### Configuring the VPN Container:
 
 1. **Initialize the OpenVPN Configuration:**
-  Create a directory to store the OpenVPN configuration and initialize it.
-  
+  Create a directory to store the OpenVPN configuration and initialize it:
+
   ```bash
   mkdir -p /path/to/your/config
   docker run -v /path/to/your/config:/etc/openvpn kylemanna/openvpn ovpn_genconfig -u udp://YOUR_VPN_SERVER
   ```
+
+  This command sets up the necessary configuration for OpenVPN in the specified directory.
+
 2. **Generate the Certificates:**
-  Generate the necessary certificate and keys.
+  Generate the necessary certificates and keys:
 
   ```bash
   docker run -v /path/to/your/config:/etc/openvpn -it kylemanna/openvpn ovpn_initpki
   ```
+
+  This command initializes the Public Key Infrastructure (PKI), generating the certificates and keys required for OpenVPN.
+
 3. **Start the OpenVPN Container:**
-  Start the container with the generated configuration.
+  Start the container with the generated configuration:
   
   ```bash
   docker run -v /path/to/your/config:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
   ```
 
+  This command runs the OpenVPN container in detached mode, mapping the required port and granting the necessary network administration capabilities.
+
 ##### Modifying the Docker Compose File
 
 ###### Adding the VPN Container to the `docker-compose.yml` File:
 
-To integrate the VPN container into your Docker Compose setup, you need to modify your `docker-compose.yml` file to include the VPN container and configure your services to use it.
+To integrate the VPN container into your Docker Compose setup, modify your docker-compose.yml file to include the VPN container and configure your services to use it.
 
 ###### Configuring Services to Route Traffic Through the VPN:
 
-Ensure that your services are configured to route their traffic through the VPN container. This can typically be done by setting the network mode of the service to the VPN container
+Ensure your services are configured to route their traffic through the VPN container by setting the network mode of the service to the VPN container.
 
 ###### Example: Updated Docker Compose File with VPN:
 
@@ -429,6 +442,6 @@ docker exec -it <container-name> ip route
 
 ## Conclusion
 
-In this guide, we went through the essential steps in setting up a Docker Compose file with VPN integration. We covered how to choose a suitable VPN provider, how to set up a VPN container in Docker, and how to modify a Docker Compose file to route your service's traffic through the VPN. We also went over methods to properly test and verify your VPN-secured Docker services.
+In this guide, we covered the essential steps to set up a Docker Compose file with VPN integration. We discussed selecting a suitable VPN provider, setting up a VPN container in Docker, and modifying a Docker Compose file to route service traffic through the VPN. We also explored methods to test and verify VPN-secured Docker services.
 
-Using a VPN with your Docker services significantly enhances your services' security and privacy. This setup helps to protect sensitive data by ensuring secure communication between distributed services.
+Using a VPN with your Docker services significantly enhances security and privacy by ensuring secure communication between distributed services and protecting sensitive data.
