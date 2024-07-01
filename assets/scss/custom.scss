@@ -1,1 +1,30 @@
-// Add your own custom styles here
+// Import theme variables (manually added based on theme.json)
+$primary-color-light: #121212;
+$text-default-light: #444444;
+$link-color-light: #1a0dab; // Choose a color that stands out in light mode
+$hover-color-light: #d14836; // Choose a hover color for light mode
+
+$primary-color-dark: #fff;
+$text-default-dark: #B4AFB6;
+$link-color-dark: #4e9eff; // Choose a color that stands out in dark mode
+$hover-color-dark: #ffcc00; // Choose a hover color for dark mode
+
+// Custom link styles using theme colors
+a.natural-link {
+    color: $link-color-light; // Light mode link color
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        color: $hover-color-light; // Light mode hover color
+    }
+
+    // Dark mode link styles using Tailwind CSS dark: prefix
+    .dark & {
+        color: $link-color-dark;
+
+        &:hover {
+            color: $hover-color-dark; // Dark mode hover color
+        }
+    }
+}
