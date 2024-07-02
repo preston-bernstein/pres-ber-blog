@@ -21,7 +21,6 @@ tags = [
 ]
 
 features = [
-  "Multi-Authors",
   "Search",
   "Multilingual",
   "Dark Mode",
@@ -31,8 +30,3 @@ features = [
 [author]
 name ="DigitalMast"
 homepage = "https://digitalmast.tech"
-
-[original]
-author = "Zeon Studio"
-homepage = "https://zeon.studio"
-repo = "https://github.com/zeon-studio/themeplate"
