@@ -70,3 +70,39 @@ const data = await response.json();
 ```
 
 In this example, the top-level `await` keyword is used without needing to wrap the code inside an async function. Just declaring `await` is enough for those two variables to be asynchronous.
+
+## Benefits of Top-Level Await
+
+### Simplifies Module Setup
+
+Using top-level await allows you to perform asynchronous operations directly at the top level of a module, eliminating the need to wrap each operation in an async function. This is particularly useful for initializing modules that rely on external data, such as fetching configuration settings or establishing database connections. This approach reduces the amount of boilerplate code required, making the code cleaner and more intuitive.
+
+As an example, let's take a look at some simple code meant to represent getting configuration details of an app during initalization: 
+
+```javascript
+// Old way with async function
+(async function initialize() {
+  try {
+    const response = await fetch('https://api.example.com/config');
+    
+    const config = await response.json();
+    
+    initializeApp(config);
+  } catch (error) {
+    console.error('Error fetching configuration:', error);
+  }
+})();
+
+
+// Top-level await
+try {
+  const response = await fetch('https://api.example.com/config');
+  
+  const config = await response.json();
+  
+  initializeApp(config);
+} catch (error) {
+  console.error('Error fetching configuration:', error);
+}
+
+```
