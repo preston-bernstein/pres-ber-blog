@@ -1,0 +1,39 @@
+{
+  "name": "pres-ber-blog",
+  "description": "hugo tailwindcss blog",
+  "version": "1.15.1",
+  "license": "CC BY-NC-ND",
+  "author": "digital.mast",
+  "scripts": {
+    "dev": "hugo server",
+    "build": "hugo --gc --minify --templateMetrics --templateMetricsHints --forceSyncStatic",
+    "preview": "hugo server --disableFastRender --navigateToChanged --templateMetrics --templateMetricsHints --watch --forceSyncStatic -e production --minify",
+    "dev:example": "cd exampleSite; hugo server",
+    "build:example": "cd exampleSite; hugo --gc --minify --templateMetrics --templateMetricsHints --forceSyncStatic",
+    "preview:example": "cd exampleSite; hugo server --disableFastRender --navigateToChanged --templateMetrics --templateMetricsHints --watch --forceSyncStatic -e production --minify",
+    "update-modules": "node ./scripts/clearModules.js && hugo mod clean --all && hugo mod get -u ./... && hugo mod tidy",
+    "remove-darkmode": "node ./scripts/removeDarkmode.js && yarn format",
+    "project-setup": "node ./scripts/projectSetup.js",
+    "theme-setup": "node ./scripts/themeSetup.js",
+    "update-theme": "node ./scripts/themeUpdate.js",
+    "format": "prettier -w .",
+    "test": "jasmine --config=jasmine.json"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.13",
+    "autoprefixer": "^10.4.19",
+    "jasmine": "^5.1.0",
+    "jasmine-console-reporter": "^3.1.0",
+    "jasmine-spec-reporter": "^7.0.0",
+    "jsdom": "^24.0.0",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^11.0.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-go-template": "0.0.15",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "sinon": "^18.0.0",
+    "tailwind-bootstrap-grid": "^5.1.0",
+    "tailwindcss": "^3.4.3"
+  }
+}
