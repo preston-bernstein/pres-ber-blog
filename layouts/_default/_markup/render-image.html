@@ -1,0 +1,109 @@
+{{/*
+  Site-level override of themes/blowfish/layouts/_default/_markup/render-image.html,
+  forked from that file at Blowfish commit 65ad575c9c0dddc904d9da405cf5f7cab7cb3685
+  (2025-11-01). RenderImageSimple, RenderImageCaption, and the $isRemote/$isSVG/
+  $disableImageOptimizationMD branching are copied verbatim. Only RenderImageResponsive
+  changes: it now converts every breakpoint to WebP unconditionally (capped at the
+  original width via math.Min, never upscaling) instead of the theme's width-gated
+  conditional .Resize, which silently skipped WebP conversion for any image narrower
+  than 800px (reproduced and fixed during this feature's spec review). If the Blowfish
+  submodule is bumped past the commit above, diff this file against the theme's new
+  render-image.html to catch upstream fixes this fork won't otherwise pick up.
+*/}}
+{{- define "RenderImageSimple" -}}
+  {{- $imgObj := .imgObj -}}
+  {{- $src := .src -}}
+  {{- $alt := .alt -}}
+  <img
+    class="my-0 rounded-md"
+    loading="lazy"
+    decoding="async"
+    fetchpriority="low"
+    alt="{{ $alt }}"
+    src="{{ $src }}"
+    {{ with $imgObj -}}
+      {{ with $imgObj.Width }}width="{{ . }}"{{ end }}
+      {{ with $imgObj.Height }}height="{{ . }}"{{ end }}
+    {{- end }}>
+{{- end -}}
+
+{{- define "RenderImageResponsive" -}}
+  {{/* Responsive Image
+    The current setting sizes="(min-width: 768px) 50vw, 65vw" makes the iPhone 16 and 16 Pro
+    select a smaller image, while the iPhone 16 Pro Max selects a larger image.
+    The sizes="auto" is valid only when loading="lazy".
+  */}}
+  {{- $imgObj := .imgObj -}}
+  {{- $alt := .alt -}}
+  {{- $originalWidth := $imgObj.Width -}}
+
+  {{- $img800 := $imgObj.Resize (printf "%.0fx webp q75" (math.Min $originalWidth 800)) -}}
+  {{- $img1280 := $imgObj.Resize (printf "%.0fx webp q75" (math.Min $originalWidth 1280)) -}}
+
+  {{- $srcset := printf "%s 800w, %s 1280w" $img800.RelPermalink $img1280.RelPermalink -}}
+
+  {{- $imgLQIP := $imgObj.Resize (printf "%.0fx webp q40" (math.Min $originalWidth 24)) -}}
+  {{- $lqipData := $imgLQIP.Content | base64Encode -}}
+  {{- $lqipURI := printf "data:image/webp;base64,%s" $lqipData -}}
+
+  <img
+    class="my-0 rounded-md"
+    loading="lazy"
+    decoding="async"
+    fetchpriority="auto"
+    alt="{{ $alt }}"
+    {{ with $imgObj.Width }}width="{{ . }}"{{ end }}
+    {{ with $imgObj.Height }}height="{{ . }}"{{ end }}
+    src="{{ $img800.RelPermalink }}"
+    srcset="{{ $srcset }}"
+    sizes="(min-width: 768px) 50vw, 65vw"
+    data-zoom-src="{{ $imgObj.RelPermalink }}"
+    style="background-image: url('{{ $lqipURI | safeURL }}'); background-size: cover; background-position: center;"
+    onload="this.style.backgroundImage='none'">
+{{- end -}}
+
+{{- define "RenderImageCaption" -}}
+  {{- with .caption -}}
+    <figcaption>{{ . | markdownify }}</figcaption>
+  {{- end -}}
+{{- end -}}
+
+{{- $disableImageOptimizationMD := .Page.Site.Params.disableImageOptimizationMD | default false -}}
+{{- $urlStr := .Destination | safeURL -}}
+{{- $url := urls.Parse $urlStr -}}
+{{- $altText := .Text -}}
+{{- $caption := .Title -}}
+{{- $isRemote := findRE "^(https?|data)" $url.Scheme -}}
+{{- $resource := "" -}}
+
+{{- if not $isRemote -}}
+  {{- $resource = or ($.Page.Resources.GetMatch $urlStr) (resources.Get $urlStr) -}}
+{{- end -}}
+
+
+<figure
+  {{- range $k, $v := .Attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}>
+  {{- if $isRemote -}}
+    {{- template "RenderImageSimple" (dict "imgObj" "" "src" $urlStr "alt" $altText) -}}
+  {{- else if $resource -}}
+    {{- $isSVG := eq $resource.MediaType.SubType "svg" -}}
+    {{- $shouldOptimize := and (not $disableImageOptimizationMD) (not $isSVG) -}}
+    {{- if $shouldOptimize -}}
+      {{- template "RenderImageResponsive" (dict "imgObj" $resource "alt" $altText) -}}
+    {{- else -}}
+      {{- if $isSVG -}}
+        {{- template "RenderImageSimple" (dict "imgObj" "" "src" $resource.RelPermalink "alt" $altText) -}}
+      {{- else -}}
+        {{- template "RenderImageSimple" (dict "imgObj" $resource "src" $resource.RelPermalink "alt" $altText) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- else -}}
+    {{- template "RenderImageSimple" (dict "imgObj" "" "src" $urlStr "alt" $altText) -}}
+  {{- end -}}
+
+  {{- template "RenderImageCaption" (dict "caption" $caption) -}}
+</figure>
