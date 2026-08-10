@@ -52,33 +52,27 @@ test.describe("Blog post content surfaces", () => {
     expect(html).toContain("GTM-5DSQPKJJ");
   });
 
-  test("author byline links to a non-empty author archive page", async ({ page }) => {
+  // Retired the old "author byline links to a non-empty author archive page" UI
+  // test (docs/markup-2026-baseline/): a concurrent commit on main
+  // ("Restore signature logo and social-icon footer lost in the theme migration")
+  // deliberately set `showAuthor = false` in config/_default/params.toml, removing
+  // the per-post author byline box -- confirmed intentional via that commit's own
+  // params.toml comment (duplicate identity, single-author site, already shown in
+  // nav/footer/home profile). The UI element this test located no longer exists on
+  // any post page after that merge, so the test can't be repaired, only retired.
+  // Author identity is still real and testable via the post's Article JSON-LD
+  // (schema.html still reads front matter `authors:` for structured data, per that
+  // same commit's reasoning) -- this replacement test covers that instead.
+  test("post's Article JSON-LD still identifies the author (SEO structured data)", async ({
+    page,
+  }) => {
     await page.goto(POST);
-    // Scope to the AUTHOR byline section specifically -- the site header/logo also
-    // links to "/" with the text "Preston Bernstein" and would otherwise match first.
-    const bylineLink = page
-      .locator("header:has-text('AUTHOR')")
-      .getByRole("link", { name: "Preston Bernstein" });
-    // Read the href instead of clicking it. Unlike every other internal link on this
-    // site (which render root-relative, e.g. /blog/...), Blowfish's author-byline
-    // partial (themes/blowfish/layouts/partials/author.html) renders this one link
-    // as a fully-qualified absolute URL (https://prestonbernstein.com/authors/...),
-    // because it's built from baseURL. A real .click() would navigate the browser
-    // off this local test server to that live domain -- which happens to still often
-    // "pass" wherever outbound internet access reaches the real site, but tests
-    // nothing about the local build under test, and fails outright in a
-    // network-restricted environment. Verifying the href and then navigating to its
-    // path locally checks the same thing (byline links to a real, populated author
-    // archive) without leaving the local server or depending on live network access.
-    const href = await bylineLink.getAttribute("href");
-    expect(href).toMatch(/\/authors\/preston-bernstein\/?$/);
-    // href is absolute (see comment above) -- extract just the path so navigation
-    // stays on the local test server instead of following the real domain.
-    const authorPagePath = new URL(href).pathname;
-    await page.goto(authorPagePath);
-    await expect(page).toHaveURL(/\/authors\/preston-bernstein\/?$/);
-    const postLinks = page.locator('a[href^="/blog/"]');
-    expect(await postLinks.count()).toBeGreaterThan(0);
+    const jsonLd = await page.locator('script[type="application/ld+json"]').first().textContent();
+    const parsed = JSON.parse(/** @type {string} */ (jsonLd));
+    // Blowfish's schema.html emits a top-level array (`[{ "@type": "Article", ... }]`),
+    // not a bare object -- confirmed against the actual rendered output.
+    const data = Array.isArray(parsed) ? parsed[0] : parsed;
+    expect(data.author?.name).toBe("Preston Bernstein");
   });
 
   // docs/markup-2026-baseline/: the docker-compose example's fenced code block was
