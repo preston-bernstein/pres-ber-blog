@@ -8,3 +8,18 @@ pageRef = "/"
 [[main]]
 name = "Blog"
 pageRef = "/blog"
+
+# footer social icons -- restores the contact row the pre-Blowfish theme had
+# (site.Data.social.main: github + linkedin), lost in the migration since
+# Blowfish's footer.html reads site.Menus.footer, a different mechanism.
+[[footer]]
+identifier = "github"
+pre = "github"
+url = "https://www.github.com/preston-bernstein"
+weight = 10
+
+[[footer]]
+identifier = "linkedin"
+pre = "linkedin"
+url = "https://www.linkedin.com/in/prestonbernstein/"
+weight = 20
