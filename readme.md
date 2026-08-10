@@ -1,122 +1,70 @@
-# Preston Bernstein's Personal Blog
+# pres-ber-blog
 
-<p align="center">Welcome to my personal blog built with Hugo and TailwindCSS.</p>
+[![Deploy](https://github.com/preston-bernstein/pres-ber-blog/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/preston-bernstein/pres-ber-blog/actions/workflows/main.yml) [![License](https://img.shields.io/github/license/preston-bernstein/pres-ber-blog)](LICENSE)
 
-<p align="center">Made with ♥ by <a href="https://digitalmast.tech/"> DigitalMast</a></p>
+Source for [prestonbernstein.com](https://www.prestonbernstein.com), a personal blog built on Hugo and the [Hugoplate](https://github.com/gethugothemes/hugoplate) theme.
 
-<p align=center>If you like this project, please give it a ⭐ to show your support.</p>
+## Stack
 
-<p align="center">
-  <a href="https://github.com/gohugoio/hugo/releases/tag/v0.126.0" alt="Contributors">
-    <img src="https://img.shields.io/static/v1?label=min-HUGO-version&message=0.126.0&color=f00&logo=hugo" />
-  </a>
+| Layer | Tech |
+|---|---|
+| Static site generator | [Hugo](https://gohugo.io/) (extended, v0.125.7 in CI) |
+| Theme | [Hugoplate](https://github.com/gethugothemes/hugoplate) (Hugo modules, Go modules) |
+| Styling | Tailwind CSS + PostCSS + PurgeCSS + Autoprefixer |
+| Content | Markdown, under `content/english/` |
+| Comments | Disqus |
+| Deploy | GitHub Actions → FTP (push to `main`); GitLab CI + Netlify/Vercel/Amplify configs also present |
 
-  <a href="https://github.com/preston-bernstein/pres-ber-blog/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/preston-bernstein/pres-ber-blog" alt="license">
-  </a>
+## Project layout
 
-  <a href="https://github.com/preston-bernstein/pres-ber-blog">
-    <img src="https://img.shields.io/github/languages/code-size/preston-bernstein/pres-ber-blog" alt="code size">
-  </a>
+```
+content/english/
+  blog/       # posts (Markdown)
+  authors/    # author bio(s)
+  pages/      # static pages (privacy policy, elements, ...)
+  contact/    # contact page
+  sections/   # homepage sections (call-to-action, ...)
+config/       # Hugo site config (_default, development)
+assets/       # scss, svg, images processed by Hugo pipes
+data/         # site.json-style data (social links, theme settings)
+i18n/         # locale strings
+themes/hugoplate/  # vendored theme (Hugo module)
+scripts/      # project-setup, theme-setup/update, darkmode removal helpers
+```
 
-  <a href="https://github.com/preston-bernstein/pres-ber-blog/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/preston-bernstein/pres-ber-blog" alt="contributors">
-  </a>
-</p>
+## Quick start
 
-## 🎁 What's Included
-
-### 📌 Technical Features
-
-- 👥 Multi-Authors
-- 🎯 Similar Posts Suggestion
-- 🔍 Search Functionality
-- 🌑 Dark Mode
-- 🏷️ Tags & Categories
-- 📞 Support contact form
-- 📱 Fully responsive
-- 📝 Write and update content in Markdown
-- 💬 Disqus Comment
-- 🔳 Syntax Highlighting
-
-### 📄 Pages
-
-- 🏠 Homepage
-- 👤 About
-- 📞 Contact
-- 👥 Authors
-- 👤 Author Single
-- 📝 Blog
-- 📝 Blog Single
-- 🚫 Custom 404
-- 💡 Elements
-- 📄 Privacy Policy
-- 🏷️ Tags
-- 🏷️ Tag Single
-- 🗂️ Categories
-- 🗂️ Category Single
-- 🔍 Search
-
-### 📦 Tech Stack
-
-- [Hugo](https://gohugo.io/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [PostCSS](https://postcss.org/)
-- [PurgeCSS](https://purgecss.com/)
-- [AutoPrefixer](https://autoprefixer.github.io/)
-- [Hugo Modules](https://gohugo.io/hugo-modules/) by [Gethugothemes](https://gethugothemes.com/hugo-modules)
-- [Markdown](https://markdownguide.org/)
-- [Prettier](https://prettier.io/)
-- [Jshint](https://jshint.com/)
-- [Github Actions](https://github.com/features/actions)
-- [Gitlab Ci](https://docs.gitlab.com/ee/ci/)
----
-
-## 🚀 Running Locally
-
-First you need to [clone](https://github.com/preston-bernstein/pres-ber-blog) or [download](https://github.com/preston-bernstein/pres-ber-blog/archive/refs/heads/main.zip) the repository.
-
-### ⚙️ Prerequisites
-
-To start using this site locally, you need to have some prerequisites installed on your machine.
+### Prerequisites
 
 - [Hugo Extended v0.124+](https://gohugo.io/installation/)
 - [Node v20+](https://nodejs.org/en/download/)
-- [Go v1.22+](https://go.dev/doc/install)
+- [Go v1.22+](https://go.dev/doc/install) (Hugo modules)
 
-### 👉 Project Setup
-
-Run the following comman to setup the project locally:
+### Run locally
 
 ```bash
-npm run project-setup
-```
+git clone git@github.com:preston-bernstein/pres-ber-blog.git
+cd pres-ber-blog
 
-### 👉 Install Dependencies
-
-Install all the dependencies using the following command.
-
-```bash
+npm run project-setup   # first-time theme/module setup
 npm install
+npm run dev              # hugo server
 ```
 
-### 👉 Development Command
-
-Start the development server using the following command.
+### Build
 
 ```bash
-npm run dev
+npm run build             # hugo --gc --minify ...
 ```
 
----
+## Writing a post
 
-### 🐞 Reporting Issues
+Add a Markdown file under `content/english/blog/` with Hugoplate's post front matter (see existing posts in that directory for the shape). Tags, categories, and author are set in front matter and drive the tag/category/author pages.
 
-We use GitHub Issues as the official bug tracker for this Template. Please Search [existing issues](https://github.com/preston-bernstein/pres-ber-blog/issues). It’s possible someone has already reported the same problem.
-If your problem or idea has not been addressed yet, feel free to [open a new issue](https://github.com/preston-bernstein/pres-ber-blog/issues).
+## Deploy
 
-### 📝 License
+`main.yml` builds with Hugo + Hugo modules (Go) and deploys `public/` to the production host over FTP on every push to `main`. `.gitlab-ci.yml`, `netlify.toml`, `vercel.json`, and `amplify.yml` are alternate/legacy build configs for those platforms and are not the active deploy path unless wired up on that platform.
 
-Copyright (c) 2024 - Present, Designed, Developed, and Maintained by [DigitalMast](https://digitalmast.tech/)
+## License
 
-**Code License:** Released under the [CC BY-NC-ND](https://github.com/DigitalMast/pres-ber-blog/blob/main/LICENSE) license.
+The [Hugoplate](https://github.com/gethugothemes/hugoplate) theme code is © [DigitalMast](https://digitalmast.tech/) / [Gethugothemes](https://gethugothemes.com/), released under [CC BY-NC-ND 4.0](LICENSE) (non-commercial, no derivatives redistribution). Blog content under `content/` is Preston Bernstein's own.
