@@ -7,7 +7,7 @@ categories: [
   "Home Lab",
   "Networking"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Networking",
   "UniFi",

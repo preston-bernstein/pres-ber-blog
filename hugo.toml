@@ -4,11 +4,11 @@ baseURL = "https://prestonbernstein.com/"
 # Title of your website (required).
 title = "Preston Bernstein"
 # Your theme name
-theme = "hugoplate"
+theme = "blowfish"
 # Default time zone for time stamps; use any valid tz database name: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
 timeZone = "America/New_York"
 # post pagination
-paginate = 2 # see https://gohugo.io/extras/pagination/
+paginate = 15 # see https://gohugo.io/extras/pagination/
 # post excerpt
 summaryLength = 10 # see https://gohugo.io/content-management/excerpts/
 # disable language
@@ -28,9 +28,15 @@ ID = 'G-MEASUREMENT_ID' # see https://gohugo.io/templates/internal/#configure-go
 [services.disqus]
 shortname = 'prestonbernstein' # we use disqus to show comments in blog posts . To install disqus please follow this tutorial https://portfolio.peter-baumgartner.net/2017/09/10/how-to-install-disqus-on-hugo/
 
+########################## Taxonomies #############################
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  author = "authors"
+
 ########################## Permalinks ############################
 [permalinks.page]
-"pages" = "/:slugorfilename/"
+"pages" = "/:slugorcontentbasename/"
 
 
 ############################# Modules ############################
@@ -71,7 +77,7 @@ target = '$1'
 
 ############################# Outputs ############################
 [outputs]
-home = ["HTML", "RSS", "WebAppManifest", "SearchIndex"]
+home = ["HTML", "RSS", "JSON"]
 
 ############################# Imaging ############################
 [imaging]
@@ -102,7 +108,11 @@ style = 'monokai' # see https://xyproto.github.io/splash/docs/all.html
 [markup.tableOfContents]
 startLevel = 2
 endLevel = 5
-ordered = true
+# Blowfish's TOC-visibility check (layouts/_default/single.html) looks for a
+# literal "<ul" in the generated TOC HTML -- an ordered list (<ol>, Hugoplate's
+# old setting) makes Blowfish treat the TOC as empty and silently hide it, with
+# no build error. Found via browser-driven verification (requirement 16).
+ordered = false
 
 
 ########################### Media types ###########################
@@ -122,52 +132,3 @@ mediaType = "application/json"
 baseName = "searchindex"
 isPlainText = true
 notAlternative = true
-
-
-############################# Plugins ##############################
-
-# CSS Plugins
-[[params.plugins.css]]
-link = "plugins/swiper/swiper-bundle.css"
-lazy = true
-[[params.plugins.css]]
-link = "plugins/glightbox/glightbox.css"
-lazy = true
-[[params.plugins.css]]
-link = "plugins/font-awesome/v6/brands.css"
-lazy = true
-[[params.plugins.css]]
-link = "plugins/font-awesome/v6/solid.css"
-lazy = true
-[[params.plugins.css]]
-link = "plugins/font-awesome/v6/icons.css"
-lazy = true
-
-# JS Plugins
-[[params.plugins.js]]
-link = "js/search.js"
-lazy = false
-[[params.plugins.js]]
-link = "plugins/swiper/swiper-bundle.js"
-lazy = false
-[[params.plugins.js]]
-link = "plugins/cookie.js"
-lazy = false
-[[params.plugins.js]]
-link = "plugins/glightbox/glightbox.js"
-lazy = true
-[[params.plugins.js]]
-link = "js/gallery-slider.js"
-lazy = true
-[[params.plugins.js]]
-link = "js/accordion.js"
-lazy = true
-[[params.plugins.js]]
-link = "js/tab.js"
-lazy = true
-[[params.plugins.js]]
-link = "js/modal.js"
-lazy = true
-[[params.plugins.js]]
-link = "plugins/youtube-lite.js"
-lazy = true

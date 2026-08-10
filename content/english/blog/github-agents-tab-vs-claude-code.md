@@ -7,7 +7,7 @@ categories: [
   "AI Infrastructure",
   "Software Architecture"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "GitHub",
   "AI Agents",

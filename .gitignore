@@ -15,3 +15,8 @@ jsconfig.json
 hugo_stats.json
 go.sum
 yarn.lock
+.fallow/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

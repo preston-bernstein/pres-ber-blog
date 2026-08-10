@@ -7,7 +7,7 @@ categories: [
   "Home Lab",
   "Hardware"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Home Lab",
   "GPU",

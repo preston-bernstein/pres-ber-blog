@@ -9,7 +9,7 @@ categories: [
   "Software Architecture",
   "Case Study"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Ollama",
   "Local LLM",

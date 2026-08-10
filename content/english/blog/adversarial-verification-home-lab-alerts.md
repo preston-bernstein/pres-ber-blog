@@ -8,7 +8,7 @@ categories: [
   "Software Architecture",
   "AI Infrastructure"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Debugging",
   "Observability",

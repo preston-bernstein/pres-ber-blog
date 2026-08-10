@@ -8,7 +8,7 @@ categories: [
   "Networking",
   "DevOps"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Docker",
   "Synology NAS",
