@@ -2,7 +2,8 @@
 title: "Why the XPS 17 Offload Box Runs Proxmox, Not Plain Ubuntu"
 meta_title: "Proxmox VE vs Ubuntu Server for a Repurposed Laptop Home Server"
 description: "Retiring a Dell XPS 17 into a headless, clamshell, rack-mounted home-lab box meant picking an OS for five separate workloads at once. Proxmox VE beat plain Ubuntu Server plus Docker, and Fedora didn't make the cut. Here's the real reasoning, plus the laptop-specific gotchas that almost derailed it."
-date: 2026-08-10T12:15:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "DevOps"
@@ -26,6 +27,22 @@ A single laptop was about to run a media-automation stack, a financial data-inge
 ## Proxmox VE's per-workload containers made the isolation case concrete
 
 Proxmox VE is a free, Debian-based hypervisor that runs VMs and LXCs (Linux containers that isolate at the kernel-namespace level, lighter than a full VM but heavier than a Docker container) side by side, managed through one web UI and API. The plan that came out of the research was Proxmox on bare metal, with one LXC per workload, each running its own Ubuntu or Debian userland and its own Docker daemon inside. That gives every stack its own filesystem snapshot and its own rollback point. If the knowledge-graph service breaks something in an upgrade, I can snapshot before, wreck the container trying to fix it, and roll back in under a minute, without touching the other four workloads. A flat Docker host can't give me that; a bad `apt upgrade` or a stray volume prune affects everything on the box at once. As of Proxmox VE 9.2 in mid-2026, it's built on Debian 13, which means the underlying package base is the same stable Debian everyone already trusts, just with a newer kernel and better hardware support layered on top.
+
+Here's the shape of the box either way — the rejected flat host on top, the isolation Proxmox actually buys below it:
+
+```mermaid
+flowchart TD
+    subgraph Flat["Flat Docker host (rejected)"]
+        H1[One Ubuntu host] --> D1["5 Docker Compose stacks,<br/>shared kernel, shared blast radius"]
+    end
+    subgraph Proxmox["Proxmox VE (chosen)"]
+        H2[Proxmox bare metal] --> L1[LXC: media automation]
+        H2 --> L2[LXC: financial data pipeline]
+        H2 --> L3[LXC: research automation]
+        H2 --> L4[LXC: LightRAG knowledge graph]
+        H2 --> L5[LXC: Prometheus/Grafana]
+    end
+```
 
 ## Fedora Server lost on two separate grounds
 

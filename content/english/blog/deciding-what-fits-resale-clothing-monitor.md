@@ -2,7 +2,8 @@
 title: "Deciding What Fits: Inside My Resale-Clothing Monitor"
 meta_title: "Resale Monitor Two-Pass LLM Scoring and False-Positive Bias: A Home-Lab Case Study, Part 3"
 description: "Part 3 of 3. How my resale-clothing monitor filters listings for free before any model call, why its bias toward false positives has no counterweight yet, and what actually broke when its alert channel changed."
-date: 2026-08-10T10:10:00Z
+date: 2026-08-10T16:36:57Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -35,6 +36,21 @@ Every new listing (title, brand, a truncated description, price, condition, size
 Only listings that come back MAYBE and have a usable image go to a second pass with a vision-capable model. A MAYBE with no resolvable image just stays a MAYBE and still gets surfaced, at lower confidence, rather than getting silently dropped. A parse error or malformed model output defaults the same way.
 
 The provider for each pass, local, cloud, or a hybrid, sits behind one interface, so which backend actually runs a given scoring pass is a config change, not a code change. Once a listing has a real score, it's never re-scored. That alone is the single biggest cost reduction in the pipeline, ahead of anything model-related.
+
+Here's the scoring pipeline a listing actually moves through:
+
+```mermaid
+flowchart TD
+    A[New listing] --> B{"Rules pre-filter:<br/>brand blocklist, price floor/ceiling"}
+    B -->|Rejected, 40-60%| C[Discarded, free]
+    B -->|Passed| D[Local model, batched 15-20/call]
+    D --> E{Verdict per dimension}
+    E -->|NO| C
+    E -->|YES| F[Surfaced as alert]
+    E -->|MAYBE + usable image| G[Vision model, second pass]
+    E -->|MAYBE, no image| H[Surfaced at lower confidence]
+    G --> F
+```
 
 ## The bias toward false positives has no counterweight yet
 

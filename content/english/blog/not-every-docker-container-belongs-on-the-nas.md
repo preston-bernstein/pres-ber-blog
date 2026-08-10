@@ -2,7 +2,8 @@
 title: "Not Every Docker Container Belongs on the NAS"
 meta_title: "NAS vs Desktop Docker Placement: A RAM-Constrained Home Lab Framework"
 description: "A Synology DS1522+ with 8GB of RAM kept crashing under roughly 35 Docker containers. The fix was a placement framework: family-facing, storage-coupled services stay on the NAS, compute-heavy personal projects move to a host with real memory, including how Immich's remote machine-learning support fits the split."
-date: 2026-08-10T11:55:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Networking",
@@ -23,6 +24,15 @@ Family-facing and storage-coupled services stay on the NAS. Compute-heavy person
 ## Storage coupling decides placement, not how important a service feels
 
 A service that's coupled to storage or answers requests from other people in real time belongs on the NAS regardless of how heavy it is. A photo backup tool needs to sit next to the disks it writes to and needs to respond whenever someone in the house opens the app, so it stays put. A knowledge-graph pipeline or a data-ingestion job runs on my own schedule, tolerates a restart without anyone noticing, and doesn't need to answer anything at 11pm on a Tuesday. That kind of workload moved to my desktop, which has far more RAM than the NAS and isn't a fragile appliance I need to baby. The shift buys headroom on the box that actually has to stay predictable.
+
+The placement call itself is a simple branch:
+
+```mermaid
+flowchart TD
+    A[New self-hosted service] --> B{"Storage-coupled, or answers<br/>real-time requests from people?"}
+    B -->|Yes| C[Stays on the NAS]
+    B -->|No — tolerates a restart,<br/>runs on its own schedule| D["Moves to desktop<br/>(more RAM headroom)"]
+```
 
 ## Immich's remote machine-learning support is meant to run alongside the local container, not replace it
 

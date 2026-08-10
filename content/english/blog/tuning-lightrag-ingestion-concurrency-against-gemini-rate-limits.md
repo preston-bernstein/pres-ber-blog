@@ -2,7 +2,8 @@
 title: "Tuning LightRAG Ingestion Concurrency Against a Rate-Limited Gemini API"
 meta_title: "LightRAG + Gemini: Concurrency Tuning Without Silent 429 Failures"
 description: "Ingesting a large, entity-dense document corpus into LightRAG through Gemini hit a wall of silent 429 failures. The fix wasn't more concurrency. It was one wrong batch setting and a proxy that could absorb overshoot instead of dropping documents."
-date: 2026-08-10T11:10:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -35,6 +36,18 @@ The project's documented high-throughput profile is `MAX_ASYNC_LLM=8, MAX_PARALL
 Google stopped publishing a static per-model rate-limit table as of July 2026. The docs now say limits depend on your project's usage tier and are "not guaranteed," which in practice means you read the live number out of AI Studio for your specific project before you tune anything. That was a real adjustment for me: I'd been treating rate limits like a spec you design against once, and they're now closer to a runtime condition you have to check. Free and early-tier flash access is often in the 10-15 RPM range, which makes `MAX_ASYNC_LLM=8` from the "official" profile actively dangerous rather than aspirational. There's also a second, independent limiter on paid tiers: a spend-based burst cap over a rolling 10-minute window, separate from the RPM/TPM ceiling. You can be well under your requests-per-minute limit and still get 429'd by the burst cap.
 
 The derivation that actually holds up: set `MAX_ASYNC_LLM` to roughly your live RPM times average call latency in seconds, divided by 60. Flash's latency runs 1-3 seconds per call, so a 10 RPM tier caps you at 2-4 concurrent calls, while a paid tier with thousands of RPM lets you approach the documented profile. Everything else (insert parallelism, embedding pool size) derives from that number, not the other way around. Tune to the ratio first and you're tuning against a number that doesn't reflect your actual ceiling.
+
+Here's the derivation chain end to end, tuning knobs plus the absorb layer:
+
+```mermaid
+flowchart TD
+    A["Check live RPM from AI Studio,<br/>not a hardcoded table"] --> B["MAX_ASYNC_LLM = live RPM x latency(s) / 60"]
+    B --> C[MAX_PARALLEL_INSERT derives from ratio]
+    B --> D[EMBEDDING_FUNC_MAX_ASYNC derives from ratio]
+    E[EMBEDDING_BATCH_NUM: fix leftover local-GPU value] --> D
+    B --> F["LiteLLM router: rpm/tpm caps + RateLimitErrorRetries"]
+    F --> G["429 becomes a delayed retry,<br/>not a FAILED document"]
+```
 
 ## The single highest-leverage fix wasn't concurrency at all
 

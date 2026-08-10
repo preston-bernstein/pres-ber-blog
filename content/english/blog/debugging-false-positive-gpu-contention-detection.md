@@ -2,7 +2,8 @@
 title: "My GPU Broker Kept Killing Inference Jobs for Games That Weren't Running"
 meta_title: "Fixing a False-Positive GPU Contention Bug in a Home-Lab Broker"
 description: "A Go service that arbitrates one home-lab GPU between gaming, Plex, and local LLM inference was canceling inference jobs for phantom games. What the detector was actually catching, and the two-part fix."
-date: 2026-08-10T11:00:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -36,6 +37,23 @@ Plex's own support documentation confirms that Skip Intro and Credits detection,
 The gaming side is a different problem, and I can't fix it by finding a better API, because none exists. Steam's overlay APIs report whether the overlay is active, not whether a game is running in the foreground. Heroic and Lutris expose no equivalent signal at all. Process-name matching is the only practical option left for gaming detection, and the logs showed those false matches clustering as three-to-six-second blips rather than Plex's multi-minute stretches. Different noise shape, different fix.
 
 ## Confirmation gates the cancel, not the recovery
+
+Here's the actual change, before and after:
+
+```mermaid
+flowchart LR
+    subgraph Before["Before: single-poll trigger"]
+        A1[Poll /proc every 3s] --> A2{Any match?}
+        A2 -->|1 match| A3[Cancel inference immediately]
+    end
+    subgraph After["After: debounced trigger"]
+        B1[Poll /proc every 3s] --> B2{Match?}
+        B2 -->|1st match| B3[Wait for confirmation]
+        B3 --> B4{2-3 consecutive matches?}
+        B4 -->|Yes| B5[Cancel inference]
+        B4 -->|No, false blip| B6[Ignore, keep running]
+    end
+```
 
 For the gaming side, the fix is the debounce pattern I should have had from the start: require several consecutive positive polls, not one, before flipping to yielding. I set the default at two or three consecutive matches. Recovery, the transition back out of yielding, stays instant and undebounced, because delaying it only costs a few extra seconds of inference downtime and never risks letting inference run over an actual game. Requiring confirmation before the cancel and skipping it before the recovery isn't symmetric, and it doesn't need to be, the two directions have different failure costs. On a genuine game launch this adds a few seconds of latency before the GPU actually frees up, which is a small price against jobs dying for no reason.
 
