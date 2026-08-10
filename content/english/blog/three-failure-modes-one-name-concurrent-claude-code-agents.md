@@ -2,7 +2,8 @@
 title: "Three Failure Modes Wearing One Name: Running Concurrent Claude Code Agents Without State Drift"
 meta_title: "Concurrent Claude Code Agents: Worktree Sprawl vs Deploy Drift vs Wasted Compute"
 description: "Running four or five Claude Code agents at once across repos looked like one problem — state drift. It turned out to be three separate failure modes: worktree sprawl, deploy drift, and wasted compute. A follow-up audit checked whether the fix actually held, and found the native worktree lifecycle works in exactly the one workflow built for it, and nowhere else yet."
-date: 2026-08-10T11:40:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -18,6 +19,18 @@ draft: false
 ---
 
 Running four or five Claude Code agents at once across separate repos felt like one problem: things drifting out of state while I wasn't watching. It turned out to be three separate failure modes wearing one name, and each one needed a different fix. Worktree sprawl (leftover git checkouts an agent session opened and nobody closed) was mostly a feature I hadn't turned on, not a missing tool. Deploy drift (a running service that no longer matches what an agent thought it built) was a problem I'd already solved once, for one project, and just needed to generalize. Wasted compute across my machines is the one piece nothing solved, and it's still open. Treating all three as one complaint is exactly what kept me from seeing that only one of them was actually about drift.
+
+Here's where each of the three actually landed:
+
+```mermaid
+flowchart TD
+    A["One complaint: 'state drift'"] --> B[Worktree sprawl]
+    A --> C[Deploy drift]
+    A --> D[Wasted compute]
+    B --> B1["RESOLVED — a feature already<br/>shipped, just needed reading the docs"]
+    C --> C1["RESOLVED — pattern I'd already<br/>built once, generalized to every repo"]
+    D --> D1["OPEN — no real fix found,<br/>nothing scheduled to build it yet"]
+```
 
 ## Worktree sprawl turned out to be a feature nobody had switched on
 

@@ -2,7 +2,8 @@
 title: "Gaming Desktop or Dedicated Compute Box: Idle Power Decides, Not Sticker Price"
 meta_title: "Gaming Desktop vs. Dedicated Compute Box for Home Lab: The Idle Power Math"
 description: "The gap between a gaming desktop idling at 80-200W and a low-power mini PC idling at 10-15W looks like an easy win, until you check whether the desktop can actually sleep. Mine couldn't, and the decision changed."
-date: 2026-08-10T12:00:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Hardware"
@@ -30,6 +31,16 @@ The number only works, though, if the desktop's power draw during "off" hours is
 Here's where my own case broke the clean version of this argument. My desktop wasn't just gaming hardware sitting idle between sessions. It was already running 24/7 to serve a stack of self-hosted services: a media-automation pipeline, a personal trading-research pipeline, and a local broker that arbitrates GPU access for LLM inference. None of that stops when I'm not gaming. The desktop was never going to drop to a true idle state, let alone power off, regardless of what other hardware I bought.
 
 That fact kills the power-savings case outright. Adding a 10-15W mini PC next to a desktop that keeps running at its existing load doesn't subtract 80-200W from my bill, it adds 10-15W on top of what I was already paying. Total household power draw goes up, not down. Anyone pricing this decision purely on wattage needs to check their own uptime pattern first, because the entire payback calculation assumes the expensive box gets to power down once the cheap box exists. Mine didn't, so I didn't get that check to cash.
+
+The whole decision comes down to one branch:
+
+```mermaid
+flowchart TD
+    A[Considering a low-power mini PC] --> B{"Does the desktop actually<br/>idle down or sleep today?"}
+    B -->|Yes, it goes idle| C["Mini PC saves ~150-400 dollars/year<br/>real payback in 12-24 months"]
+    B -->|No, runs 24/7 for other services| D["Mini PC adds 10-15W on top<br/>total household draw goes UP"]
+    D --> E["Buy it anyway? Only for isolation/reliability,<br/>not for watts"]
+```
 
 ## The case for a dedicated box shifts to reliability once power savings are off the table
 

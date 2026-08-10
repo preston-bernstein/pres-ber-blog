@@ -2,7 +2,8 @@
 title: "Performance Optimizations Using Top-Level Await: Latest JavaScript Code in 2022"
 meta_title: "Optimize Your JavaScript: Performance Enhancements with Top-Level Await"
 description: "Explore the latest performance optimizations in JavaScript, focusing on the use of top-level await. This comprehensive guide covers best practices, advanced techniques, and real-world examples to help you enhance your web applications."
-date: 2022-07-26T12:00:00Z
+date: 2024-07-05T20:58:50Z
+lastmod: 2026-08-10
 image: "/images/jsOptimization.png"
 categories: [
   "JavaScript",
@@ -34,11 +35,9 @@ draft: true
 ---
 
 
-As JavaScript continues to evolve annually, staying updated with its changes is essential. With the increasing complexity of web applications, optimizing your code for speed and efficiency is crucial. Ensuring fast loading times and smooth code execution not only enhances user satisfaction but also boosts search engine rankings.
+ECMAScript 2022 added top-level await: the `await` keyword now works directly at the top of a JavaScript module, with no `async` wrapper function required. That single change removes a specific piece of boilerplate developers have carried since async/await first shipped, and it changes how module initialization can be written.
 
-A recent enhancement in JavaScript is the introduction of top-level await in ECMAScript 2022. This feature allows the use of the await keyword directly at the top level of a JavaScript module, removing the need to wrap code in async functions. This not only makes the code more readable and maintainable but also significantly streamlines the initialization of modules.
-
-In this article, we will explore how the new top-level await can significantly enhance the performance of your JavaScript application. We'll delve into practical techniques, advanced strategies, and real-world examples that help developers improve their JavaScript web applications. By understanding top-level await better, we can write more efficient and robust code.
+This post covers what top-level await actually does, where it helps most (module initialization that depends on an async result), and the tradeoffs that come with it. Code examples throughout are real, runnable snippets, not abstractions.
 
 ## Overview of Top-Level Await
 

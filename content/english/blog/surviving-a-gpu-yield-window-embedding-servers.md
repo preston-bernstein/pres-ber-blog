@@ -2,7 +2,8 @@
 title: "No Embedding Server Survives a GPU Yield Gracefully. I Had to Build That Layer Myself"
 meta_title: "GPU-Yield Tolerance for Embeddings: What Ollama, TEI, and llama.cpp Don't Do"
 description: "Ollama, TEI, Infinity, and llama.cpp all queue-then-reject when a GPU goes away mid-request. I researched the gap, confirmed LightRAG has no retry logic to cover it, and added a parking layer to my home-lab GPU broker instead."
-date: 2026-08-10T11:05:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -39,6 +40,19 @@ The nearest thing to a real solution I found was litellm's Router, which support
 ## What I built: park the request instead of rejecting it
 
 The fix lives in the fronting proxy inside my broker, one layer above Ollama. When a yield starts, batch-class synchronous requests, which in practice means embeddings, get parked instead of bounced. The hold has a bound: 600 seconds by default, comfortably under LightRAG's own 1200-second embedding timeout, so a parked request never expires on the caller's side while it's still waiting on mine. There's also a hard ceiling on how many requests can be parked at once. Past that ceiling, the broker returns a fast 503, the same reject-fast principle TEI already applies, just moved up a layer instead of invented from scratch. When the yield ends, parked requests replay in FIFO order with a cap on how many go out at once, so the queue doesn't dump a burst back onto Ollama the instant the GPU returns and cause a second failure right after fixing the first one. I also added Prometheus gauges for parked depth, time spent parked, and replay outcomes, plus an alert rule, because TEI already treats queue depth as something worth exposing as a metric and I didn't see a reason to do less.
+
+Here's the path a request actually takes:
+
+```mermaid
+flowchart LR
+    A[Embedding request arrives] --> B{GPU yielded to<br/>higher-priority work?}
+    B -->|No| C[Serve immediately]
+    B -->|Yes| D{Parked queue below cap?}
+    D -->|No| E[Fast 503, reject]
+    D -->|Yes| F[Park request, up to 600s]
+    F --> G[Yield ends]
+    G --> H["Replay parked requests FIFO,<br/>capped rate"]
+```
 
 Whether 600 seconds is the right number, I'm not fully sure. It's a good margin under LightRAG's timeout today, but it's tuned to my current yield patterns, and if a yield ever runs long for a reason the broker doesn't already know about, that bound will need to move.
 

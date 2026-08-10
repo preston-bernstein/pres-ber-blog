@@ -2,7 +2,8 @@
 title: "Scrape, Score, Alert: The Pattern Behind Two Home-Lab Vision Pipelines"
 meta_title: "Local Vision-LLM Pipeline Architecture: A Home-Lab Case Study, Part 1"
 description: "Part 1 of 3. An estate-sale scanner and a resale-clothing monitor run on the same architecture: one SQLite-only pipeline, one shared GPU. What that shared foundation looks like, and the two decisions in it I'm not fully sure were right."
-date: 2026-08-10T10:00:00Z
+date: 2026-08-10T16:36:57Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -28,19 +29,16 @@ Two personal tools I've built, an estate-sale scanner and a resale-clothing moni
 
 Both projects are the same four stages, talking to each other through a single SQLite database instead of a queue:
 
-```text
- [ listings site ]
-        |
-        v
- +--------------+     +--------------+     +----------------+     +-----------+
- |   Scrape     | --> |   Prefilter  | --> |  LLM / Vision  | --> |   Alert   |
- |  (new items) |     |  (free, no   |     |     Score      |     | dashboard |
- |              |     |   LLM cost)  |     |  (Ollama, +    |     |  / push   |
- |              |     |              |     |  cloud escala- |     |           |
- |              |     |              |     |  tion for hard |     |           |
- |              |     |              |     |  cases)        |     |           |
- +--------------+     +--------------+     +----------------+     +-----------+
-        \___________________ SQLite (single writer per stage) ________________/
+```mermaid
+flowchart LR
+    A[Listings site] --> B["Scrape<br/>(new items)"]
+    B --> C["Prefilter<br/>(free, no LLM cost)"]
+    C --> D["LLM / Vision Score<br/>(Ollama + cloud escalation<br/>for hard cases)"]
+    D --> E["Alert<br/>dashboard / push"]
+    B -.-> S[("SQLite<br/>single writer per stage")]
+    C -.-> S
+    D -.-> S
+    E -.-> S
 ```
 
 A run is one process that walks through the stages in order and writes its results to disk as it goes, and the next stage reads whatever the last one left behind. I'd defend that against anyone who reflexively reaches for a queue on a hobby project this size; at dozens to low hundreds of listings per run, a queue buys nothing and costs a service to operate and monitor. I don't think the choice is free, though. The first time I want two scrapers writing to the same SQLite file at once, or want one stage to retry independently of the one before it, this is the design that starts to hurt. I haven't hit that yet. I expect I will.

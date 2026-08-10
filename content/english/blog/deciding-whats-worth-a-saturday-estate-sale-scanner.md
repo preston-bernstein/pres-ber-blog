@@ -2,7 +2,8 @@
 title: "Deciding What's Worth a Saturday: Inside My Estate-Sale Scanner"
 meta_title: "Estate-Sale Scanner Scoring and Anti-Overfit Design: A Home-Lab Case Study, Part 2"
 description: "Part 2 of 3. How my estate-sale scanner scores unlabeled photos, why a bad sale and a good sale teach it very different things, and three incidents where a component kept running and quietly stopped doing its job."
-date: 2026-08-10T10:05:00Z
+date: 2026-08-10T16:36:57Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -31,6 +32,18 @@ The scanner pulls new listings from a regional aggregator once a week, then runs
 2. **A quality gate.** Brightness and blur checks, cheap and CPU-only, drop photos too dark or blurry to read.
 3. **A free local pre-filter.** A small local Ollama call answers PASS or SKIP on things like empty rooms, driveways, or cardboard boxes, before any money gets spent on a stronger model. It's fail-open: if the model call errors, the photo passes through anyway. An outage never suppresses a real find. It just costs more that week.
 4. **Full vision analysis.** Either a local Ollama model or, for volume, a hosted GPU endpoint running a larger vision-language model.
+
+Here's that pipeline as an actual flow:
+
+```mermaid
+flowchart TD
+    A[New listing photo] --> B[Perceptual-hash dedup]
+    B --> C[Quality gate: brightness/blur]
+    C --> D["Free local pre-filter (fail-open)"]
+    D -->|PASS or error| E[Full vision analysis]
+    D -->|SKIP| F[Discarded]
+    E --> G[Item list: maker, era, materials, condition, confidence]
+```
 
 The model gets told what I collect: quality furniture and antiques, kitsch and camp collectibles, vintage electronics. It lists each item with a maker guess, era, materials, condition, and a confidence tag:
 

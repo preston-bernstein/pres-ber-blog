@@ -2,7 +2,8 @@
 title: "Building a Self-Throttling Governor for Claude Max With No Published Ceiling"
 meta_title: "Claude Max Cadence Governor: Throttling Without a Documented Limit"
 description: "Anthropic never publishes an absolute token or message ceiling for Claude Max 20x, only qualitative language about 20x more usage than Pro. Here's the cadence governor I built to keep background claude -p jobs from eating the quota my interactive sessions need, without a real number to target."
-date: 2026-08-10T11:25:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "AI Infrastructure",
   "Software Architecture",
@@ -39,6 +40,19 @@ The design constraint that changed my approach most came from a practitioner wri
 ## What I actually built
 
 The governor is a budget-aware layer that sits on top of the timing logic I already had for scheduling background campaigns, rather than replacing it. It reads from a local SQLite corpus that already tails Claude Code's own transcript files, and from that it computes two rolling figures continuously: weighted token consumption over the trailing 5 hours, and the same over the trailing 7 days, combining interactive and automated usage together since they draw from the same pool. As either figure approaches its ceiling, the governor ramps down the cadence of scheduled `claude -p` fires (not the fires I'm running interactively, only the automated ones), targeting no more than 98% utilization of whatever ceiling it's currently tracking. That reserves roughly 2% of headroom specifically so an interactive session I start doesn't land on an already-exhausted window. As usage clears on either rolling window, cadence ramps back up, on the same gradual curve rather than snapping back to full speed.
+
+Here's the loop the governor actually runs:
+
+```mermaid
+flowchart TD
+    A["Claude usage: interactive + claude -p, shared pool"] --> B[Track 5hr rolling window]
+    A --> C[Track 7-day rolling window]
+    B --> D{Approaching ceiling?}
+    C --> D
+    D -->|Yes| E["Ramp down claude -p cadence,<br/>target 98% utilization"]
+    D -->|No| F[Ramp cadence back up, gradually]
+    G[429 response received] -.->|calibrates working ceiling| D
+```
 
 The "ceiling it's currently tracking" part is the honest workaround for not having a real number. Since Anthropic doesn't publish one, the governor treats its threshold as calibrated, not assumed: when a `claude -p` fire actually gets rate-limited, Claude's own error response carries a reset timestamp, and the governor parses that as ground truth and adjusts its working ceiling estimate from it. Absent a fresh 429 to calibrate against, it falls back to a conservative default rather than guessing high. It's closer to an adaptive controller reacting to real signals than a static budget checked against a spec sheet, because there is no spec sheet.
 
