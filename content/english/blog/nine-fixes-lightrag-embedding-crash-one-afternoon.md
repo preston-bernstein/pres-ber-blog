@@ -38,7 +38,12 @@ Checking the NAS's own resource state directly settled it. The box had 7.7GB of 
 
 ## The fix was moving the workload, not patching around the host
 
-I migrated the LightRAG instance off the NAS onto a desktop machine with far more headroom, keeping every earlier hardening change in place since none of them were wrong, just insufficient alone. I hit one more mistake during the move: I initially pointed the container at a loopback address, reasoning that co-locating services meant loopback would work. It doesn't, because the container has its own network namespace and loopback inside it isn't the host's loopback. Switching to the machine's real local-network address fixed the connection immediately. The reprocess job then ran clean for fifty-two minutes, well past the worst crash point of thirty-seven, with steady progress and zero halts.
+I migrated the LightRAG instance off the NAS onto a desktop machine with far more headroom, keeping every earlier hardening change in place since none of them were wrong, just insufficient alone. I hit one more mistake during the move.
+
+> [!WARNING]
+> Don't point a migrated container at a loopback address, even when co-locating services on the same host. A container has its own network namespace, so `127.0.0.1` inside it isn't the host's loopback — it won't reach a service the host itself is running. Use the host's real local-network address instead.
+
+I'd reasoned that co-locating services meant loopback would work. It doesn't, for the reason above. Switching to the machine's real local-network address fixed the connection immediately. The reprocess job then ran clean for fifty-two minutes, well past the worst crash point of thirty-seven, with steady progress and zero halts.
 
 I also owe a correction to my own process here. Partway through this, I declared an earlier fix verified after watching a run for thirty clean minutes, then stopped monitoring it to go write notes. The job crashed seven minutes later. Thirty minutes of no errors isn't proof of anything if you stop watching before the job finishes. I don't think that mistake changes the eventual diagnosis, but it added a full extra round of debugging that a longer, unattended check would have skipped.
 

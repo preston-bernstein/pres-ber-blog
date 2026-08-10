@@ -34,7 +34,7 @@ The scanner pulls new listings from a regional aggregator once a week, then runs
 
 The model gets told what I collect: quality furniture and antiques, kitsch and camp collectibles, vintage electronics. It lists each item with a maker guess, era, materials, condition, and a confidence tag:
 
-```
+```text
 Danish teak side table, likely 1960s, veneer chip on one corner [high]
 Chalkware TV lamp, mid-century, black light wear on base [medium]
 NOTHING

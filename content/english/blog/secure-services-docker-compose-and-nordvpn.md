@@ -169,16 +169,16 @@ volumes:
 ```
 
 ##### Explanation of Key Directives:
-* **version:** Specifies the version of the Docker Compose file format.
+* `version:` Specifies the version of the Docker Compose file format.
 
-* **services:** Defines the containers to be run as the part of the application.
-  * **image:** Specifies the Docker image to use.
-  * **build:** Allows specifying a build context and Dockerfile.
-  * **ports:** Maps container ports to host ports.
-  * **volumes:** Mounts host paths or named volumes.
-  * **networks:** Connects services to specific networks.
-* **networks:** Customized networking configurations for services.
-* **volumes:** Manages data persistence using named volumes.
+* `services:` Defines the containers to be run as the part of the application.
+  * `image:` Specifies the Docker image to use.
+  * `build:` Allows specifying a build context and Dockerfile.
+  * `ports:` Maps container ports to host ports.
+  * `volumes:` Mounts host paths or named volumes.
+  * `networks:` Connects services to specific networks.
+* `networks:` Customized networking configurations for services.
+* `volumes:` Manages data persistence using named volumes.
 
 ##### Example: Basic Docker Compose File
 
@@ -293,7 +293,7 @@ Ensure your services are configured to route their traffic through the VPN conta
 
 Here's a step-by-step example:
 
-```yaml
+```yaml {hl_lines=[22,34]}
 version: '3.8'
 
 services:

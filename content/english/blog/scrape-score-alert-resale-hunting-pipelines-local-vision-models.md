@@ -28,7 +28,7 @@ Two personal tools I've built, an estate-sale scanner and a resale-clothing moni
 
 Both projects are the same four stages, talking to each other through a single SQLite database instead of a queue:
 
-```
+```text
  [ listings site ]
         |
         v

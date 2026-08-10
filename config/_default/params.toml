@@ -23,6 +23,15 @@ autoSwitchAppearance = true
 smartTOC = true
 smartTOCHideUnfocusedChildren = false
 
+# Blowfish theme: copy-to-clipboard button on every fenced code block
+# (docs/markup-2026-baseline/) -- ships in themes/blowfish/assets/js/code.js, but
+# that script is only bundled into the page when this param is true (see
+# themes/blowfish/layouts/partials/head.html's `enableCodeCopy` gate). Left at its
+# default (false) since the Blowfish migration, so the copy button never actually
+# rendered despite the JS being present -- caught by a Playwright assertion added
+# in this pass (tests/e2e/blog-post-content.spec.js), not by inspection alone.
+enableCodeCopy = true
+
 # contact form action
 contact_form_action = "#" # contact form works with [https://airform.io/] or [https://formspree.io]
 # google tag manager, see https://developers.google.com/tag-manager/
