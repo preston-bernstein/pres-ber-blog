@@ -1,0 +1,45 @@
+{{/*
+  CSS color-scheme property + meta tag, complementing Blowfish's own flash-free
+  dark/light mechanism (requirement 19 of the Hugo theme refresh,
+  docs/hugo-theme-refresh/). Blowfish already prevents a flash of the wrong theme
+  on load via an early-executing script (assets/js/appearance.js, confirmed loaded
+  in <head> before <body>) that sets a `dark` class on <html> before first paint,
+  reading localStorage + data-default-appearance/data-auto-appearance -- verified
+  working (dark mode persists across reload with no flash) during browser-driven
+  verification. What it does NOT do is set the CSS `color-scheme` property or a
+  <meta name="color-scheme"> tag, so native browser UI (scrollbars, form controls,
+  date pickers) doesn't theme with the page. This partial adds that, riding on the
+  same `dark` class Blowfish's script already sets synchronously pre-paint, so it
+  stays flash-free too -- it doesn't replace or compete with Blowfish's toggle
+  mechanism, only extends it to cover native UI as well.
+*/}}
+<meta name="color-scheme" content="light dark">
+<style>
+  :root { color-scheme: light; }
+  :root.dark { color-scheme: dark; }
+</style>
+
+{{/*
+  Google Tag Manager (site's `google_tag_manager` param, config/_default/params.toml).
+  Flagged as a risk during spec-challenge and confirmed as a real regression during
+  browser-driven verification: Blowfish's own layouts never read this param (the
+  Hugoplate module that used to inject the GTM snippet was removed with the rest of
+  the old theme's module graph), so GTM silently stopped firing with no build error.
+  This is Google's own standard head-embed snippet. This partial is called with
+  `.Site` as context (see themes/blowfish/layouts/partials/head.html), so `.Params`
+  here is Site.Params, not a page's.
+
+  Not included: the <noscript><iframe> fallback GTM also recommends immediately
+  after <body> opens -- Blowfish's baseof.html has no hook there, and adding one
+  means overriding the theme's own base template rather than using an extension
+  point. Documented trade-off, not a silent gap: this covers JS-enabled visitors,
+  which is the vast majority of traffic; the noscript fallback only serves visitors
+  with JavaScript disabled.
+*/}}
+{{ with .Params.google_tag_manager }}
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','{{ . }}');</script>
+{{ end }}

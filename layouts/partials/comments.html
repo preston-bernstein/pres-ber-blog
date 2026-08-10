@@ -1,0 +1,13 @@
+{{/*
+  Disqus comments (requirement 8 of the Hugo theme refresh, docs/hugo-theme-refresh/).
+  [services.disqus] in hugo.toml already has a real, working shortname
+  ("prestonbernstein", not a placeholder) -- this was live functionality under
+  Hugoplate. Blowfish ships no comments provider itself, only this documented
+  extension point (a layouts/partials/comments.html the site provides), explicitly
+  naming Hugo's own built-in Disqus template as one valid way to fill it
+  (themes/blowfish/exampleSite/content/docs/partials/index.md, Comments section).
+  So: carry the existing comments over via Hugo's internal template, not a
+  from-scratch build -- this is a config decision, not new infrastructure.
+  Gated by article.showComments in config/_default/params.toml.
+*/}}
+{{ template "_internal/disqus.html" . }}

@@ -1,0 +1,86 @@
+{{/*
+  Reading-progress bar for blog post pages (requirement 17 of the Hugo theme
+  refresh, docs/hugo-theme-refresh/). Blowfish does not ship this feature natively
+  (confirmed by searching the theme's own layouts/assets during browser-driven
+  verification), so it's added here via Blowfish's own documented extension point
+  (partials/extend-footer.html, loaded from layouts/partials/footer.html).
+
+  IMPORTANT #1: footer.html calls this partial with `partialCached "extend-footer.html" .`
+  and NO variant/cache-key argument, so Hugo renders this template's Go-template
+  logic ONCE using whichever page happens to build first, then reuses that same
+  HTML output on every other page regardless of its own .Section/.IsPage/.Kind --
+  a well-known partialCached footgun. Fix: emit markup/script unconditionally and
+  gate visibility/behavior in client-side JS against the real page's DOM instead.
+
+  IMPORTANT #2: Blowfish ships a PRE-COMPILED CSS bundle
+  (resources.Get "css/compiled/main.css" in layouts/partials/head.html, sourced
+  from themes/blowfish/assets/css/compiled/main.css) -- Tailwind's JIT compiler
+  ran once, when the theme itself was built, scanning only Blowfish's OWN template
+  files. It never re-scans this site's templates at Hugo-build-time. Confirmed by
+  grepping the compiled CSS directly: common classes like `inset-x-0`/`h-1`/`z-50`
+  happen to exist (Blowfish's own templates use them elsewhere), but
+  `bg-neutral-200/60`, `dark:bg-neutral-700/60`, and `dark:bg-primary-400` do NOT
+  -- those exact utility+opacity/dark-variant combinations aren't used anywhere in
+  Blowfish's own markup, so no CSS rule for them was ever generated. The result:
+  the classes sit inert in the HTML with no matching stylesheet rule, and the
+  element silently fails to render as intended (confirmed: Playwright's
+  isVisible() returned false even after the "hidden" class was correctly removed
+  by this partial's own JS). Fix: real CSS in a <style> block below, not invented
+  Tailwind utility-class combinations -- this always works regardless of what
+  happens to be in the pre-built bundle. Colors reference Blowfish's own CSS
+  custom properties (--color-primary-500 etc., set in
+  themes/blowfish/assets/css/schemes/<scheme>.css) so the bar still follows
+  whichever color scheme and light/dark mode the site is configured with.
+*/}}
+<style>
+  #reading-progress-track {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    z-index: 50;
+    background-color: rgba(var(--color-neutral-300), 0.6);
+  }
+  #reading-progress-track.rp-hidden {
+    display: none;
+  }
+  :root.dark #reading-progress-track {
+    background-color: rgba(var(--color-neutral-700), 0.6);
+  }
+  #reading-progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: rgb(var(--color-primary-500));
+  }
+  :root.dark #reading-progress-bar {
+    background-color: rgb(var(--color-primary-400));
+  }
+  @media print {
+    #reading-progress-track {
+      display: none;
+    }
+  }
+</style>
+<div id="reading-progress-track" class="rp-hidden" aria-hidden="true">
+  <div id="reading-progress-bar"></div>
+</div>
+<script>
+  (function () {
+    var article = document.querySelector(".article-content");
+    if (!article) return; // not a blog post page -- leave the bar hidden and inert
+    var track = document.getElementById("reading-progress-track");
+    var bar = document.getElementById("reading-progress-bar");
+    track.classList.remove("rp-hidden");
+    function update() {
+      var rect = article.getBoundingClientRect();
+      var start = rect.top + window.scrollY;
+      var articleHeight = rect.height - window.innerHeight;
+      var progress = articleHeight > 0 ? ((window.scrollY - start) / articleHeight) * 100 : 0;
+      bar.style.width = progress + "%";
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  })();
+</script>

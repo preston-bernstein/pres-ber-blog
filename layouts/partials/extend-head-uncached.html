@@ -1,0 +1,12 @@
+{{/* This replicates themes/blowfish/layouts/partials/vendor.html's Mermaid resource chain independently — if vendor.html's loading logic changes in a future Blowfish theme update, check here too. */}}
+{{ if and (in .RawContent "```mermaid") (not (.Page.HasShortcode "mermaid")) }}
+  {{ $mermaidLib := resources.Get "lib/mermaid/mermaid.min.js" }}
+  {{ $mermaidConfig := resources.Get "js/mermaid.js" }}
+  {{ $mermaidConfig := $mermaidConfig | resources.Minify }}
+  {{ $mermaidJS := slice $mermaidLib $mermaidConfig | resources.Concat "js/mermaid.bundle.js" | resources.Fingerprint (.Site.Params.fingerprintAlgorithm | default "sha512") }}
+  <script
+    defer
+    type="text/javascript"
+    src="{{ $mermaidJS.RelPermalink }}"
+    integrity="{{ $mermaidJS.Data.Integrity }}"></script>
+{{ end }}

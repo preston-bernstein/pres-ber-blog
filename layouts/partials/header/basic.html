@@ -1,0 +1,84 @@
+<div class="main-menu flex items-center w-full gap-2 p-1 pl-0">
+  {{/* Site override of themes/blowfish/layouts/partials/header/basic.html.
+       Blowfish's own logo block only supports one image (.Site.Params.Logo),
+       with no light/dark pair -- the pre-Blowfish theme (Hugoplate) used two
+       signature images swapped by appearance mode, which is real branding,
+       not decoration, so it's restored here rather than left as the generic
+       avatar + plain-text name Blowfish fell back to after the migration.
+       The signature image itself spells out the name, so the separate
+       disableTextInHeader text block is intentionally dropped too -- same
+       as the old header, which showed the logo alone. */}}
+  <div>
+    <a href="{{ "" | relLangURL }}" class="flex">
+      <span class="sr-only">{{ .Site.Title | markdownify }}</span>
+      {{ with resources.Get "images/signatureNoBG040404.png" }}
+        <img
+          src="{{ .RelPermalink }}"
+          width="{{ div .Width 2 }}"
+          height="{{ div .Height 2 }}"
+          class="logo max-h-20 max-w-20 object-scale-down object-left nozoom dark:hidden"
+          alt="{{ $.Site.Title | markdownify }}">
+      {{ end }}
+      {{ with resources.Get "images/signatureNoBGFFF.png" }}
+        <img
+          src="{{ .RelPermalink }}"
+          width="{{ div .Width 2 }}"
+          height="{{ div .Height 2 }}"
+          class="logo max-h-20 max-w-20 object-scale-down object-left nozoom hidden dark:block"
+          alt="{{ $.Site.Title | markdownify }}">
+      {{ end }}
+    </a>
+  </div>
+  <div class="flex items-center ms-auto">
+    <div class="hidden md:flex">
+      {{ partial "header/components/desktop-menu.html" . }}
+    </div>
+    <div class="flex md:hidden">
+      {{ partial "header/components/mobile-menu.html" . }}
+    </div>
+  </div>
+</div>
+
+{{ if .Site.Menus.subnavigation }}
+  <div
+    class="main-menu flex pb-3 flex-col items-end justify-between md:justify-start space-x-3 -mt-[15px]">
+    <div class="hidden md:flex items-center space-x-5">
+      {{ range .Site.Menus.subnavigation }}
+        <a
+          href="{{ .URL }}"
+          {{ if or (strings.HasPrefix .URL "http:" ) (strings.HasPrefix .URL "https:" ) }}
+            target="_blank"
+          {{ end }}
+          class="flex items-center bf-icon-color-hover">
+          {{ if .Pre }}
+            <span {{ if and .Pre .Name }}class="mr-1"{{ end }}>
+              {{ partial "icon.html" .Pre }}
+            </span>
+          {{ end }}
+          <span class="text-xs font-light" title="{{ .Title }}">
+            {{ .Name | markdownify }}
+          </span>
+        </a>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}
+
+{{ if .Site.Params.highlightCurrentMenuArea }}
+  <script>
+    (function () {
+      var mainmenu = document.querySelector(".main-menu");
+      if (!mainmenu) return;
+
+      var path = window.location.pathname;
+      var links = mainmenu.querySelectorAll('a[href="' + path + '"]');
+
+      links.forEach(function (link) {
+        var targets = link.querySelectorAll("span");
+        targets.forEach(function (el) {
+          el.classList.add("active");
+        });
+      });
+    })();
+  </script>
+{{ end }}

@@ -1,0 +1,41 @@
+{
+  // This file is JSONC: fallow reads these comments; generic JSON tools may not.
+  "$schema": "./node_modules/fallow/schema.json",
+  // This is a Hugo static site (Go templates), not a JS/TS app -- there is no
+  // src/index or src/main. The real JS surface fallow can meaningfully analyze
+  // is: the Hugo project-setup scripts, playwright.config.js, and the new e2e
+  // specs added by the theme-refresh migration (docs/hugo-theme-refresh/).
+  "entry": [
+    "scripts/*.js",
+    "playwright.config.js",
+    "tests/e2e/*.spec.js"
+  ],
+  "duplicates": {
+    // Lowered from the fallow-recommended default of 3 to 2 per harden's own
+    // convention, so every duplicate pair gets reported, not just widespread ones.
+    "minOccurrences": 2
+    // Common additions (uncomment to enable):
+    // "ignore": [
+    //   "**/lib/**",          // for repos that publish transpiled output to lib/
+    //   "**/legacy/**",       // for repos with legacy-build artifacts
+    //   "**/__generated__/**", // Relay, GraphQL Code Generator
+    //   "**/generated/**"     // OpenAPI, Protobuf codegen
+    // ]
+  },
+  "rules": {
+    "unused-dependencies": "warn"
+  },
+  // themes/blowfish is a third-party git submodule (see .gitmodules) with its own
+  // separate package.json and maintainer tooling (article/lang generators, a
+  // Firebase view-seeding script) -- none of it is called by this site's own
+  // build or runtime. It is vendored, read-only code, the same category as
+  // node_modules, and fallow's own dead-code output confirmed 93% of "unused
+  // file" noise and all "unlisted dependency" findings trace back to it.
+  "ignorePatterns": ["themes/**"],
+  // Verified false positive. Confirmed 2026-08-10: spec/helpers/*.js are loaded
+  // by Jasmine's own config file (jasmine.json's "helpers" glob), not via
+  // import/require -- a framework-magic file-loading convention static analysis
+  // can't trace through a reachability graph. Genuinely used (npm test depends
+  // on them); not dead code.
+  "ignoreFindings": ["spec/helpers/**/*.js"]
+}
