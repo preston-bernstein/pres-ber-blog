@@ -50,6 +50,18 @@ copyright = "© 2024 by Preston Bernstein. <b>All rights reserved.</b>"
   # Wired to Hugo's built-in Disqus template via layouts/partials/comments.html
   # (requirement 8) -- [services.disqus] in hugo.toml has a real shortname.
   showComments = true
+  # Single-author personal site: identity is already in the nav/footer/home
+  # profile on every page. The theme's per-post author byline (layouts/partials/
+  # partials/author.html, gated by this flag) duplicated that with the SAME
+  # person, and a second unconditional block (author-extra.html, driven by the
+  # front matter `authors:` list, no config gate) rendered a THIRD time under it
+  # -- confirmed live 2026-08-10 on /blog/github-agents-tab-vs-claude-code/,
+  # two identical "Preston Bernstein" boxes stacked on one post. This flag kills
+  # the first; author-extra.html is overridden to empty at layouts/partials/
+  # author-extra.html (site-level, not the theme submodule) to kill the second
+  # without touching front matter `authors:`, which schema.html still reads for
+  # Article JSON-LD structured data (SEO value, invisible to the reader).
+  showAuthor = false
 
 # Blowfish theme: site footer (must stay above the first [table] header below,
 # otherwise the bare keys above would be silently reparented under [footer])
