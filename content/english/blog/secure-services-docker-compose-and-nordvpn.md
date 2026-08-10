@@ -16,7 +16,7 @@ categories: [
   "IT Infrastructure",
   "Tech How-Tos"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Docker",
   "Docker Compose",
@@ -42,7 +42,7 @@ While it's not required, having a basic understanding of Docker is recommended b
 
 ## Overview of Docker Compose and VPNs
 
-{{< image src="images/blog/secure-services-docker-compose-and-nordvpn/dockerComposeWithVPNDiagram.png" caption="A diagram of docker compose with a vpn" alt="alter-text" height="" width="" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
+![alter-text](images/blog/secure-services-docker-compose-and-nordvpn/dockerComposeWithVPNDiagram.png "A diagram of docker compose with a vpn")
 
 ### What is Docker Compose?
 
@@ -69,7 +69,7 @@ Integrating a VPN with your Docker services enhances both security and privacy. 
 * Protecting data in transit from eavesdropping
 * Ensuring privacy for services that need to access external resources
 
-{{< image src="images/blog/secure-services-docker-compose-and-nordvpn/secureNetworkCommunication.png" caption="Using a VPN allows for more secure communication across your Docker services." alt="secure-communication-across-your-network" height="400" width="400" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
+![secure-communication-across-your-network](images/blog/secure-services-docker-compose-and-nordvpn/secureNetworkCommunication.png "Using a VPN allows for more secure communication across your Docker services.")
 
 ### Understanding the Challenge
 Configuring networking and container isolation in Docker can be challenging. By default, Docker containers share the host's network stack, which can lead to potential security risks. Isolating each service behind a VPN helps mitigate those risks.
@@ -221,7 +221,7 @@ By understanding the basic structure and following these steps, you can create a
 
 When selecting a VPN provider for your Docker setup, it's essential to consider several key factors to ensure optimal performance and security:
 
-{{< image src="images/blog/secure-services-docker-compose-and-nordvpn/choosingAVPN.png" alt="choosing-a-vpn" height="400" width="400" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
+![choosing-a-vpn](images/blog/secure-services-docker-compose-and-nordvpn/choosingAVPN.png)
 
 #### Key Factors to Consider:
 
@@ -235,7 +235,7 @@ When selecting a VPN provider for your Docker setup, it's essential to consider 
 
 [OpenVPN](https://openvpn.net/) is a popular choice due to its flexibility, strong security, and open-source nature. Another option is [WireGuard](https://www.wireguard.com/), known for its simplicity and performance. Both can be used effectively with Docker.
 
-{{< image src="images/blog/secure-services-docker-compose-and-nordvpn/openVPN.png" caption="OpenVPN is a popular choice." alt="open-vpn" height="200" width="200" position="center" command="fill" option="q100" class="img-fluid" title="image title"  webp="false" >}}
+![open-vpn](images/blog/secure-services-docker-compose-and-nordvpn/openVPN.png "OpenVPN is a popular choice.")
 
 #### Setting Up the VPN Container
 

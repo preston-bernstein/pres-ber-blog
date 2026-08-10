@@ -8,7 +8,7 @@ categories: [
   "DevOps",
   "Software Architecture"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Observability",
   "Grafana",

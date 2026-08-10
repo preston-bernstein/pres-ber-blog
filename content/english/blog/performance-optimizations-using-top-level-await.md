@@ -16,7 +16,7 @@ categories: [
   "Web Performance",
   "Tech Trends 2022"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "JavaScript",
   "Top-Level Await",

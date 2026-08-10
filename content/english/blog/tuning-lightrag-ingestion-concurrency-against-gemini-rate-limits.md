@@ -8,7 +8,7 @@ categories: [
   "Software Architecture",
   "Home Lab"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "RAG",
   "LightRAG",

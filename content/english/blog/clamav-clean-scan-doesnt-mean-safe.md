@@ -8,7 +8,7 @@ categories: [
   "Security",
   "DevOps"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Security",
   "ClamAV",

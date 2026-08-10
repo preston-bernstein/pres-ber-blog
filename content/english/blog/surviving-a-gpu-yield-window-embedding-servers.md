@@ -8,7 +8,7 @@ categories: [
   "Machine Learning",
   "Software Architecture"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Ollama",
   "Home Lab",

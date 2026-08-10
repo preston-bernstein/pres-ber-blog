@@ -7,7 +7,7 @@ image: "/images/jsOptimization.png"
 categories: [
   "Tech Tutorials", "Networking", "NAS Systems", "Docker", "Windows 11", "Data Storage Solutions", "Home Server Setup", "Performance Optimization", "IT Infrastructure", "File Management"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Synology NAS", "Docker", "Windows 11", "Read/Write Operations", "SMB Protocol", "NFS Protocol", "iSCSI Protocol", "Network Configuration", "Performance Tuning", "File Sharing", "Home Lab", "Tech Guide", "Data Storage", "IT Setup", "File Management"
 ]

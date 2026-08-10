@@ -1,56 +1,51 @@
 #################### default parameters ################################
-# favicon module: https://github.com/gethugothemes/hugo-modules/tree/master/images#favicon-implementation
-favicon = "images/favicon.png"
-# logo module: https://github.com/gethugothemes/hugo-modules/tree/master/images#logo-implementation
-logo = "images/signatureNoBG040404.png"
-logo_darkmode = "images/signatureNoBGFFF.png"
-# use `px` or `x` with logo_width, example: "100px".
-# Note: logo_width is not work with .svg file
-logo_width = "160px"
-logo_height = "32px"
-# if logo_webp set false, will not generate WEBP version of logo | default is true
-logo_webp = true
-# logo text will only show when logo is missing.
-logo_text = "Preston Bernstein"
 # navbar fixed to top
 navbar_fixed = true
-# theme-mode
-theme_switcher = true
-theme_default = "system" # available options [light/dark/system]
 # Main Sections
 mainSections = ["blog"]
+
+# Blowfish theme: site logo, relative to the assets/ folder (see
+# themes/blowfish/exampleSite/config/_default/languages.en.toml `params.logo`).
+# Uses the site's avatar image, not the old images/logo.png -- that file still had
+# Hugoplate's own name baked into the artwork, a leftover from the old theme with
+# no replacement asset in this repo, caught during browser-driven verification.
+logo = "images/avatar.png"
+
+# Blowfish theme: appearance / colour-scheme defaults (see
+# themes/blowfish/exampleSite/config/_default/params.toml)
+colorScheme = "blowfish"
+defaultAppearance = "light"
+autoSwitchAppearance = true
+
+# Blowfish theme: sticky/scrollspy table of contents on blog posts (this migration's
+# requirement 16) -- must stay a bare top-level key, not inside a [table] header,
+# since TOML reparents any bare key that follows a header under that table.
+smartTOC = true
+smartTOCHideUnfocusedChildren = false
+
 # contact form action
 contact_form_action = "#" # contact form works with [https://airform.io/] or [https://formspree.io]
 # google tag manager, see https://developers.google.com/tag-manager/
 google_tag_manager = "GTM-5DSQPKJJ" # example: G-XXXXXXXXXX
-google_adsense = "pub-4294810055603472"     # example: ca-pub-xxxxxxxxxxxxxxxx
-# custom script on header, example: custom_script= "<script>console.log(\"Hello World\")</script>"
-custom_script = ""
 # copyright
 copyright = "© 2024 by Preston Bernstein. <b>All rights reserved.</b>"
 
-# Preloader
-# preloader module: https://github.com/gethugothemes/hugo-modules/tree/master/components/preloader
-[preloader]
-enable = false
-preloader = "" # use jpg, png, svg or gif format.
+# Blowfish theme: sticky/scrollspy TOC (requirement 16) and the "zen reading mode"
+# that was the deciding factor for choosing Blowfish over Congo (see
+# docs/hugo-theme-refresh/plan.md Design decisions) -- must come after all the bare
+# top-level keys above and before [footer], same reparenting rule as above.
+[article]
+  showTableOfContents = true
+  showHeadingAnchors = true
+  showZenMode = true
+  # Wired to Hugo's built-in Disqus template via layouts/partials/comments.html
+  # (requirement 8) -- [services.disqus] in hugo.toml has a real shortname.
+  showComments = true
 
-# Navigation button
-[navigation_button]
-enable = false
-label = "get in touch"
-link = "contact"
-
-# search
-# search module: https://github.com/gethugothemes/hugo-modules/tree/master/search
-[search]
-enable = true
-primary_color = "#121212"
-include_sections = ["blog"]
-show_image = true
-show_description = true
-show_tags = true
-show_categories = true
+# Blowfish theme: site footer (must stay above the first [table] header below,
+# otherwise the bare keys above would be silently reparented under [footer])
+[footer]
+  showAppearanceSwitcher = true
 
 # announcement
 # announcement module: https://github.com/gethugothemes/hugo-modules/tree/master/components/announcement
@@ -64,8 +59,8 @@ show_categories = true
 [metadata]
 keywords = ["Blog", "Hugo"]
 description = "Preston Bernstein's Blog"
-author = "digital.mast"
-image = "images/og-imag e.png"
+author = "Preston Bernstein"
+image = "images/og-image.png"
 
 
 # site verifications
@@ -109,3 +104,22 @@ enable = false
 # mailchimp subsciption
 mailchimp_form_action = "https://gmail.us4.list-manage.com/subscribe/post?u=463ee871f45d2d93748e77cad&amp;id=a0a2c6d074" # replace this url with yours
 mailchimp_form_name = "b_463ee871f45d2d93748e77cad_a0a2c6d074"
+
+# Blowfish theme: site-wide default author (see
+# themes/blowfish/exampleSite/config/_default/languages.en.toml `params.author`).
+# NOTE: this file's own top-level keys already map to `Site.Params.*` (this is
+# config/_default/params.toml, not config/_default/hugo.toml), so the section
+# header here must be `[author]`, not `[params.author]` -- the latter double-nests
+# to Site.Params.Params.Author, which Blowfish's templates (home/profile.html,
+# author.html) never read, silently dropping the bio/image/links. Confirmed via
+# `hugo config` dump and a build showing the bio text and avatar <img> both
+# absent from public/index.html before this fix.
+[author]
+  name = "Preston Bernstein"
+  email = "contact@prestonbernstein.com"
+  image = "images/avatar.png"
+  bio = "A full-stack developer based in Atlanta with over 10 years of experience building and optimizing web apps, focused on user experience, performance, and helping other developers grow into leaders."
+  links = [
+    { github = "https://github.com/preston-bernstein" },
+    { linkedin = "https://www.linkedin.com/in/prestonbernstein/" },
+  ]

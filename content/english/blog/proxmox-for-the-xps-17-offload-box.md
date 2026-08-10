@@ -7,7 +7,7 @@ categories: [
   "Home Lab",
   "DevOps"
 ]
-author: "Preston Bernstein"
+authors: ["preston-bernstein"]
 tags: [
   "Linux",
   "Home Lab",
