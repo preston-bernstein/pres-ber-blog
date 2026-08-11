@@ -17,6 +17,7 @@
 ## Pages
 
 - [Home]({{ .Site.Home.Permalink }}): who I am and what I work on
+- [About]({{ (.Site.GetPage "/pages/about").Permalink }}): professional bio and what I build
 - [Blog index]({{ (.Site.GetPage "/blog").Permalink }}): all posts
 - [Contact]({{ (.Site.GetPage "/contact").Permalink }}): how to reach me
 

@@ -45,7 +45,10 @@ copyright = "© { year } by Preston Bernstein. <b>All rights reserved.</b>"
 # Must stay above [article]/[footer] below -- same TOML reparenting rule as
 # smartTOC above.
 keywords = ["Blog", "Hugo"]
-description = "Preston Bernstein's Blog"
+description = "Preston Bernstein is an Atlanta-based full-stack developer writing about home-lab infrastructure, self-hosted services, and AI agent engineering."
+# Home-page-only <title> (layouts/partials/head.html override). Keeps the short
+# site title as the " · " suffix on every other page.
+homepageTitle = "Preston Bernstein — Full-Stack Developer, Home Lab & AI Agent Engineering"
 defaultSocialImage = "images/og-image.png"
 
 # Blowfish theme: sticky/scrollspy TOC (requirement 16) and the "zen reading mode"
