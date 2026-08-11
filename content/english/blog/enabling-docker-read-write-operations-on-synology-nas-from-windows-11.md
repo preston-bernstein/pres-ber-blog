@@ -3,7 +3,7 @@ title: "Enabling Docker Read/Write Operations on Synology NAS from Windows 11"
 meta_title: "How to Enable Docker Read/Write Operations on Synology NAS from Windows 11"
 description: "Learn how to configure Docker on Windows 11 for efficient read/write operations with a Synology NAS. This step-by-step guide covers setup, protocol choices, and performance optimization tips."
 date: 2024-07-05T20:58:50Z
-lastmod: 2026-08-10
+lastmod: 2026-08-11T20:34:13Z
 image: "/images/jsOptimization.png"
 categories: [
   "Tech Tutorials", "Networking", "NAS Systems", "Docker", "Windows 11", "Data Storage Solutions", "Home Server Setup", "Performance Optimization", "IT Infrastructure", "File Management"

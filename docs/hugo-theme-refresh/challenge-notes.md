@@ -27,4 +27,6 @@
 
 ## Open questions requiring human input
 - **Homepage identity**: keep the current bio-forward homepage (requires a Blowfish template override) or accept Blowfish's stock recent-posts-plus-bio template? This is now an explicit requirement (a real design decision), but the actual choice needs to be made during implementation — it's a genuine preference call, not something a build step can resolve on its own.
+  - **Resolved**: stock Blowfish homepage. No `layouts/index.html` or home-layout override exists in this repo.
 - **Comments**: keep Disqus (if Blowfish has a compatible partial) or accept comments disappearing from all 25 posts? Same status — now a required, documented decision rather than a silent drop, but the actual answer needs to be made during implementation once Blowfish's comments-partial support is confirmed.
+  - **Resolved**: kept. `layouts/partials/comments.html` wires Hugo's internal Disqus template via Blowfish's documented comments extension point.

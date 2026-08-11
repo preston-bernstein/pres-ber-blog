@@ -1,9 +1,9 @@
 ---
 title: "Shipping Fast Isn't the Same as Being Done: Auditing a CLI My Agent Pipeline Built in an Afternoon"
 meta_title: "Auditing an Agent-Built CLI Tool Before Extending It to a Second Platform"
-description: "My ship-it pipeline (spec, 7-agent adversarial challenge, parallel build agents, review, live verify) built a working growth-automation CLI in one afternoon. Here's what a separate audit pass found before I trusted it enough to extend it to a second platform."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+description: "An agent pipeline built a working CLI in an afternoon. A separate audit still found four gaps: GitHub rate limits, an unsafe SQLite backup, no approval log."
+date: 2026-08-10T11:45:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -18,7 +18,7 @@ tags: [
 draft: false
 ---
 
-Shipping fast is not the same as being done, and I had to learn that the expensive way with a CLI tool an agent pipeline built for me in one afternoon. The pipeline is one I built myself: I give it a one-line description of what I want, it writes a spec, runs that spec through seven parallel agents whose only job is to attack it from different angles, spins up parallel build agents against the hardened spec, runs a full code review pass, then smoke-tests the real thing before calling it done. For a small outreach-automation CLI (local SQLite state, a human approval gate before anything goes out, a GitHub-facing sourcing loop), that pipeline produced working software in an afternoon. It ran. It did the job I asked for. It was also not something I trusted enough to extend to a second platform without checking it first.
+Shipping fast is not the same as being done, and I had to learn that the expensive way with a CLI tool an agent pipeline built for me in one afternoon. The pipeline is one I built myself: I give it a one-line description of what I want, it writes a spec, runs that spec through seven parallel agents whose only job is to attack it from different angles (the same independence argument behind [the dueling-agent-suites design I sketched separately](/blog/dueling-agent-orchestration-suites/)), spins up parallel build agents against the hardened spec, runs a full code review pass, then smoke-tests the real thing before calling it done. For a small outreach-automation CLI (local SQLite state, a human approval gate before anything goes out, a GitHub-facing sourcing loop), that pipeline produced working software in an afternoon. It ran. It did the job I asked for. It was also not something I trusted enough to extend to a second platform without checking it first.
 
 ## The pipeline optimizes for the spec, not for what the spec left out
 
@@ -44,11 +44,11 @@ That something was a separate research pass I ran on purpose, specifically to fi
 
 ## The GitHub loops never met GitHub's own rate-limit contract
 
-My tool has three loops that poll and post against GitHub (sourcing, checking, and queue-draining), and none of them honored the limits GitHub documents for its own API. GitHub publishes real numbers: a cap on concurrent requests, a points-per-minute budget on REST calls, a separate and much stricter cap on content-creating requests per minute and per hour. GitHub's docs are also explicit that repeatedly ignoring rate-limit errors can get an integration banned outright, not just throttled. My loops were calling the API and hoping, with no code anywhere that read a `Retry-After` header or backed off on a 403. The fix was mechanical once I knew what to build: honor `Retry-After` and the rate-limit-reset header first, switch polling loops to conditional requests so unchanged data comes back as a cheap 304 instead of spending budget, and space out anything that creates content by at least a second. None of that is clever. All of it was missing.
+My tool has three loops that poll and post against GitHub (sourcing, checking, and queue-draining), and none of them honored the limits GitHub documents for its own API. [GitHub publishes real numbers](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api): a cap on concurrent requests, a points-per-minute budget on REST calls, a separate and much stricter cap on content-creating requests per minute and per hour. GitHub's docs are also explicit that repeatedly ignoring rate-limit errors can get an integration banned outright, not just throttled. My loops were calling the API and hoping, with no code anywhere that read a `Retry-After` header or backed off on a 403. The fix was mechanical once I knew what to build, straight from [GitHub's REST API best-practices guide](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api): honor `Retry-After` and the rate-limit-reset header first, switch polling loops to conditional requests so unchanged data comes back as a cheap 304 instead of spending budget, and space out anything that creates content by at least a second. None of that is clever. All of it was missing.
 
 ## A raw file copy could have quietly corrupted the backup
 
-The tool's entire state (accounts, drafts, leads) lives in one SQLite file, and the backup routine copied that file directly on a schedule. SQLite in its default mode buffers recent writes in a separate write-ahead log file, and a plain file copy of the main database while that log holds unflushed writes can capture a database that looks intact and isn't. This is the kind of bug that never shows up in testing, because testing doesn't usually catch a backup mid-write, and it only bites the one time you actually need the backup to be good. The fix is a single command swap, from a raw copy to a WAL-safe backup call that captures a consistent snapshot regardless of what's mid-flight. Small fix, but it was sitting on exactly the failure mode I'd never notice until it was too late to matter.
+The tool's entire state (accounts, drafts, leads) lives in one SQLite file, and the backup routine copied that file directly on a schedule. SQLite in its default mode buffers recent writes in a separate write-ahead log file, and a plain file copy of the main database while that log holds unflushed writes can capture a database that looks intact and isn't. This is the kind of bug that never shows up in testing, because testing doesn't usually catch a backup mid-write, and it only bites the one time you actually need the backup to be good. The fix is a single command swap, from a raw copy to [SQLite's own online-backup call](https://www.sqlite.org/backup.html) that captures a consistent snapshot regardless of what's mid-flight. Small fix, but it was sitting on exactly the failure mode I'd never notice until it was too late to matter.
 
 ## The approval gate had no memory of its own decisions
 
