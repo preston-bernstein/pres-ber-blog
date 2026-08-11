@@ -1,0 +1,26 @@
+{{/*
+  /llms.txt -- https://llmstxt.org/ format: H1 site name, blockquote summary,
+  then H2 sections of curated markdown links. Wired up as the home page's
+  "llms" output format (hugo.toml [outputFormats.llms] + [outputs].home) so the
+  post list is regenerated on every build instead of rotting as a static file.
+  Consumed by LLM crawlers/agents, never rendered in a browser.
+*/ -}}
+# {{ .Site.Title }}
+
+> Personal site and blog of Preston Bernstein, a full-stack developer in Atlanta. The blog covers home-lab infrastructure, self-hosted services, networking, and practical AI/LLM engineering -- agent workflows, local inference, and observability -- written from firsthand builds and debugging sessions.
+
+## Blog posts
+
+{{ range (where .Site.RegularPages "Section" "blog").ByDate.Reverse -}}
+- [{{ .Title }}]({{ .Permalink }}){{ with .Description }}: {{ . | plainify | chomp }}{{ end }}
+{{ end }}
+## Pages
+
+- [Home]({{ .Site.Home.Permalink }}): who I am and what I work on
+- [Blog index]({{ (.Site.GetPage "/blog").Permalink }}): all posts
+- [Contact]({{ (.Site.GetPage "/contact").Permalink }}): how to reach me
+
+## Feeds
+
+- [RSS]({{ "index.xml" | absURL }})
+- [Sitemap]({{ "sitemap.xml" | absURL }})
