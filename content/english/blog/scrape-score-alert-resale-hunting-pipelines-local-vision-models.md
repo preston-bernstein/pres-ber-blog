@@ -1,9 +1,9 @@
 ---
 title: "Scrape, Score, Alert: The Pattern Behind Two Home-Lab Vision Pipelines"
 meta_title: "Local Vision-LLM Pipeline Architecture: A Home-Lab Case Study, Part 1"
-description: "Part 1 of 3. An estate-sale scanner and a resale-clothing monitor run on the same architecture: one SQLite-only pipeline, one shared GPU. What that shared foundation looks like, and the two decisions in it I'm not fully sure were right."
-date: 2026-08-10T16:36:57Z
-lastmod: 2026-08-10
+description: "Part 1: an estate-sale scanner and a resale monitor share one architecture — scrape, prefilter, score with local vision models, alert — on SQLite and one GPU."
+date: 2026-08-10T10:00:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -47,13 +47,13 @@ What differs between the two projects is entirely inside the middle two boxes, w
 
 ## One shared GPU forces the same cost tradeoff on both projects
 
-Both pipelines lean on the same home-lab constraint: one GPU, shared with everything else that machine does, including gaming and media transcoding. That constraint shapes the architecture more than almost anything else.
+Both pipelines lean on the same home-lab constraint: [one GPU, shared with everything else that machine does](/blog/debugging-false-positive-gpu-contention-detection/), including gaming and media transcoding. That constraint shapes the architecture more than almost anything else.
 
 The strongest available vision model, run on every image unthrottled, priced out at ten to twenty times a reasonable monthly budget. The obvious alternative, running everything locally on the home GPU, worked, but a full unbounded pass over a week's photos took on the order of a day, on a machine other people in the house wanted to use in the meantime. Neither was acceptable, and that's the actual reason both projects ended up with a tiered cascade instead of calling the best model on everything: cheap local checks first, a stronger model only on what survives, and an optional even-stronger model reserved for genuinely ambiguous cases.
 
 Fitting a large vision model onto a consumer-class GPU has its own failure mode. The full-precision checkpoint of one candidate model didn't fit and left the worker in a permanently unhealthy state, until I switched to an FP8-quantized build of the same model, which loaded cleanly. Serverless GPU workers that scale to zero when idle, the thing that keeps cost near zero between runs, carry a real cold-start cost too. One backend took roughly eight minutes to spin up from cold, against a hardcoded two-minute timeout on the client side. The result was a guaranteed failure on the first image of every single run, and it stayed that way until someone timed the cold start directly instead of assuming a fixed timeout was generous enough.
 
-Neither Ollama instance gets addressed directly by IP in either codebase anymore. Both pipelines read a plain environment variable for wherever inference happens to be running. That decision paid off the first time I moved the GPU host.
+Neither [Ollama](https://ollama.com/) instance gets addressed directly by IP in either codebase anymore. ([Where the stronger vision tier runs, and what it costs to keep a cloud GPU honest](/blog/runpod-vs-gemini-vlm-inference-idle-auto-stop-gap/), became its own decision.) Both pipelines read a plain environment variable for wherever inference happens to be running. That decision paid off the first time I moved the GPU host.
 
 ## What's next
 

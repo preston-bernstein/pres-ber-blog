@@ -1,0 +1,35 @@
+{{/*
+  Rendered to /robots.txt via enableRobotsTXT in hugo.toml (the Hugo-native
+  path; this repo has no static/ dir, so a static/robots.txt would be the only
+  file in it and easy to miss). Before this file existed the live site served
+  the host's LiteSpeed 404 page for /robots.txt -- crawlers treat that as
+  "no policy", so everything below the explicit stanzas is documentation of
+  intent, not a behavior change.
+*/}}
+# AI answer-engine crawlers (search-index + on-demand user fetch) -- these are
+# the ones that produce citations back to this site. Explicitly allowed so the
+# policy is visible rather than implied by the absence of a robots.txt.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Training-corpus crawlers (GPTBot, ClaudeBot, Google-Extended, CCBot) are
+# deliberately left allowed. Blocking them is a content-licensing policy call,
+# not a technical default -- if that call is ever made, add explicit
+# `User-agent: <bot>` / `Disallow: /` stanzas here.
+
+User-agent: *
+Allow: /
+
+Sitemap: {{ "sitemap.xml" | absURL }}

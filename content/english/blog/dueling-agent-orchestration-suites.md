@@ -1,9 +1,9 @@
 ---
 title: "What If Two Independently-Built Agent Suites Reviewed Each Other's Code?"
 meta_title: "Dueling Agent Orchestration: An Unbuilt Design for Independent AI Code Review"
-description: "A design sketch for having two coding-agent suites, built with zero shared configuration, open and review each other's pull requests the way two engineers with different judgment catch each other's mistakes. What research already backs, what's still missing from existing tools, and why I'm not sure the disagreement it produces is worth the cost."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+description: "A design sketch: two independently built agent suites reviewing each other's PRs. Self-review fails 64.5% per a study CodeRabbit cites. Nobody ships this yet."
+date: 2026-08-10T11:35:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -22,7 +22,7 @@ The idea is this: run two coding-agent orchestration suites that share none of t
 
 ## A single agent reviewing its own PR doesn't catch much
 
-A single agent reviewing its own pull request doesn't catch much, and there's a number behind that claim now. CodeRabbit, a production code-review tool, published a self-correction failure rate of 64.5 percent for models asked to review their own output, and named the pattern the "Homogenization Trap": models trained on overlapping data share the same blind spots, so asking one model to grade its own work just replays the assumptions that produced the bug in the first place. That's the whole justification for splitting author and reviewer into separate agents. It's also why splitting them into two copies of the same model barely helps.
+A single agent reviewing its own pull request doesn't catch much, and there's a number behind that claim now. [CodeRabbit, a production code-review tool, cites a study](https://www.coderabbit.ai/blog/code-review-needs-independence) putting the average failure rate at 64.5 percent when models are asked to correct errors they produced themselves, and names the underlying pattern the "Homogenization Trap": models trained on overlapping data share the same blind spots, so asking one model to grade its own work just replays the assumptions that produced the bug in the first place. That's the whole justification for splitting author and reviewer into separate agents. It's also why splitting them into two copies of the same model barely helps. I've watched the same blind spot from the other side already: [a separate audit pass on a CLI my own agent pipeline built](/blog/auditing-what-an-agent-pipeline-shipped-in-an-afternoon/) found four real gaps that the pipeline's built-in review never flagged, because the review only checked the code against the spec that shared its assumptions.
 
 ## The design: independent suites, not two calls to the same agent
 
@@ -41,11 +41,11 @@ flowchart LR
 
 ## Nobody ships this as a preset, but the pieces exist
 
-Nobody ships this exact pattern as a ready preset, but the pieces are scattered across current tools and papers. Academic research on adversarial debate between large language models already studies quality gains when review peers are genuinely different rather than cooperative copies of each other, and at least one recent paper formalizes almost the same author-reviewer-critic loop I sketched, adding a third agent that audits the reviewer's own review. Qodo's second-generation review tool runs several specialized agents in parallel against one PR and posted the best F1 score, a standard accuracy measure combining precision and recall, of eight review tools tested, though that's parallel specialist review rather than an adversarial author-versus-reviewer duel. Mainstream orchestration frameworks ship a generic writer/reviewer role you can wire up yourself, but none of them package "two independently-derived agent suites duel it out" as something you install and configure. That gap is the actual whitespace here. The concept is already well studied; what's missing is a packaged version of it.
+Nobody ships this exact pattern as a ready preset, but the pieces are scattered across current tools and papers. Academic research on adversarial debate between large language models already studies quality gains when review peers are genuinely different rather than cooperative copies of each other, and at least one recent paper formalizes almost the same author-reviewer-critic loop I sketched, adding a third agent that audits the reviewer's own review. [Qodo's second-generation review tool](https://www.qodo.ai/blog/introducing-qodo-2-0-agentic-code-review/) runs several specialized agents in parallel against one PR and posted the best F1 score, a standard accuracy measure combining precision and recall, of eight review tools tested, though that's parallel specialist review rather than an adversarial author-versus-reviewer duel. Mainstream orchestration frameworks ship a generic writer/reviewer role you can wire up yourself, but none of them package "two independently-derived agent suites duel it out" as something you install and configure. That gap is the actual whitespace here. The concept is already well studied; what's missing is a packaged version of it.
 
 ## The market's clearest independent reviewer just lost its independence
 
-The strongest counter-signal I found points the other way. Cursor, one of the more popular AI coding tools, acquired Graphite in December 2025 and folded its Diamond reviewer into Cursor's own Bugbot, so the most notable separate-company code reviewer on the market is now owned by the same vendor that ships the authoring agent. If the industry keeps consolidating that way, buying genuine cross-vendor independence gets harder every year rather than easier, and a dueling-suite design that leans on "different vendor, different training run" as its independence guarantee is betting against that trend.
+The strongest counter-signal I found points the other way. Cursor, one of the more popular AI coding tools, [acquired Graphite in December 2025](https://graphite.com/blog/graphite-joins-cursor), with a stated plan to combine Graphite's Diamond reviewer with Cursor's own Bugbot, so the most notable separate-company code reviewer on the market is now owned by the same vendor that ships the authoring agent. If the industry keeps consolidating that way, buying genuine cross-vendor independence gets harder every year rather than easier, and a dueling-suite design that leans on "different vendor, different training run" as its independence guarantee is betting against that trend.
 
 ## This is a design sketch, not something running
 

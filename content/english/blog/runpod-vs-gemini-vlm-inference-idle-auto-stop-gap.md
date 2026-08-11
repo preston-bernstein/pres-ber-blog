@@ -1,9 +1,9 @@
 ---
 title: "RunPod Beats Gemini on Cost for My Vision Pipeline, and the Idle-Stop Feature It's Missing"
 meta_title: "RunPod vs. Gemini for VLM Inference: Cost, Accuracy, and the Missing Idle-Auto-Stop"
-description: "Gemini 2.5 Flash still scores highest on structured vision extraction, but I run my personal vision pipeline on RunPod GPUs instead. The catch: RunPod has no native idle-auto-stop for dedicated pods, only serverless has it, so I built a watchdog to call the podStop API myself."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+description: "Gemini wins on vision accuracy but RunPod wins on cost, as long as a watchdog calls podStop: dedicated RunPod pods have no idle auto-stop of their own."
+date: 2026-08-10T11:20:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -29,7 +29,7 @@ That gap only matters if the pipeline can tolerate the accuracy Qwen actually de
 
 ## Serverless pricing looked like the whole answer until I read the sizing requirements
 
-RunPod's serverless tier scales to zero between requests, so idle time costs nothing, which is the actual reason serverless is attractive for a personal project with bursty traffic. But Qwen2.5-VL isn't a drop-in fit on a serverless worker. Community deployment threads put it on 48GB-class cards, L40, L40S, or RTX 6000 Ada, with GPU memory utilization tuned to 0.90 and prefix caching turned on just to fit the model weights alongside the KV cache the image tokens generate. vLLM's own multimodal serving docs require setting `--limit-mm-per-prompt` explicitly, for example `image=1` for a pipeline that sends one photo per request, because the default silently drops image inputs instead of accepting them.
+RunPod's serverless tier scales to zero between requests, so idle time costs nothing, which is the actual reason serverless is attractive for a personal project with bursty traffic. But Qwen2.5-VL isn't a drop-in fit on a serverless worker. Community deployment threads put it on 48GB-class cards, L40, L40S, or RTX 6000 Ada, with GPU memory utilization tuned to 0.90 and prefix caching turned on just to fit the model weights alongside the KV cache the image tokens generate. [vLLM's own multimodal serving docs](https://docs.vllm.ai/en/latest/features/multimodal_inputs/) require setting `--limit-mm-per-prompt` explicitly, for example `image=1` for a pipeline that sends one photo per request, because the default silently drops image inputs instead of accepting them.
 
 None of that is disqualifying, but it isn't free either, and the same vLLM community thread that gave me the sizing numbers also flags multi-image batching efficiency as an open problem with no confirmed fix. I don't send multiple images per request today, so that gap doesn't block me, but it's a sign the serverless-vision path is younger than the serverless-text path I've used elsewhere. I'm not treating serverless as a settled choice for this workload yet.
 
@@ -37,7 +37,7 @@ None of that is disqualifying, but it isn't free either, and the same vLLM commu
 
 A dedicated RunPod GPU, an A40 with 48GB running a vLLM template, prices out around $0.44 an hour, a small fraction of what a larger card costs me for other GPU work I run at home. At that rate, a dedicated pod running vision inference all day still costs less than a handful of Gemini calls at any real volume. The catch is that a dedicated pod bills for every minute it's running, whether or not anything is calling it.
 
-Serverless pods scale to zero automatically. Dedicated pods don't, and I went looking in RunPod's own docs assuming I'd just missed a toggle. There isn't one. RunPod's GraphQL API documents a `podStop` mutation, `podStop(input: {podId: "ID"}) { id desiredStatus }`, which stops a pod and preserves its volume data, but there's no `podTerminate` mutation and no built-in idle timeout anywhere in the dedicated-pod management docs. Idle-auto-stop is a serverless feature. A dedicated pod left running after the last request just keeps billing by the minute until something outside RunPod tells it to stop.
+Serverless pods scale to zero automatically. Dedicated pods don't, and I went looking in RunPod's own docs assuming I'd just missed a toggle. There isn't one. [RunPod's GraphQL API documents a `podStop` mutation](https://docs.runpod.io/sdks/graphql/manage-pods), `podStop(input: {podId: "ID"}) { id desiredStatus }`, which stops a pod and preserves its volume data, but there's no built-in idle timeout anywhere in the dedicated-pod management docs. Idle-auto-stop is a serverless feature. A dedicated pod left running after the last request just keeps billing by the minute until something outside RunPod tells it to stop.
 
 ## I built a watchdog because nothing else was going to call podStop for me
 

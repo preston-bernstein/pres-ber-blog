@@ -1,9 +1,9 @@
 ---
 title: "Step-by-Step Guide to Creating a Secure Docker Compose Script with VPN Integration"
 meta_title: "Secure Your Docker Services: How to Create a Docker Compose Script with VPN Integration"
-description: "Learn how to enhance the security of your Docker services by integrating VPN into your Docker Compose scripts. This step-by-step guide covers installation, configuration, and troubleshooting to ensure your services are safely behind a VPN."
+description: "How to route Docker services through a VPN container with network_mode: service:vpn in Docker Compose, and verify traffic actually exits through the VPN."
 date: 2024-07-01T22:01:16Z
-lastmod: 2026-08-10
+lastmod: 2026-08-11T20:34:13Z
 image: "/images/vpnMediaServer.png"
 categories: [
   "Docker Tutorials",
@@ -37,7 +37,7 @@ draft: false
 
 Docker containers share the host's network stack by default. Any service you run is only as private as the connection it's running on, unless you put something in front of it. Routing a container's traffic through a VPN container fixes that: requests leave through the VPN, not your raw connection, and the container's real IP stays hidden.
 
-This guide builds a Docker Compose file that puts one or more services behind a VPN container using `network_mode: service:vpn`. It covers setting up the VPN container, wiring dependent services to route through it, and verifying the traffic actually goes through the VPN once everything's running.
+This guide builds a Docker Compose file that puts one or more services behind a VPN container using `network_mode: service:vpn`. It covers setting up the VPN container, wiring dependent services to route through it, and verifying the traffic actually goes through the VPN once everything's running. (Deciding which host those containers should run on at all is a separate question — see [Not every Docker container belongs on the NAS](/blog/not-every-docker-container-belongs-on-the-nas/).)
 
 Basic Docker familiarity helps but isn't required — [the official Docker documentation](https://docs.docker.com/) covers anything unfamiliar here.
 

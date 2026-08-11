@@ -3,7 +3,7 @@ title: "Performance Optimizations Using Top-Level Await: Latest JavaScript Code 
 meta_title: "Optimize Your JavaScript: Performance Enhancements with Top-Level Await"
 description: "Explore the latest performance optimizations in JavaScript, focusing on the use of top-level await. This comprehensive guide covers best practices, advanced techniques, and real-world examples to help you enhance your web applications."
 date: 2024-07-05T20:58:50Z
-lastmod: 2026-08-10
+lastmod: 2026-08-11T20:34:13Z
 image: "/images/jsOptimization.png"
 categories: [
   "JavaScript",
