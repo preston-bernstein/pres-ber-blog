@@ -2,7 +2,8 @@
 title: "Shipping Fast Isn't the Same as Being Done: Auditing a CLI My Agent Pipeline Built in an Afternoon"
 meta_title: "Auditing an Agent-Built CLI Tool Before Extending It to a Second Platform"
 description: "My ship-it pipeline (spec, 7-agent adversarial challenge, parallel build agents, review, live verify) built a working growth-automation CLI in one afternoon. Here's what a separate audit pass found before I trusted it enough to extend it to a second platform."
-date: 2026-08-10T11:45:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -22,6 +23,22 @@ Shipping fast is not the same as being done, and I had to learn that the expensi
 ## The pipeline optimizes for the spec, not for what the spec left out
 
 Every phase in that pipeline checks the code against what I asked for. The adversarial challenge attacks the spec itself, the build agents implement against the hardened version, the review pass checks the diff for bugs and style, and the verify step proves the CLI actually runs end to end. None of that touches questions I never thought to ask in the spec. I hadn't written "honor GitHub's rate-limit contract" or "make sure the SQLite backup survives a write in progress" anywhere, so nothing in the pipeline went looking for those gaps. A spec-driven pipeline is only as complete as the spec, and mine had holes I couldn't see until something outside the pipeline pointed a light at them.
+
+Here's the shape of both passes side by side: the build pipeline that shipped the CLI, and the separate audit pass that checked its work.
+
+```mermaid
+flowchart LR
+    A[One-line description] --> B[Spec written]
+    B --> C[7 parallel adversarial challenge agents]
+    C --> D[Hardened spec]
+    D --> E[Parallel build agents]
+    E --> F[Code review pass]
+    F --> G[Smoke test / verify]
+    G --> H[Working CLI, shipped in an afternoon]
+    H -.->|separate pass, run on purpose| I[External research audit]
+    I --> J["4 concrete bugs found:<br/>rate limits, WAL backup,<br/>approval-log gap, thin lead signal"]
+    I --> K["1 strategic decision:<br/>second platform goes draft-only,<br/>no automation"]
+```
 
 That something was a separate research pass I ran on purpose, specifically to find holes before adding a second platform. It pulled in GitHub's own API documentation, SQLite backup literature, comparable open-source tools, and, because the second platform I wanted to add was one with a strict terms-of-service posture around automation, that platform's actual user agreement. Four concrete problems came out of it, plus one decision that changed my plan for the second platform entirely.
 

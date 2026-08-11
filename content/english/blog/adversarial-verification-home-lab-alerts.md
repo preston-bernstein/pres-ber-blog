@@ -2,7 +2,8 @@
 title: "Fifteen of Eighteen Root Causes I Was Sure About Were Wrong"
 meta_title: "Adversarial Root-Cause Verification: 15 of 18 Diagnoses Refuted"
 description: "Four alerts were firing across my home lab. I proposed eighteen root causes and put every one through three independent adversarial checks before acting. Fifteen didn't survive."
-date: 2026-08-10T11:50:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Software Architecture",
@@ -23,6 +24,17 @@ Fifteen of eighteen root causes I proposed for four firing alerts turned out to 
 ## The method was adversarial verification, not more logging
 
 Adversarial verification means you treat your own hypothesis as something to disprove, not something to confirm. For each candidate root cause, I ran three independent checks against different failure modes: is the claim actually correct, is there a more likely alternative explanation for the same symptom, and would acting on this fix cause harm even if the diagnosis were right. If two of the three checks came back negative, the finding was refuted and I moved on without touching code. I used parallel background agents to run these checks concurrently, one per lens, working off the same evidence but arguing independently. The mechanism doesn't matter much. You could do this with three colleagues, or with yourself on three separate days. What matters is that confirmation and refutation are different jobs, and doing them with the same brain in the same sitting is how bad root causes survive into production.
+
+Here's how the 18 candidates actually funneled down:
+
+```mermaid
+flowchart TD
+    A[18 candidate root causes] --> B[3 independent adversarial checks per candidate]
+    B --> C{2 of 3 checks negative?}
+    C -->|Yes, 15 candidates| D[Refuted - no action taken]
+    C -->|No majority reached, 1 candidate| E[Left open - reviewers split, no coin flip]
+    C -->|No, holds up, 2 candidates| F[Confirmed - acted on]
+```
 
 The whole investigation stayed read-only until every surviving finding cleared verification. No config edits, no restarts, no "let me just try this" during the diagnostic pass. That discipline is what made the refuted list trustworthy. I never contaminated a measurement by fixing something mid-investigation.
 

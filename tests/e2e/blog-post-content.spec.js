@@ -52,16 +52,82 @@ test.describe("Blog post content surfaces", () => {
     expect(html).toContain("GTM-5DSQPKJJ");
   });
 
-  test("author byline links to a non-empty author archive page", async ({ page }) => {
+  // Retired the old "author byline links to a non-empty author archive page" UI
+  // test (docs/markup-2026-baseline/): a concurrent commit on main
+  // ("Restore signature logo and social-icon footer lost in the theme migration")
+  // deliberately set `showAuthor = false` in config/_default/params.toml, removing
+  // the per-post author byline box -- confirmed intentional via that commit's own
+  // params.toml comment (duplicate identity, single-author site, already shown in
+  // nav/footer/home profile). The UI element this test located no longer exists on
+  // any post page after that merge, so the test can't be repaired, only retired.
+  // Author identity is still real and testable via the post's Article JSON-LD
+  // (schema.html still reads front matter `authors:` for structured data, per that
+  // same commit's reasoning) -- this replacement test covers that instead.
+  test("post's Article JSON-LD still identifies the author (SEO structured data)", async ({
+    page,
+  }) => {
     await page.goto(POST);
-    // Scope to the AUTHOR byline section specifically -- the site header/logo also
-    // links to "/" with the text "Preston Bernstein" and would otherwise match first.
-    await page
-      .locator("header:has-text('AUTHOR')")
-      .getByRole("link", { name: "Preston Bernstein" })
-      .click();
-    await expect(page).toHaveURL(/\/authors\/preston-bernstein\/?$/);
-    const postLinks = page.locator('a[href^="/blog/"]');
-    expect(await postLinks.count()).toBeGreaterThan(0);
+    const jsonLd = await page.locator('script[type="application/ld+json"]').first().textContent();
+    const parsed = JSON.parse(/** @type {string} */ (jsonLd));
+    // Blowfish's schema.html emits a top-level array (`[{ "@type": "Article", ... }]`),
+    // not a bare object -- confirmed against the actual rendered output.
+    const data = Array.isArray(parsed) ? parsed[0] : parsed;
+    expect(data.author?.name).toBe("Preston Bernstein");
+  });
+
+  // docs/markup-2026-baseline/: the docker-compose example's fenced code block was
+  // given a Chroma `hl_lines=[22,34]` attribute so the two `network_mode: service:vpn`
+  // lines the surrounding prose calls out by name render highlighted. Confirmed by
+  // reading the actual built HTML: Hugo/Chroma's line-highlight marker on this theme
+  // is an inline `background-color` style on the line's flex span, not a CSS class --
+  // so the assertion checks for that inline style, not a guessed class name.
+  test("docker-compose code block renders exactly 2 highlighted lines (hl_lines)", async ({ page }) => {
+    await page.goto(POST);
+    const highlightedLines = page.locator(
+      '.article-content .highlight-wrapper pre span[style*="background-color"]'
+    );
+    await expect(highlightedLines).toHaveCount(2);
+    // Both highlighted lines should be the network_mode directive the prose discusses.
+    for (let i = 0; i < 2; i++) {
+      await expect(highlightedLines.nth(i)).toContainText("network_mode");
+    }
+  });
+
+  test("docker-compose code block still shows a language tag and a copy button", async ({ page }) => {
+    await page.goto(POST);
+    // This post has several earlier ```bash blocks (Docker install steps) before the
+    // hl_lines demo block -- .first() would grab one of those instead. Scope to the
+    // specific highlight-wrapper containing the demo's own content.
+    const wrapper = page
+      .locator(".article-content .highlight-wrapper")
+      .filter({ hasText: "network_mode" });
+    await expect(wrapper).toHaveCount(1);
+    await expect(wrapper.locator("code[data-lang='yaml']")).toBeAttached();
+    // Blowfish's copy button is injected client-side by assets/js/code.js on
+    // DOMContentLoaded, not present in the raw server-rendered HTML.
+    await expect(wrapper.locator("button.copy-button")).toBeAttached();
+  });
+});
+
+test.describe("Admonition rendering (nine-fixes-lightrag-embedding-crash-one-afternoon)", () => {
+  const ADMONITION_POST = "/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/";
+
+  // docs/markup-2026-baseline/: a `> [!WARNING]` GFM blockquote-alert was added to
+  // this post's container-loopback pitfall. Blowfish's render-blockquote.html emits
+  // `data-type="{{ $normalizedType }}"` on the rendered admonition -- confirmed
+  // against the actual built HTML, not assumed.
+  test("loopback-address gotcha renders as a labeled warning admonition, not a plain blockquote", async ({
+    page,
+  }) => {
+    await page.goto(ADMONITION_POST);
+    const admonition = page.locator('.article-content [data-type="warning"]');
+    await expect(admonition).toBeAttached();
+    // Icon + label, never color alone.
+    await expect(admonition).toContainText("Warning");
+    await expect(admonition.locator("svg")).toBeAttached();
+    await expect(admonition).toContainText("network namespace");
+    // The literal "[!WARNING]" marker text must never leak into the rendered page --
+    // that's exactly what a malformed/unparsed alert falls back to.
+    await expect(page.locator(".article-content")).not.toContainText("[!WARNING]");
   });
 });

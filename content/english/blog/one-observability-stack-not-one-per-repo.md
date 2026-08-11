@@ -2,7 +2,8 @@
 title: "Run One Observability Stack, Not One Per Repo"
 meta_title: "Grafana and Prometheus: One Shared Stack vs. One Per Repo"
 description: "At around 30 repos and 15-20 always-on self-hosted services, running a separate Grafana/Prometheus stack per project is the wrong default. Here's the actual math and the migration I'm doing to fix it."
-date: 2026-08-10T12:10:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "DevOps",
@@ -33,6 +34,23 @@ A full Prometheus, Grafana, and Loki stack runs comfortably in 500MB to 2GB of R
 Homelab operators running desktop-plus-NAS setups converge on the same shape: one central Prometheus/Grafana/Loki stack, and a lightweight collection agent on every monitored host. The current standard agent is Grafana Alloy, an OpenTelemetry-based collector that replaced the older Grafana Agent (which is now deprecated). Alloy ships metrics, logs, and traces from each host back to the one shared backend using a single config file per host. You install one small agent per machine, not one full stack per project. That's the part I got backwards when I let each project's compose file bring its own Grafana along for the ride.
 
 Keeping the central stack on a separate machine from the workloads it watches also matters. If your monitoring stack lives on the same box as the service it's alerting on, a crash on that box takes out your visibility into the crash at the exact moment you need it. Splitting stack and workload physically, not just logically, is what turns "monitoring" into something you can actually trust during an incident.
+
+Here's the shape of the migration, anti-pattern on the left, target on the right:
+
+```mermaid
+flowchart TD
+    subgraph Before["Before: one stack per repo"]
+        A1[Repo A] --> G1[Grafana + Prometheus A]
+        A2[Repo B] --> G2[Grafana + Prometheus B]
+        A3[Repo C] --> G3[Grafana + Prometheus C]
+    end
+    subgraph After["After: hub-and-spoke"]
+        H[One central Prometheus/Grafana/Loki stack]
+        S1[Alloy agent, host 1] --> H
+        S2[Alloy agent, host 2] --> H
+        S3[Alloy agent, host 3] --> H
+    end
+```
 
 ## This is the same shared-infrastructure pattern I already use
 

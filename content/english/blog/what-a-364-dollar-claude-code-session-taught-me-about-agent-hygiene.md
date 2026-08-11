@@ -2,7 +2,8 @@
 title: "What a $364 Claude Code Session Taught Me About Running Agents Unattended"
 meta_title: "A $364 Claude Code Session and the Fix for Autonomous Agent Cost Sprawl"
 description: "A single Claude Code session cost $364. The usage breakdown behind that number pointed at four numbers, not one, and led to a deterministic session lifecycle fix for headless agent jobs I can't fully confirm worked yet."
-date: 2026-08-10T11:30:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "AI Infrastructure",
   "Software Architecture",
@@ -21,6 +22,20 @@ draft: false
 A single Claude Code session in my home lab cost $364. I found it on my own `/usage` report, not from a billing alert, and it was enough to make me stop and read the full week behind it instead of writing it off as one bad run.
 
 The breakdown behind that number told a clean story. Every dollar of that week's spend, 100 percent of it, came from sessions that had spawned subagents, meaning the main session had delegated work to separate Claude instances running in parallel rather than doing everything itself. Ninety-nine percent came from sessions that ran longer than eight hours straight. Ninety percent of spend happened while the session's context window, the running token budget that holds the full conversation history, sat above 150,000 tokens. And by the middle of that week, continuous `claude -p` jobs, Claude Code's non-interactive mode for scripted and scheduled work, firing unattended on my desktop had already burned 62 percent of my weekly usage cap. Four numbers, one shape: long, subagent-heavy, unattended sessions running with no lifecycle boundary at all.
+
+Here's how the four numbers converged into one diagnosis, and the fixes that came out of it:
+
+```mermaid
+flowchart TD
+    A["$364 session"] --> B["100% of spend: sessions with subagent fan-out"]
+    A --> C["99% of spend: sessions open 8+ hours"]
+    A --> D["90% of spend: context above 150k tokens"]
+    A --> E["62% of weekly cap: unattended claude -p jobs"]
+    B & C & D & E --> F["One shape: long, subagent-heavy,<br/>unattended sessions, no lifecycle boundary"]
+    F --> G[Fix: CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=60]
+    F --> H[Fix: SessionStart recovery hook]
+    F --> I[Fix: --max-turns hard stop]
+```
 
 ## Long sessions cost more than caching can offset
 

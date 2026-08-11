@@ -2,7 +2,8 @@
 title: "A Clean ClamAV Scan Doesn't Mean the File Is Safe"
 meta_title: "Closing ClamAV's Signature Gap in a Home-Lab Download Scan Gate"
 description: "ClamAV is signature-based, so a clean scan only means nothing matched a known pattern yet. Here's what I added to a home-lab media-download scan gate to close that gap: PUA detection, third-party signature feeds, native YARA rules, hash lookups, and entropy checks."
-date: 2026-08-10T12:20:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Security",
@@ -19,6 +20,21 @@ draft: false
 ---
 
 A clean ClamAV scan means nothing matched a known signature. It does not mean the file is safe. I run a scan gate in front of my media-download pipeline: everything that lands from the download clients gets checked by a ClamAV daemon before it's allowed into the library. For a long time I treated a clean verdict as the end of the question. It isn't. ClamAV is a signature engine, and signature engines only catch what someone has already seen, fingerprinted, and shipped a rule for. Zero-days and packed or obfuscated executables walk right past it, and the gap is worse than it sounds because ClamAV is open source. Anyone can download the exact detection logic and test their malware against it before release. That's not a hypothetical; researchers have measured samples built specifically to dodge open-source detectors evading ClamAV on the order of 70 to 85 percent of the time, without even needing inside knowledge of the engine.
+
+Here's the full layered gate, in the order a file actually passes through it:
+
+```mermaid
+flowchart TD
+    A[File lands from download client] --> B[clamd signature scan + extension blocklist]
+    B --> C[PUA detection: DetectPUA flag]
+    C --> D["Third-party signature feeds:<br/>Sanesecurity, SecuriteInfo, URLhaus, MalwarePatrol"]
+    D --> E[YARA-Forge Core rules, native in clamd]
+    E --> F{Borderline verdict?}
+    F -->|Yes| G["SHA-256 hash lookup:<br/>VirusTotal / MetaDefender, hash only"]
+    F -->|No| H[Entropy / packer check: Detect It Easy]
+    G --> H
+    H --> I[Verdict: clean / flagged / infected / blocked]
+```
 
 ## Signature scanning only catches what's already been seen
 

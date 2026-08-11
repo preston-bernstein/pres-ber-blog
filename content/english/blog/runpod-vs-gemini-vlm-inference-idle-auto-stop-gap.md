@@ -2,7 +2,8 @@
 title: "RunPod Beats Gemini on Cost for My Vision Pipeline, and the Idle-Stop Feature It's Missing"
 meta_title: "RunPod vs. Gemini for VLM Inference: Cost, Accuracy, and the Missing Idle-Auto-Stop"
 description: "Gemini 2.5 Flash still scores highest on structured vision extraction, but I run my personal vision pipeline on RunPod GPUs instead. The catch: RunPod has no native idle-auto-stop for dedicated pods, only serverless has it, so I built a watchdog to call the podStop API myself."
-date: 2026-08-10T11:20:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -41,6 +42,16 @@ Serverless pods scale to zero automatically. Dedicated pods don't, and I went lo
 ## I built a watchdog because nothing else was going to call podStop for me
 
 Once I confirmed the gap was real and not a documentation oversight, the fix was straightforward: an external watchdog that checks how long the pod has been idle and calls `podStop` once that idle window passes a threshold I set. This wasn't a workaround I invented out of necessity. RunPod's own cost-control guidance recommends exactly this shape: treat the GPU as fully ephemeral, let an external scheduler launch the pod, and have either the job itself or the scheduler call stop once the work is done. Pods bill minute by minute while running, so the whole cost argument for choosing a dedicated pod over Gemini falls apart if nothing is watching the clock. I'd already written a version of this watchdog for a different self-hosted GPU job, so this was mostly reusing a pattern rather than inventing one from scratch.
+
+Here's what the watchdog actually does, on a loop:
+
+```mermaid
+flowchart LR
+    A[Watchdog checks pod idle time] --> B{Idle threshold exceeded?}
+    B -->|No| A
+    B -->|Yes| C[Call podStop via RunPod GraphQL API]
+    C --> D[Pod stopped, billing stops,<br/>volume data preserved]
+```
 
 ## What I still haven't proven
 

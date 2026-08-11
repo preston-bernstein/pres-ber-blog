@@ -2,7 +2,8 @@
 title: "What If Two Independently-Built Agent Suites Reviewed Each Other's Code?"
 meta_title: "Dueling Agent Orchestration: An Unbuilt Design for Independent AI Code Review"
 description: "A design sketch for having two coding-agent suites, built with zero shared configuration, open and review each other's pull requests the way two engineers with different judgment catch each other's mistakes. What research already backs, what's still missing from existing tools, and why I'm not sure the disagreement it produces is worth the cost."
-date: 2026-08-10T11:35:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -26,6 +27,17 @@ A single agent reviewing its own pull request doesn't catch much, and there's a 
 ## The design: independent suites, not two calls to the same agent
 
 The design only works if the two suites are actually independent, not just two separate agent invocations. Suite A and suite B need different base models, or at minimum instruction sets and personas derived without either side looking at the other's files, the same way two engineers who never compared notes would naturally write different code for the same ticket. When B reviews A's PR, it should start from a fresh session rather than carry context across review rounds, because letting a reviewer agent hold onto its own earlier verdict is a known way for it to anchor on that verdict instead of looking again. And the loop needs a hard round limit, somewhere around three to five exchanges, so the respond-and-re-review cycle can't spin forever on a disagreement neither side will drop.
+
+Here's the loop itself:
+
+```mermaid
+flowchart LR
+    A[Suite A opens PR] --> B["Suite B reviews cold<br/>(fresh session, no shared config)"]
+    B --> C[Suite A decides what's real, applies fixes]
+    C --> D{"Round limit reached?<br/>(3-5 exchanges)"}
+    D -->|No| B
+    D -->|Yes| E[Loop ends]
+```
 
 ## Nobody ships this as a preset, but the pieces exist
 

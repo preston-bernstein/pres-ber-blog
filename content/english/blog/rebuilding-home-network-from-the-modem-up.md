@@ -2,7 +2,8 @@
 title: "Rebuilding a Home Network from the Modem Up, One Phase at a Time"
 meta_title: "Home Network Rebuild: ISP Modem Passthrough, UniFi Spine, Pi-hole DNS"
 description: "A phased plan for tearing down and rebuilding a home network: the ISP modem set to passthrough, a UniFi gateway and switch as the core, Pi-hole DNS filtering on a Raspberry Pi controller, and downstream devices brought back one at a time — including the step I never fully resolved."
-date: 2026-08-10T12:25:00Z
+date: 2026-08-10T18:02:27Z
+lastmod: 2026-08-10
 categories: [
   "Home Lab",
   "Networking"
@@ -42,6 +43,18 @@ Adoption is UniFi's term for a device formally joining a controller: the control
 ## Wiring the spine follows a strict power-on order
 
 Physical wiring came after every device was individually verified, not before. The modem's LAN port feeds the gateway's WAN port. The gateway's LAN port feeds the UniFi switch, which acts as the spine, the central point everything downstream connects through. The switch feeds the Pi controller on one port and the rest of the existing switch gear on another. Power-on order matters here: switch first, then gateway, so it has something to talk to on boot, then the Pi last. Skipping that order doesn't necessarily break anything, but it's one more variable I didn't need while troubleshooting a fresh spine.
+
+Here's the spine those wiring steps actually build, in the order signal flows through it:
+
+```mermaid
+flowchart LR
+    A["ISP modem<br/>(passthrough mode)"] --> B[UniFi gateway]
+    B --> C[UniFi switch — the spine]
+    C --> D["Pi controller<br/>(UniFi + Pi-hole)"]
+    C --> E[Rest of existing switch gear]
+```
+
+Power-on order runs switch first, then gateway, then the Pi last, so the gateway always has something to talk to the moment it boots.
 
 ## Passthrough is a modem setting, not a gateway setting
 
