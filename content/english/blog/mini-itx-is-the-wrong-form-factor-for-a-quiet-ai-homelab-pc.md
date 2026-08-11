@@ -1,7 +1,7 @@
 ---
 title: "Mini-ITX Is the Wrong Form Factor for a Quiet AI Home-Lab PC"
 meta_title: "Mini-ITX vs mATX for a Quiet, Upgradable AI Home-Lab PC"
-description: "Every quiet home-lab PC guide points at mini-ITX. For a box built around an RTX 3060 that has to stay quiet, stay cool, and take upgrades at every slot, mini-ITX fails on all three counts. Here are the actual build parameters I landed on instead."
+description: "Mini-ITX forces small high-RPM fans and SFX PSUs: louder, less room to grow. mATX on an AM5 B650 board wins for a quiet, upgradable RTX 3060 inference box."
 date: 2026-08-10T12:05:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -34,11 +34,11 @@ The tradeoff I'm accepting here is real: footprint, not sound. A mATX build sits
 
 ## Socket choice decides how long the board lasts
 
-AM5 is the safer bet for a board I don't want to replace in two years. AMD extended AM5 platform support through 2029, up from an earlier 2027 commitment, with Zen 6 and likely Zen 7 landing on the same socket. Intel's next socket, LGA1954, has only a VP's public statement pointing toward similar multi-generation support, not a locked commitment the way AMD's is. A CPU swap two or three years out should mean unscrewing four cooler mounts, not buying a new motherboard and new RAM and reinstalling the OS.
+AM5 is the safer bet for a board I don't want to replace in two years. [AMD extended AM5 platform support through 2029](https://www.tomshardware.com/pc-components/cpus/amd-confirms-am5-support-through-2029-zen-4-and-5-platform-will-likely-see-two-more-generations-at-least), up from an earlier 2027 commitment, with Zen 6 and likely Zen 7 landing on the same socket. Intel's next socket, LGA1954, has only a VP's public statement pointing toward similar multi-generation support, not a locked commitment the way AMD's is. A CPU swap two or three years out should mean unscrewing four cooler mounts, not buying a new motherboard and new RAM and reinstalling the OS.
 
 ## Chipset tier drives idle power more than the CPU spec sheet
 
-Chipset tier changes idle power draw on AM5 boards more than most builders expect. Measured bench data on a single-chip B650E board showed roughly 71W idle, tying the dual-chip X670E flagship board tested alongside it. The second chip on X670 and X670E boards buys nothing here and just adds another die pulling power around the clock. I'm buying a single-chip B650 or B650E board and skipping X670E outright, since this machine runs continuously as an inference host, and idle draw compounds over a year in a way a gaming rig's idle time never does.
+Chipset tier changes idle power draw on AM5 boards more than most builders expect. Measured bench data on a single-chip B650E board showed roughly 71W idle, tying the dual-chip X670E flagship board tested alongside it. The second chip on X670 and X670E boards buys nothing here and just adds another die pulling power around the clock. I'm buying a single-chip B650 or B650E board and skipping X670E outright, since this machine runs continuously as an inference host, and idle draw compounds over a year in a way a gaming rig's idle time never does — [the same idle-power math that decided my last box purchase](/blog/gaming-desktop-vs-dedicated-compute-box-idle-power/).
 
 ## The CPU's job is sitting at 20W, not winning benchmarks
 
@@ -46,7 +46,7 @@ The GPU carries the AI workload here, so the CPU's real job is staying quiet at 
 
 ## Size the power supply to the real load, not to imagined headroom
 
-An oversized power supply runs less efficiently on this build than a right-sized one. The RTX 3060 carries a hard 170W power limit set by Nvidia across every partner card, and a Ryzen 5 7600 idles around 20W and stays well under 100W under load. Measured efficiency curves on 600-650W ATX units peak near 91% at 50% load and dip at both the 10% and 100% ends. A Corsair RM650e held 90.9% efficiency at 50% load with average noise measured at only 12.6 dBA. An 850W-plus unit bought for headroom would run this system under 20% load most of the time, off its efficiency peak, for no real benefit. 550 to 650W, full-size ATX, is the right target.
+An oversized power supply runs less efficiently on this build than a right-sized one. The RTX 3060 carries a [170W power spec](https://en.wikipedia.org/wiki/GeForce_30_series) set by Nvidia, and a Ryzen 5 7600 idles around 20W and stays well under 100W under load. Measured efficiency curves on 600-650W ATX units peak near 91% at 50% load and dip at both the 10% and 100% ends. A Corsair RM650e held 90.9% efficiency at 50% load with average noise measured at only 12.6 dBA. An 850W-plus unit bought for headroom would run this system under 20% load most of the time, off its efficiency peak, for no real benefit. 550 to 650W, full-size ATX, is the right target.
 
 ## The board and case pick still isn't verified
 

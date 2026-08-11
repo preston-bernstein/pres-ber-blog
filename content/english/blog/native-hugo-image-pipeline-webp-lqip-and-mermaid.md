@@ -1,7 +1,7 @@
 ---
 title: "A Native Hugo Image Pipeline: WebP, LQIP Blur-Up, and Mermaid Diagrams"
 meta_title: "Native WebP, LQIP, and Mermaid Diagrams in Hugo Without a CDN"
-description: "This blog had zero image optimization and diagrams that only worked through one theme-specific shortcode. Here's the Hugo render-hook pipeline that fixed both — automatic WebP conversion, responsive srcset, blur-up placeholders, and Mermaid diagrams from a plain fenced code block — plus the width-gating bug that nearly shipped broken."
+description: "Hugo render hooks gave this blog automatic WebP, srcset, and blur-up placeholders, plus Mermaid diagrams from plain fenced code blocks. No CDN, no theme fork."
 date: 2026-08-10T18:00:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -21,7 +21,7 @@ tags: [
 draft: false
 ---
 
-This site had no image pipeline until this week. Every image in every post loaded at its original file size and format, usually a multi-megabyte PNG screenshot, with no responsive sizing and no loading placeholder. Diagrams worked through exactly one path: a Blowfish theme shortcode you had to remember to wrap your diagram in by hand, with no way to drop a diagram into a plain fenced code block the way you would in a GitHub README or almost anywhere else that renders Markdown. I fixed both problems in the same pass, because they share a mechanism: Hugo render hooks, which let a site override how the built-in Markdown renderer turns one specific element — an image, a code block — into HTML.
+This site had no image pipeline until this week. Every image in every post loaded at its original file size and format, usually a multi-megabyte PNG screenshot, with no responsive sizing and no loading placeholder. Diagrams worked through exactly one path: a Blowfish theme shortcode you had to remember to wrap your diagram in by hand, with no way to drop a diagram into a plain fenced code block the way you would in a GitHub README or almost anywhere else that renders Markdown. I fixed both problems in the same pass, because they share a mechanism: [Hugo render hooks](https://gohugo.io/render-hooks/), which let a site override how the built-in Markdown renderer turns one specific element — an image, a code block — into HTML.
 
 ## Render hooks, not a CDN
 
@@ -59,13 +59,13 @@ flowchart TD
     J --> K
 ```
 
-Here's a real image going through that exact path, reused from an earlier post on this blog rather than a synthetic test image, so the pipeline is doing real work instead of rendering a stock placeholder:
+Here's a real image going through that exact path, reused from [the Docker Compose VPN guide on this blog](/blog/secure-services-docker-compose-and-nordvpn/) rather than a synthetic test image, so the pipeline is doing real work instead of rendering a stock placeholder:
 
 ![Docker Compose network diagram showing application containers routed through a NordVPN container via a shared network namespace, with only the VPN container publishing ports to the host](images/blog/secure-services-docker-compose-and-nordvpn/dockerComposeWithVPNDiagram.png "The Docker Compose + VPN topology from an earlier post on this blog, now served as WebP with a blur-up placeholder")
 
 ## The bug that would have shipped: images under 800px skipped WebP
 
-Blowfish, the theme this site runs on, already had an image render hook, and the one I built started as a fork of it rather than something written from scratch. Its responsive-image logic resized to WebP only inside a conditional gated on the source image's width, and that conditional was written so images narrower than 800px fell through without ever hitting the `.Resize` call. A screenshot that happened to be, say, 600px wide would render as a plain, unconverted PNG — no WebP, no srcset, no LQIP, and no error to indicate anything had gone wrong.
+[Blowfish](https://blowfish.page/), the theme this site runs on, already had an image render hook, and the one I built started as a fork of it rather than something written from scratch. Its responsive-image logic resized to WebP only inside a conditional gated on the source image's width, and that conditional was written so images narrower than 800px fell through without ever hitting the `.Resize` call. A screenshot that happened to be, say, 600px wide would render as a plain, unconverted PNG — no WebP, no srcset, no LQIP, and no error to indicate anything had gone wrong.
 
 I caught this during spec review, before it shipped, by deliberately testing against a narrow image instead of only the wide screenshot used elsewhere in this post. The fix was to make the WebP conversion unconditional: every local raster image gets resized to WebP now, with each target width capped at `math.Min(originalWidth, 800)` (or 1280 for the larger variant) so a small source image gets downsized cleanly and never upscaled. A conditional that silently skips work instead of erroring is invisible until someone tests the exact input it was written to exclude — this one only surfaced because the test plan called for a narrow image specifically instead of reusing the same wide screenshot every other check already covered.
 
@@ -73,7 +73,7 @@ I caught this during spec review, before it shipped, by deliberately testing aga
 
 Before this, the only way to add a diagram to a post was Blowfish's `mermaid` shortcode — Hugo's mechanism for calling a custom template from inside Markdown by name, wrapped around the content it applies to. It works, but it's specific to this theme. Paste the same Markdown into GitHub, or into any other Hugo site without that exact shortcode installed, and it renders as literal, broken-looking text instead of a diagram.
 
-Mermaid — the diagramming library, not the theme feature — has a real, portable convention for this: a fenced code block tagged with the word `mermaid` as its language name, the same triple-backtick-plus-language convention you'd use for any other code block, just with `mermaid` in place of `python` or `bash`. GitHub, GitLab, and most Markdown renderers already recognize that convention natively. Hugo's code-block render hook lets this site recognize it too: `render-codeblock-mermaid.html` intercepts any fenced block tagged that way and wraps its raw content in a `<pre class="mermaid">` element — the exact markup the existing shortcode already produced, so the same CSS and the same Mermaid JavaScript runtime pick it up identically no matter which syntax wrote it. The diagram earlier in this post, the one showing the image hook's decision flow, is a real instance of that fenced block, not a mockup.
+[Mermaid](https://mermaid.js.org/) — the diagramming library, not the theme feature — has a real, portable convention for this: a fenced code block tagged with the word `mermaid` as its language name, the same triple-backtick-plus-language convention you'd use for any other code block, just with `mermaid` in place of `python` or `bash`. [GitHub](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams), GitLab, and most Markdown renderers already recognize that convention natively. Hugo's code-block render hook lets this site recognize it too: `render-codeblock-mermaid.html` intercepts any fenced block tagged that way and wraps its raw content in a `<pre class="mermaid">` element — the exact markup the existing shortcode already produced, so the same CSS and the same Mermaid JavaScript runtime pick it up identically no matter which syntax wrote it. The diagram earlier in this post, the one showing the image hook's decision flow, is a real instance of that fenced block, not a mockup.
 
 ## Loading the Mermaid bundle exactly once, from either entry point
 

@@ -1,7 +1,7 @@
 ---
 title: "Three Failure Modes Wearing One Name: Running Concurrent Claude Code Agents Without State Drift"
 meta_title: "Concurrent Claude Code Agents: Worktree Sprawl vs Deploy Drift vs Wasted Compute"
-description: "Running four or five Claude Code agents at once across repos looked like one problem — state drift. It turned out to be three separate failure modes: worktree sprawl, deploy drift, and wasted compute. A follow-up audit checked whether the fix actually held, and found the native worktree lifecycle works in exactly the one workflow built for it, and nowhere else yet."
+description: "'State drift' across concurrent Claude Code agents was three problems: worktree sprawl (unused feature), deploy drift (ungeneralized), wasted compute (open)."
 date: 2026-08-10T11:40:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -34,9 +34,9 @@ flowchart TD
 
 ## Worktree sprawl turned out to be a feature nobody had switched on
 
-I run Claude Code as several parallel agents, each working a different repo or branch, and each one needs its own working directory so two agents don't stomp on the same uncommitted edits. Git's answer to that is a worktree: a second working directory attached to the same repository, checked out on its own branch, addable and removable independently of the main clone. The complaint that started this whole investigation was plain. I kept finding worktrees on disk that some agent session had opened and nobody, including me, had closed.
+I run Claude Code as several parallel agents, each working a different repo or branch, and each one needs its own working directory so two agents don't stomp on the same uncommitted edits. ([What that style of agent use costs is its own story](/blog/what-a-364-dollar-claude-code-session-taught-me-about-agent-hygiene/).) [Git's answer to that is a worktree](https://git-scm.com/docs/git-worktree): a second working directory attached to the same repository, checked out on its own branch, addable and removable independently of the main clone. The complaint that started this whole investigation was plain. I kept finding worktrees on disk that some agent session had opened and nobody, including me, had closed.
 
-The research sweep turned up something I hadn't clocked: Claude Code already ships a lifecycle for this, and most of it just needs turning on rather than replacing. It auto-sweeps worktrees it created for subagents and background sessions once they clear a configurable age, but only if they're clean, with no uncommitted changes and no unpushed commits. Anything opened with an explicit `--worktree` flag, or created mid-session with the `EnterWorktree` tool, is permanently exempt from that sweep. The documentation says so directly: it never removes a worktree you create that way. That distinction explains most of what I'd been seeing. My deliberate multi-agent sessions, the ones I open on purpose rather than the throwaway subagent kind, were never going to get swept, because the sweep was never built to touch them.
+The research sweep turned up something I hadn't clocked: [Claude Code already ships a worktree lifecycle](https://code.claude.com/docs/en/worktrees), and most of it just needs turning on rather than replacing. It auto-sweeps worktrees it created for subagents and background sessions once they clear a configurable age, but only if they're clean, with no uncommitted changes and no unpushed commits. Anything opened with an explicit `--worktree` flag is exempt from that periodic sweep; the documentation says directly that it never removes a worktree you create that way. Worktrees opened mid-session with the `EnterWorktree` tool only get cleaned up on a clean session exit, so a session that dies partway leaves them behind. That distinction explains most of what I'd been seeing. My deliberate multi-agent sessions, the ones I open on purpose rather than the throwaway subagent kind, were never going to get swept, because the sweep was never built to touch them.
 
 ## Deploy drift is a different bug wearing the same complaint
 

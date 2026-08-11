@@ -1,7 +1,7 @@
 ---
 title: "Run One Observability Stack, Not One Per Repo"
 meta_title: "Grafana and Prometheus: One Shared Stack vs. One Per Repo"
-description: "At around 30 repos and 15-20 always-on self-hosted services, running a separate Grafana/Prometheus stack per project is the wrong default. Here's the actual math and the migration I'm doing to fix it."
+description: "At ~30 repos and 15-20 always-on services, run one shared Grafana/Prometheus/Loki stack with an Alloy agent per host, not a stack per repo."
 date: 2026-08-10T12:10:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -19,7 +19,7 @@ tags: [
 draft: false
 ---
 
-Run one shared Grafana and Prometheus stack for your whole home lab, not one per repo. I have around 30 GitHub repos and 15-20 always-on self-hosted services running mostly on one desktop plus a NAS, and I recently found two separate Grafana containers on that desktop, each spun up by a different project's docker-compose file, each with its own dashboards nobody was cross-referencing. That's the anti-pattern this post argues against, and it happened because "just add a Grafana container to the compose file" felt like the path of least resistance at the time.
+Run one shared Grafana and Prometheus stack for your whole home lab, not one per repo. I have around 30 GitHub repos and 15-20 always-on self-hosted services running mostly on one desktop plus a NAS ([split by the placement framework from an earlier post](/blog/not-every-docker-container-belongs-on-the-nas/)), and I recently found two separate Grafana containers on that desktop, each spun up by a different project's docker-compose file, each with its own dashboards nobody was cross-referencing. That's the anti-pattern this post argues against, and it happened because "just add a Grafana container to the compose file" felt like the path of least resistance at the time.
 
 ## The isolation argument doesn't apply to a personal setup
 
@@ -31,7 +31,7 @@ A full Prometheus, Grafana, and Loki stack runs comfortably in 500MB to 2GB of R
 
 ## Hub-and-spoke is the actual pattern people run at this scale
 
-Homelab operators running desktop-plus-NAS setups converge on the same shape: one central Prometheus/Grafana/Loki stack, and a lightweight collection agent on every monitored host. The current standard agent is Grafana Alloy, an OpenTelemetry-based collector that replaced the older Grafana Agent (which is now deprecated). Alloy ships metrics, logs, and traces from each host back to the one shared backend using a single config file per host. You install one small agent per machine, not one full stack per project. That's the part I got backwards when I let each project's compose file bring its own Grafana along for the ride.
+Homelab operators running desktop-plus-NAS setups converge on the same shape: one central Prometheus/Grafana/Loki stack, and a lightweight collection agent on every monitored host. The current standard agent is [Grafana Alloy](https://grafana.com/docs/alloy/latest/), an OpenTelemetry-based collector that replaced the older Grafana Agent ([now deprecated and past end-of-life](https://grafana.com/blog/grafana-agent-to-grafana-alloy-opentelemetry-collector-faq/)). Alloy ships metrics, logs, and traces from each host back to the one shared backend using a single config file per host. You install one small agent per machine, not one full stack per project. That's the part I got backwards when I let each project's compose file bring its own Grafana along for the ride.
 
 Keeping the central stack on a separate machine from the workloads it watches also matters. If your monitoring stack lives on the same box as the service it's alerting on, a crash on that box takes out your visibility into the crash at the exact moment you need it. Splitting stack and workload physically, not just logically, is what turns "monitoring" into something you can actually trust during an incident.
 

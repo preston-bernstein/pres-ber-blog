@@ -1,7 +1,7 @@
 ---
 title: "Rebuilding a Home Network from the Modem Up, One Phase at a Time"
 meta_title: "Home Network Rebuild: ISP Modem Passthrough, UniFi Spine, Pi-hole DNS"
-description: "A phased plan for tearing down and rebuilding a home network: the ISP modem set to passthrough, a UniFi gateway and switch as the core, Pi-hole DNS filtering on a Raspberry Pi controller, and downstream devices brought back one at a time — including the step I never fully resolved."
+description: "The rebuild order that worked: ISP modem to passthrough, UniFi gateway and switch, Pi-hole DNS on a Pi controller, then downstream devices one at a time."
 date: 2026-08-10T12:25:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -38,7 +38,7 @@ I factory reset the UniFi gateway before letting the controller adopt it, instea
 
 ## Adoption is where the controller and the gateway agree to work together
 
-Adoption is UniFi's term for a device formally joining a controller: the controller pushes its configuration down, the device reboots into it, and from then on the controller manages it. I connect a laptop directly to the gateway's LAN port, open the controller's web dashboard from the Pi, and adopt the gateway once it shows up as pending. Most of the time this works from the UI in a few minutes. When it doesn't, there's a command-line fallback that points the device at the controller's inform address directly, run over a direct SSH session into the gateway itself, and then the UI adoption is retried. I didn't need the fallback this time, but I wrote it into the plan anyway, because the one time you skip documenting the fallback is the one time you need it at 11pm.
+[Adoption is UniFi's term](https://help.ui.com/hc/en-us/articles/360012622613-UniFi-Device-Adoption) for a device formally joining a controller: the controller pushes its configuration down, the device reboots into it, and from then on the controller manages it. I connect a laptop directly to the gateway's LAN port, open the controller's web dashboard from the Pi, and adopt the gateway once it shows up as pending. Most of the time this works from the UI in a few minutes. When it doesn't, there's a command-line fallback that points the device at the controller's inform address directly, run over a direct SSH session into the gateway itself, and then the UI adoption is retried. I didn't need the fallback this time, but I wrote it into the plan anyway, because the one time you skip documenting the fallback is the one time you need it at 11pm.
 
 ## Wiring the spine follows a strict power-on order
 
@@ -62,11 +62,11 @@ Passthrough gets configured on the ISP modem, not on the UniFi side, which is a 
 
 ## Pi-hole runs on the same board as the controller, which is a real tradeoff
 
-Pi-hole filters DNS requests before they leave the network, blocking ads and unwanted domains at the resolver instead of per-device. Running it on the same Raspberry Pi as the UniFi controller keeps the hardware footprint small, and for a home network that's a fine tradeoff. It also means a single board failure takes out both the DNS filter and the controller UI at once, which is the kind of shortcut worth being honest about instead of glossing over.
+[Pi-hole](https://pi-hole.net/) filters DNS requests before they leave the network, blocking ads and unwanted domains at the resolver instead of per-device. Running it on the same Raspberry Pi as the UniFi controller keeps the hardware footprint small, and for a home network that's a fine tradeoff. It also means a single board failure takes out both the DNS filter and the controller UI at once, which is the kind of shortcut worth being honest about instead of glossing over.
 
 ## Where downstream devices land was a decision I hadn't made yet
 
-Here's the part of the plan I can't write up as finished, because it wasn't. Before the rebuild, the NAS, desktop, laptop, and a couple of media devices connected straight into modem ports, flat, no managed switch in the path. Once the modem is just a passthrough bridge and the UniFi gateway is the real router, those devices need a new home: stay on the old flat ports and lose DHCP consistency with everything else, or get rewired into the managed spine and gain it. I listed four options in my planning notes and didn't pick one, because it touches a NAS with a bonded network connection I didn't want to reroute on a guess, and a couple of devices whose physical cable runs I hadn't confirmed. That's an honest gap. I'd rather admit the plan stalled on a real unknown than pretend I closed it out.
+Here's the part of the plan I can't write up as finished, because it wasn't. Before the rebuild, the NAS, desktop, laptop, and a couple of media devices connected straight into modem ports, flat, no managed switch in the path. Once the modem is just a passthrough bridge and the UniFi gateway is the real router, those devices need a new home: stay on the old flat ports and lose DHCP consistency with everything else, or get rewired into the managed spine and gain it. I listed four options in my planning notes and didn't pick one, because it touches a NAS with a bonded network connection I didn't want to reroute on a guess ([the same NAS whose workload placement got its own post](/blog/not-every-docker-container-belongs-on-the-nas/)), and a couple of devices whose physical cable runs I hadn't confirmed. That's an honest gap. I'd rather admit the plan stalled on a real unknown than pretend I closed it out.
 
 ## The plan mattered more than the finish line
 

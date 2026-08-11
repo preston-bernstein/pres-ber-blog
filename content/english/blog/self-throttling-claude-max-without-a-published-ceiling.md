@@ -1,7 +1,7 @@
 ---
 title: "Building a Self-Throttling Governor for Claude Max With No Published Ceiling"
 meta_title: "Claude Max Cadence Governor: Throttling Without a Documented Limit"
-description: "Anthropic never publishes an absolute token or message ceiling for Claude Max 20x, only qualitative language about 20x more usage than Pro. Here's the cadence governor I built to keep background claude -p jobs from eating the quota my interactive sessions need, without a real number to target."
+description: "Claude Max publishes no absolute usage ceiling, so my governor calibrates from real 429s, ramping claude -p cadence against 5-hour and 7-day rolling windows."
 date: 2026-08-10T11:25:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -19,13 +19,13 @@ tags: [
 draft: false
 ---
 
-Anthropic will not tell you how many tokens or messages Claude Max 20x actually gives you, and I had to build a throttle for it anyway. I run several personal research projects on background schedules through `claude -p`, unattended fires that call Claude Code from cron and systemd timers while I'm not watching. Those fires draw from the exact same quota as the interactive Claude Code sessions I use to do actual work. If a background job burns the pool at 2pm, my 2:15pm session pays for it. I wanted those jobs to back off automatically as usage climbed, and hand back the room the moment I sat down to work. The problem is that Anthropic gives you nothing to calibrate that against.
+Anthropic will not tell you how many tokens or messages Claude Max 20x actually gives you, and I had to build a throttle for it anyway. I run several personal research projects on background schedules through `claude -p`, unattended fires that call Claude Code from cron and systemd timers while I'm not watching. Those fires draw from the exact same quota as the interactive Claude Code sessions I use to do actual work. If a background job burns the pool at 2pm, my 2:15pm session pays for it. [A single $364 session](/blog/what-a-364-dollar-claude-code-session-taught-me-about-agent-hygiene/) is what made that competition concrete enough to build against. I wanted those jobs to back off automatically as usage climbed, and hand back the room the moment I sat down to work. The problem is that Anthropic gives you nothing to calibrate that against.
 
 ## Anthropic publishes a ratio, not a ceiling
 
-The Max plan documentation defines the 20x tier as "20 times more usage per session than the Pro plan," and that's the entire spec. No token count, no message count, no per-window number anywhere in Anthropic's own docs. Everything else is qualitative: usage scales with conversation length, model choice, and effort level, and none of those get a formula. I went looking for a hidden number to hardcode against and confirmed there isn't one, at least not one Anthropic publishes.
+[Anthropic's Max plan documentation](https://support.claude.com/en/articles/11049741-what-is-the-max-plan) defines the 20x tier as "20 times more usage per session than the Pro plan," and that's the entire spec. No token count, no message count, no per-window number anywhere in Anthropic's own docs. Everything else is qualitative: usage scales with conversation length, model choice, and effort level, and none of those get a formula. I went looking for a hidden number to hardcode against and confirmed there isn't one, at least not one Anthropic publishes.
 
-That absence isn't a documentation oversight. It's a load-bearing consequence of the ceiling itself moving. Anthropic doubled the 5-hour rate limit for Claude Code on Pro, Max, and seat-based Enterprise plans on 2026-05-06, and removed a peak-hour reduction that had applied to Pro and Max accounts on the same date. Any number I'd baked into a governor before that date would have been wrong the moment it shipped, silently, with no changelog entry pointing at my config file. A governor built against a fixed assumed ceiling is a governor built to go stale.
+That absence isn't a documentation oversight. It's a load-bearing consequence of the ceiling itself moving. [Anthropic doubled the 5-hour rate limit for Claude Code](https://www.anthropic.com/news/higher-limits-spacex) on Pro, Max, and seat-based Enterprise plans on 2026-05-06, and removed a peak-hour reduction that had applied to Pro and Max accounts on the same date. Any number I'd baked into a governor before that date would have been wrong the moment it shipped, silently, with no changelog entry pointing at my config file. A governor built against a fixed assumed ceiling is a governor built to go stale.
 
 ## One pool, two independent windows, and a hidden sub-cap
 

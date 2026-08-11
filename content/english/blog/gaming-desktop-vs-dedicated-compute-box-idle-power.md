@@ -1,7 +1,7 @@
 ---
 title: "Gaming Desktop or Dedicated Compute Box: Idle Power Decides, Not Sticker Price"
 meta_title: "Gaming Desktop vs. Dedicated Compute Box for Home Lab: The Idle Power Math"
-description: "The gap between a gaming desktop idling at 80-200W and a low-power mini PC idling at 10-15W looks like an easy win, until you check whether the desktop can actually sleep. Mine couldn't, and the decision changed."
+description: "A mini PC only cuts power costs if the desktop actually sleeps. Mine runs 24/7 for services, so the second box is about isolation, not watts."
 date: 2026-08-10T12:00:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
@@ -28,7 +28,7 @@ The number only works, though, if the desktop's power draw during "off" hours is
 
 ## Buying a mini PC doesn't save power if the desktop stays on anyway
 
-Here's where my own case broke the clean version of this argument. My desktop wasn't just gaming hardware sitting idle between sessions. It was already running 24/7 to serve a stack of self-hosted services: a media-automation pipeline, a personal trading-research pipeline, and a local broker that arbitrates GPU access for LLM inference. None of that stops when I'm not gaming. The desktop was never going to drop to a true idle state, let alone power off, regardless of what other hardware I bought.
+Here's where my own case broke the clean version of this argument. My desktop wasn't just gaming hardware sitting idle between sessions. It was already running 24/7 to serve a stack of self-hosted services: a media-automation pipeline, a personal trading-research pipeline, and [a local broker that arbitrates GPU access for LLM inference](/blog/debugging-false-positive-gpu-contention-detection/). None of that stops when I'm not gaming. The desktop was never going to drop to a true idle state, let alone power off, regardless of what other hardware I bought.
 
 That fact kills the power-savings case outright. Adding a 10-15W mini PC next to a desktop that keeps running at its existing load doesn't subtract 80-200W from my bill, it adds 10-15W on top of what I was already paying. Total household power draw goes up, not down. Anyone pricing this decision purely on wattage needs to check their own uptime pattern first, because the entire payback calculation assumes the expensive box gets to power down once the cheap box exists. Mine didn't, so I didn't get that check to cash.
 
@@ -56,4 +56,4 @@ Moving LLM inference to its own hardware is a real option, but it's a much bigge
 
 ## What I'd actually check before buying
 
-Check your desktop's real uptime pattern before you check mini PC prices. If it's already running 24/7 for reasons unrelated to gaming, buying a low-power box will not lower your electricity bill, and anyone telling you otherwise hasn't looked at your actual load. The purchase can still be worth it, but the reason changes: you're buying isolation and uptime, not watts. I ended up repurposing an old laptop I already owned as the dedicated box, running Proxmox, rather than buying new hardware, since the reliability case didn't require the cheapest possible idle wattage, just a second machine that wasn't also my gaming rig. If your desktop genuinely goes idle for long stretches, the wattage math is worth taking seriously, the payback period is short and the number is real. Just do the arithmetic on your own machine's actual behavior, not on the average box in a benchmark.
+Check your desktop's real uptime pattern before you check mini PC prices. If it's already running 24/7 for reasons unrelated to gaming, buying a low-power box will not lower your electricity bill, and anyone telling you otherwise hasn't looked at your actual load. The purchase can still be worth it, but the reason changes: you're buying isolation and uptime, not watts. I ended up repurposing an old laptop I already owned as the dedicated box — [the XPS 17 that now runs Proxmox](/blog/proxmox-for-the-xps-17-offload-box/) — rather than buying new hardware, since the reliability case didn't require the cheapest possible idle wattage, just a second machine that wasn't also my gaming rig. If your desktop genuinely goes idle for long stretches, the wattage math is worth taking seriously, the payback period is short and the number is real. Just do the arithmetic on your own machine's actual behavior, not on the average box in a benchmark.

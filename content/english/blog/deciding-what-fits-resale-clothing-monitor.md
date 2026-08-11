@@ -1,7 +1,7 @@
 ---
 title: "Deciding What Fits: Inside My Resale-Clothing Monitor"
 meta_title: "Resale Monitor Two-Pass LLM Scoring and False-Positive Bias: A Home-Lab Case Study, Part 3"
-description: "Part 3 of 3. How my resale-clothing monitor filters listings for free before any model call, why its bias toward false positives has no counterweight yet, and what actually broke when its alert channel changed."
+description: "Part 3 of 3: the resale monitor rejects 40-60% of listings with free rules before any model call, and its false-positive bias still has no counterweight."
 date: 2026-08-10T10:10:00Z
 lastmod: 2026-08-11T20:34:13Z
 categories: [
