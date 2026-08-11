@@ -1,23 +1,24 @@
-name: Deploy Hugo Site via FTP
+name: GEO Gate (PRs and branches)
 
 defaults:
   run:
     shell: bash
 
 on:
-  push:
+  pull_request:
     branches:
+      - main
+  push:
+    branches-ignore:
       - main
 
 env:
   HUGO_ENV: production
   HUGO_VERSION: 0.164.0
-  SITE_FOLDER: prestonbernstein.com
 
 jobs:
-  build-deploy:
-    name: Build and deploy
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+  build-gate:
+    name: Build and run GEO gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo codebase
@@ -48,19 +49,3 @@ jobs:
 
       - name: GEO gate
         run: python3 scripts/geo-gate.py
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Run tests
-        run: npm test
-
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          local-dir: ./public/
-          server-dir: ./${{ env.SITE_FOLDER }}/
