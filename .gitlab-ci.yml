@@ -9,7 +9,7 @@ stages:
 variables:
   HUGO_ENV: production
   HUGO_VERSION: "0.164.0"
-  NODE_VERSION: "18.16.1"
+  NODE_VERSION: "lts"
 
 cache:
   paths:
