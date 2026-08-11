@@ -2,8 +2,8 @@
 title: "Three Failure Modes Wearing One Name: Running Concurrent Claude Code Agents Without State Drift"
 meta_title: "Concurrent Claude Code Agents: Worktree Sprawl vs Deploy Drift vs Wasted Compute"
 description: "Running four or five Claude Code agents at once across repos looked like one problem — state drift. It turned out to be three separate failure modes: worktree sprawl, deploy drift, and wasted compute. A follow-up audit checked whether the fix actually held, and found the native worktree lifecycle works in exactly the one workflow built for it, and nowhere else yet."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:40:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"

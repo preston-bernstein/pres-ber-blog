@@ -2,8 +2,8 @@
 title: "RunPod Beats Gemini on Cost for My Vision Pipeline, and the Idle-Stop Feature It's Missing"
 meta_title: "RunPod vs. Gemini for VLM Inference: Cost, Accuracy, and the Missing Idle-Auto-Stop"
 description: "Gemini 2.5 Flash still scores highest on structured vision extraction, but I run my personal vision pipeline on RunPod GPUs instead. The catch: RunPod has no native idle-auto-stop for dedicated pods, only serverless has it, so I built a watchdog to call the podStop API myself."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:20:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Machine Learning",
   "Software Architecture",

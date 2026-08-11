@@ -2,8 +2,8 @@
 title: "Tuning LightRAG Ingestion Concurrency Against a Rate-Limited Gemini API"
 meta_title: "LightRAG + Gemini: Concurrency Tuning Without Silent 429 Failures"
 description: "Ingesting a large, entity-dense document corpus into LightRAG through Gemini hit a wall of silent 429 failures. The fix wasn't more concurrency. It was one wrong batch setting and a proxy that could absorb overshoot instead of dropping documents."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:10:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Machine Learning",
   "Software Architecture",

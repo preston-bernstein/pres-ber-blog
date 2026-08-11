@@ -2,8 +2,8 @@
 title: "Fifteen of Eighteen Root Causes I Was Sure About Were Wrong"
 meta_title: "Adversarial Root-Cause Verification: 15 of 18 Diagnoses Refuted"
 description: "Four alerts were firing across my home lab. I proposed eighteen root causes and put every one through three independent adversarial checks before acting. Fifteen didn't survive."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:50:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Software Architecture",

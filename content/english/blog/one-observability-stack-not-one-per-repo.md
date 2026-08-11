@@ -2,8 +2,8 @@
 title: "Run One Observability Stack, Not One Per Repo"
 meta_title: "Grafana and Prometheus: One Shared Stack vs. One Per Repo"
 description: "At around 30 repos and 15-20 always-on self-hosted services, running a separate Grafana/Prometheus stack per project is the wrong default. Here's the actual math and the migration I'm doing to fix it."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T12:10:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "DevOps",

@@ -2,8 +2,8 @@
 title: "Rebuilding a Home Network from the Modem Up, One Phase at a Time"
 meta_title: "Home Network Rebuild: ISP Modem Passthrough, UniFi Spine, Pi-hole DNS"
 description: "A phased plan for tearing down and rebuilding a home network: the ISP modem set to passthrough, a UniFi gateway and switch as the core, Pi-hole DNS filtering on a Raspberry Pi controller, and downstream devices brought back one at a time — including the step I never fully resolved."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T12:25:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Networking"

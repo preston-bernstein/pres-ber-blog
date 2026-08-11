@@ -2,8 +2,8 @@
 title: "My GPU Broker Kept Killing Inference Jobs for Games That Weren't Running"
 meta_title: "Fixing a False-Positive GPU Contention Bug in a Home-Lab Broker"
 description: "A Go service that arbitrates one home-lab GPU between gaming, Plex, and local LLM inference was canceling inference jobs for phantom games. What the detector was actually catching, and the two-part fix."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:00:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Machine Learning",

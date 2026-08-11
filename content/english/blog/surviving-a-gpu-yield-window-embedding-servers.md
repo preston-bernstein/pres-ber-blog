@@ -2,8 +2,8 @@
 title: "No Embedding Server Survives a GPU Yield Gracefully. I Had to Build That Layer Myself"
 meta_title: "GPU-Yield Tolerance for Embeddings: What Ollama, TEI, and llama.cpp Don't Do"
 description: "Ollama, TEI, Infinity, and llama.cpp all queue-then-reject when a GPU goes away mid-request. I researched the gap, confirmed LightRAG has no retry logic to cover it, and added a parking layer to my home-lab GPU broker instead."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:05:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Machine Learning",

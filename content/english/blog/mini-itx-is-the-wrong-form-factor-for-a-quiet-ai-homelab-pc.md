@@ -2,8 +2,8 @@
 title: "Mini-ITX Is the Wrong Form Factor for a Quiet AI Home-Lab PC"
 meta_title: "Mini-ITX vs mATX for a Quiet, Upgradable AI Home-Lab PC"
 description: "Every quiet home-lab PC guide points at mini-ITX. For a box built around an RTX 3060 that has to stay quiet, stay cool, and take upgrades at every slot, mini-ITX fails on all three counts. Here are the actual build parameters I landed on instead."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T12:05:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Hardware"

@@ -2,8 +2,8 @@
 title: "It Took Nine Fixes to Stop a LightRAG Crash. The First Eight Were All Real Bugs"
 meta_title: "Debugging a LightRAG + Ollama Embedding Crash: Eight Real Fixes, One Root Cause"
 description: "A bulk-reprocess job against a local Ollama embedding backend kept crashing the same afternoon I fixed an unrelated GPU-broker bug. Eight legitimate fixes narrowed the problem before I found the real cause: the host itself was out of memory."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:15:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Machine Learning",
   "Software Architecture",

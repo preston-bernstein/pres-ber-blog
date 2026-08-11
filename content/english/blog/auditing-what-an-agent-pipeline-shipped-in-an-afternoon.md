@@ -2,8 +2,8 @@
 title: "Shipping Fast Isn't the Same as Being Done: Auditing a CLI My Agent Pipeline Built in an Afternoon"
 meta_title: "Auditing an Agent-Built CLI Tool Before Extending It to a Second Platform"
 description: "My ship-it pipeline (spec, 7-agent adversarial challenge, parallel build agents, review, live verify) built a working growth-automation CLI in one afternoon. Here's what a separate audit pass found before I trusted it enough to extend it to a second platform."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:45:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"

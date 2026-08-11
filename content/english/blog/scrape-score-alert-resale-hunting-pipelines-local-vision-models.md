@@ -2,8 +2,8 @@
 title: "Scrape, Score, Alert: The Pattern Behind Two Home-Lab Vision Pipelines"
 meta_title: "Local Vision-LLM Pipeline Architecture: A Home-Lab Case Study, Part 1"
 description: "Part 1 of 3. An estate-sale scanner and a resale-clothing monitor run on the same architecture: one SQLite-only pipeline, one shared GPU. What that shared foundation looks like, and the two decisions in it I'm not fully sure were right."
-date: 2026-08-10T16:36:57Z
-lastmod: 2026-08-10
+date: 2026-08-10T10:00:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Machine Learning",

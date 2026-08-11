@@ -2,8 +2,8 @@
 title: "Gaming Desktop or Dedicated Compute Box: Idle Power Decides, Not Sticker Price"
 meta_title: "Gaming Desktop vs. Dedicated Compute Box for Home Lab: The Idle Power Math"
 description: "The gap between a gaming desktop idling at 80-200W and a low-power mini PC idling at 10-15W looks like an easy win, until you check whether the desktop can actually sleep. Mine couldn't, and the decision changed."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T12:00:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Hardware"

@@ -2,8 +2,8 @@
 title: "Why the XPS 17 Offload Box Runs Proxmox, Not Plain Ubuntu"
 meta_title: "Proxmox VE vs Ubuntu Server for a Repurposed Laptop Home Server"
 description: "Retiring a Dell XPS 17 into a headless, clamshell, rack-mounted home-lab box meant picking an OS for five separate workloads at once. Proxmox VE beat plain Ubuntu Server plus Docker, and Fedora didn't make the cut. Here's the real reasoning, plus the laptop-specific gotchas that almost derailed it."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T12:15:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "DevOps"

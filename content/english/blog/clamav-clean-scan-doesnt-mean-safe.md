@@ -2,8 +2,8 @@
 title: "A Clean ClamAV Scan Doesn't Mean the File Is Safe"
 meta_title: "Closing ClamAV's Signature Gap in a Home-Lab Download Scan Gate"
 description: "ClamAV is signature-based, so a clean scan only means nothing matched a known pattern yet. Here's what I added to a home-lab media-download scan gate to close that gap: PUA detection, third-party signature feeds, native YARA rules, hash lookups, and entropy checks."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T12:20:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Security",

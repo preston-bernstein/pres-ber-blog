@@ -2,8 +2,8 @@
 title: "What a $364 Claude Code Session Taught Me About Running Agents Unattended"
 meta_title: "A $364 Claude Code Session and the Fix for Autonomous Agent Cost Sprawl"
 description: "A single Claude Code session cost $364. The usage breakdown behind that number pointed at four numbers, not one, and led to a deterministic session lifecycle fix for headless agent jobs I can't fully confirm worked yet."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:30:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture",

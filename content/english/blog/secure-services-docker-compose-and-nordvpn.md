@@ -3,7 +3,7 @@ title: "Step-by-Step Guide to Creating a Secure Docker Compose Script with VPN I
 meta_title: "Secure Your Docker Services: How to Create a Docker Compose Script with VPN Integration"
 description: "Learn how to enhance the security of your Docker services by integrating VPN into your Docker Compose scripts. This step-by-step guide covers installation, configuration, and troubleshooting to ensure your services are safely behind a VPN."
 date: 2024-07-01T22:01:16Z
-lastmod: 2026-08-10
+lastmod: 2026-08-11T20:34:13Z
 image: "/images/vpnMediaServer.png"
 categories: [
   "Docker Tutorials",

@@ -3,7 +3,7 @@ title: "GitHub's Agents Tab Puts Claude and Codex in the Repo UI. It's a Separat
 meta_title: "GitHub Agent HQ vs Claude Code: What the Repo Agents Tab Actually Does"
 description: "GitHub's per-repo Agents tab lets Claude, Codex, or Copilot's own agent work issues into PRs from inside the repo UI. It's a real product, live since January 2026, and it runs on a completely different bill than a local Claude Code session. Here's what it does, and why I'm not sure it changes my workflow yet."
 date: 2026-08-10T12:30:00Z
-lastmod: 2026-08-10
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"

@@ -2,8 +2,8 @@
 title: "Building a Self-Throttling Governor for Claude Max With No Published Ceiling"
 meta_title: "Claude Max Cadence Governor: Throttling Without a Documented Limit"
 description: "Anthropic never publishes an absolute token or message ceiling for Claude Max 20x, only qualitative language about 20x more usage than Pro. Here's the cadence governor I built to keep background claude -p jobs from eating the quota my interactive sessions need, without a real number to target."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:25:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture",

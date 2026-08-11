@@ -2,8 +2,8 @@
 title: "Deciding What's Worth a Saturday: Inside My Estate-Sale Scanner"
 meta_title: "Estate-Sale Scanner Scoring and Anti-Overfit Design: A Home-Lab Case Study, Part 2"
 description: "Part 2 of 3. How my estate-sale scanner scores unlabeled photos, why a bad sale and a good sale teach it very different things, and three incidents where a component kept running and quietly stopped doing its job."
-date: 2026-08-10T16:36:57Z
-lastmod: 2026-08-10
+date: 2026-08-10T10:05:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Machine Learning",

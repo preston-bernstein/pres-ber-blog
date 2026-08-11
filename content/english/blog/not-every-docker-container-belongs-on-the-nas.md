@@ -2,8 +2,8 @@
 title: "Not Every Docker Container Belongs on the NAS"
 meta_title: "NAS vs Desktop Docker Placement: A RAM-Constrained Home Lab Framework"
 description: "A Synology DS1522+ with 8GB of RAM kept crashing under roughly 35 Docker containers. The fix was a placement framework: family-facing, storage-coupled services stay on the NAS, compute-heavy personal projects move to a host with real memory, including how Immich's remote machine-learning support fits the split."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:55:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "Home Lab",
   "Networking",

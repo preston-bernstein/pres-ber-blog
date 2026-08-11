@@ -2,8 +2,8 @@
 title: "What If Two Independently-Built Agent Suites Reviewed Each Other's Code?"
 meta_title: "Dueling Agent Orchestration: An Unbuilt Design for Independent AI Code Review"
 description: "A design sketch for having two coding-agent suites, built with zero shared configuration, open and review each other's pull requests the way two engineers with different judgment catch each other's mistakes. What research already backs, what's still missing from existing tools, and why I'm not sure the disagreement it produces is worth the cost."
-date: 2026-08-10T18:02:27Z
-lastmod: 2026-08-10
+date: 2026-08-10T11:35:00Z
+lastmod: 2026-08-11T20:34:13Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"
