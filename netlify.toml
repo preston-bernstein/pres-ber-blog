@@ -1,7 +1,11 @@
+# Not the active deploy path -- the live site deploys via .github/workflows/main.yml.
+# Kept as a legacy/alternate Netlify config (see readme.md Deploy section).
+# NOTE: unlike main.yml, this relies on Netlify's own submodule-fetch setting
+# to pull in themes/blowfish -- confirm "Fetch submodules" is on for this site
+# in Netlify's build settings before relying on this path.
 [build]
 publish = "public"
-command = "yarn project-setup; yarn build"
+command = "yarn build"
 
 [build.environment]
-HUGO_VERSION = "0.124.1"
-GO_VERSION = "1.22.2"
+HUGO_VERSION = "0.164.0"

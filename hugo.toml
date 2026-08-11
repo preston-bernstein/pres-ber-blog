@@ -7,8 +7,6 @@ title = "Preston Bernstein"
 theme = "blowfish"
 # Default time zone for time stamps; use any valid tz database name: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
 timeZone = "America/New_York"
-# post pagination
-paginate = 15 # see https://gohugo.io/extras/pagination/
 # post excerpt
 summaryLength = 10 # see https://gohugo.io/content-management/excerpts/
 # disable language
@@ -21,10 +19,11 @@ defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = false
 
 ########################### Services #############################
+# Analytics run through Google Tag Manager (layouts/partials/extend-head.html,
+# gated on the real google_tag_manager param in params.toml) -- Hugo's own
+# internal Google Analytics service below used a literal placeholder ID that
+# was never replaced, firing a dead gtag.js request on every pageview.
 [services]
-[services.googleAnalytics]
-ID = 'G-MEASUREMENT_ID' # see https://gohugo.io/templates/internal/#configure-google-analytics
-
 [services.disqus]
 shortname = 'prestonbernstein' # we use disqus to show comments in blog posts . To install disqus please follow this tutorial https://portfolio.peter-baumgartner.net/2017/09/10/how-to-install-disqus-on-hugo/
 
@@ -38,6 +37,14 @@ shortname = 'prestonbernstein' # we use disqus to show comments in blog posts . 
 [permalinks.page]
 "pages" = "/:slugorcontentbasename/"
 
+########################## Pagination #############################
+# `paginate` (top-level key) was Hugo's pre-0.128 pagination setting; Hugo
+# 0.164.0 silently ignores it in favor of [pagination].pagerSize -- confirmed
+# via `hugo config`, which reported pagersize=10 (the framework default) even
+# with the old key set to 15.
+[pagination]
+pagerSize = 15
+
 
 ############################# Modules ############################
 [module]
@@ -45,22 +52,18 @@ shortname = 'prestonbernstein' # we use disqus to show comments in blog posts . 
 source = "assets"
 target = "assets"
 
-[[module.mounts]]
-source = "hugo_stats.json"
-target = "assets/watching/hugo_stats.json"
-
 ############################# Build ##############################
+# buildStats + the hugo_stats.json mount + the two cachebusters below existed
+# to feed Tailwind's JIT purge step (the classic Hugo+Tailwind recipe). This
+# site has no site-level CSS/JS entry point for Hugo Pipes to process --
+# Blowfish ships its own precompiled CSS (resources.Get "css/compiled/main.css")
+# -- so that pipeline never actually ran; removed along with tailwind.config.js
+# and postcss.config.js. The remaining generic cachebusters stay: they're
+# Hugo's own recommended defaults and apply correctly if a site-level
+# assets/*.css or assets/*.js is ever added.
 [build]
 noJSConfigInAssets = false
 useResourceCacheWhen = 'fallback'
-[build.buildStats]
-enable = true
-[[build.cachebusters]]
-source = 'assets/watching/hugo_stats\.json'
-target = 'style\.css'
-[[build.cachebusters]]
-source = '(postcss|tailwind)\.config\.js'
-target = 'css'
 [[build.cachebusters]]
 source = 'assets/.*\.(js|ts|jsx|tsx)'
 target = 'js'
@@ -80,11 +83,14 @@ target = '$1'
 home = ["HTML", "RSS", "JSON"]
 
 ############################# Imaging ############################
+# top-level [imaging].quality was deprecated in Hugo v0.163.0 (this site
+# builds on 0.164.0) in favor of per-format quality settings.
 [imaging]
-# See https://github.com/disintegration/imaging
-# Default JPEG or WebP quality setting. Default is 75.
-quality = 80
 resampleFilter = "Lanczos"
+[imaging.jpeg]
+quality = 80
+[imaging.webp]
+quality = 80
 
 ############################ Caches ##############################
 [caches]
@@ -113,22 +119,3 @@ endLevel = 5
 # old setting) makes Blowfish treat the TOC as empty and silently hide it, with
 # no build error. Found via browser-driven verification (requirement 16).
 ordered = false
-
-
-########################### Media types ###########################
-[mediaTypes]
-[mediaTypes."application/manifest+json"]
-suffixes = ["webmanifest"]
-
-
-########################### Output Format ##########################
-[outputFormats]
-[outputFormats.WebAppManifest]
-mediaType = "application/manifest+json"
-rel = "manifest"
-
-[outputFormats.SearchIndex]
-mediaType = "application/json"
-baseName = "searchindex"
-isPlainText = true
-notAlternative = true

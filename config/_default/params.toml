@@ -1,6 +1,4 @@
 #################### default parameters ################################
-# navbar fixed to top
-navbar_fixed = true
 # Main Sections
 mainSections = ["blog"]
 
@@ -23,12 +21,23 @@ autoSwitchAppearance = true
 smartTOC = true
 smartTOCHideUnfocusedChildren = false
 
-# contact form action
-contact_form_action = "#" # contact form works with [https://airform.io/] or [https://formspree.io]
 # google tag manager, see https://developers.google.com/tag-manager/
 google_tag_manager = "GTM-5DSQPKJJ" # example: G-XXXXXXXXXX
-# copyright
-copyright = "© 2024 by Preston Bernstein. <b>All rights reserved.</b>"
+# copyright -- "{ year }" is Blowfish's own placeholder token (layouts/partials/footer.html,
+# layouts/_default/rss.xml both do `replace .Site.Params.copyright "{ year }" now.Year`),
+# not a Go template expression -- keeps the year current without a stale hardcoded value.
+copyright = "© { year } by Preston Bernstein. <b>All rights reserved.</b>"
+
+# seo meta data for OpenGraph / Twitter Card -- Blowfish reads these as bare
+# top-level Site.Params keys (themes/blowfish/layouts/partials/head.html), not
+# nested under [metadata] (Hugoplate's shape). The nested version was silently
+# inert: the live site shipped with no <meta name="description"> and no
+# og:image/twitter:image at all, confirmed via a real build before this fix.
+# Must stay above [article]/[footer] below -- same TOML reparenting rule as
+# smartTOC above.
+keywords = ["Blog", "Hugo"]
+description = "Preston Bernstein's Blog"
+defaultSocialImage = "images/og-image.png"
 
 # Blowfish theme: sticky/scrollspy TOC (requirement 16) and the "zen reading mode"
 # that was the deciding factor for choosing Blowfish over Congo (see
@@ -54,56 +63,17 @@ copyright = "© 2024 by Preston Bernstein. <b>All rights reserved.</b>"
 # expire_days = 7
 # content = "You must replace the **baseURL** in **hugo.toml** file when deploying, you can manage this announcement from the **params.toml** file."
 
-# seo meta data for OpenGraph / Twitter Card
-# seo module: https://github.com/gethugothemes/hugo-modules/tree/master/seo-tools/basic-seo
-[metadata]
-keywords = ["Blog", "Hugo"]
-description = "Preston Bernstein's Blog"
-author = "Preston Bernstein"
-image = "images/og-image.png"
-
-
-# site verifications
-# verification module: https://github.com/gethugothemes/hugo-modules/tree/master/seo-tools/site-verifications
-[site_verification]
-google = ""   # Your verification code
-bing = ""     # Your verification code
-baidu = ""    # Your verification code
-facebook = "" # Your verification code
-mastodon = "" # Your verification code
-
-# cookies
-# cookies module: https://github.com/gethugothemes/hugo-modules/tree/master/components/cookie-consent
-[cookies]
-enable = false
-expire_days = 60
-content = "This site uses cookies. By continuing to use this website, you agree to their use."
-button = "I Accept"
-
-# diagrams
-[mermaid]
-js_url = 'https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs'
-
-######################## sidebar widgets #########################
-[widgets]
-sidebar = ["categories", "tags"]
-
-
-# google map
-[google_map]
-enable = false
-map_api_key = ""
-map_latitude = "51.5223477"
-map_longitude = "-0.1622023"
-map_marker = "images/marker.png"
-
-
-# Subscription
-[subscription]
-enable = false
-# mailchimp subsciption
-mailchimp_form_action = "https://gmail.us4.list-manage.com/subscribe/post?u=463ee871f45d2d93748e77cad&amp;id=a0a2c6d074" # replace this url with yours
-mailchimp_form_name = "b_463ee871f45d2d93748e77cad_a0a2c6d074"
+# site verification codes -- Blowfish reads these under [verification], not
+# [site_verification] (Hugoplate's shape), and under different sub-keys
+# (google/bing/pinterest/yandex/fediverse, not baidu/facebook/mastodon). All
+# codes are currently unset, so this section is commented out rather than
+# emitted empty; uncomment and fill in under [verification] if ever needed.
+# [verification]
+# google = ""
+# bing = ""
+# pinterest = ""
+# yandex = ""
+# fediverse = ""
 
 # Blowfish theme: site-wide default author (see
 # themes/blowfish/exampleSite/config/_default/languages.en.toml `params.author`).
@@ -115,6 +85,9 @@ mailchimp_form_name = "b_463ee871f45d2d93748e77cad_a0a2c6d074"
 # `hugo config` dump and a build showing the bio text and avatar <img> both
 # absent from public/index.html before this fix.
 [author]
+  # Duplicated (not aliased) in data/authors/preston-bernstein.json for
+  # per-article bylines -- Blowfish reads this table for the site-wide profile
+  # block, that file for `hugo.Data.authors`. Update both on any bio/link change.
   name = "Preston Bernstein"
   email = "contact@prestonbernstein.com"
   image = "images/avatar.png"

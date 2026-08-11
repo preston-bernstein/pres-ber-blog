@@ -1,10 +1,14 @@
+# Not the active deploy path -- the live site deploys via .github/workflows/main.yml.
+# Kept as a legacy/alternate GitLab CI config (see readme.md Deploy section).
+# NOTE: unlike main.yml, this file does not set `GIT_SUBMODULE_STRATEGY`, so it
+# will not fetch the themes/blowfish git submodule as-is -- add
+# `GIT_SUBMODULE_STRATEGY: recursive` to `variables` before relying on this path.
 stages:
   - build
 
 variables:
   HUGO_ENV: production
-  HUGO_VERSION: "0.124.1"
-  GO_VERSION: "1.22.2"
+  HUGO_VERSION: "0.164.0"
   NODE_VERSION: "18.16.1"
 
 cache:
@@ -21,17 +25,11 @@ default:
     - mv hugo /usr/local/bin/
     - rm hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz
     - echo "HUGO ${HUGO_VERSION} INSTALLED"
-    - curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz"
-    - tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
-    - export PATH=$PATH:/usr/local/go/bin
-    - rm go${GO_VERSION}.linux-amd64.tar.gz
-    - echo "GO ${GO_VERSION} INSTALLED"
     - npm install
 
 pages:
   stage: build
   script:
-    - npm run project-setup
     - npm run build
   artifacts:
     paths:
