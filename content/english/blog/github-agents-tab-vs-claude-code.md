@@ -15,6 +15,8 @@ tags: [
   "Claude Code",
   "Developer Workflow"
 ]
+featureimage: "/images/github-octocat-logo.svg"
+showHero: true
 draft: false
 ---
 

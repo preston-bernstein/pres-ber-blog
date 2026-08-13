@@ -16,6 +16,8 @@ tags: [
   "Automation"
 ]
 draft: false
+featureimage: "/images/github-logo-2013.svg"
+showHero: true
 ---
 
 Shipping fast is not the same as being done. I learned that the expensive way, on a CLI tool my own agent pipeline built in one afternoon.

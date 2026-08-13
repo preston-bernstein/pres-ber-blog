@@ -16,6 +16,8 @@ tags: [
   "Claude Code"
 ]
 draft: false
+featureimage: "/images/orchestra-conductor-armoricain.jpg"
+showHero: true
 ---
 
 Run two coding-agent orchestration suites that share nothing between them — no prompts, no config, no instruction derivation — and make them review each other's pull requests, the way two engineers who never compared notes catch each other's mistakes. Suite A opens a PR. Suite B, built from scratch with zero visibility into how A works, reviews it cold. Suite A reads the verdict, decides what's real, fixes what needs fixing, and the loop can run again from there.

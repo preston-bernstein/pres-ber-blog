@@ -17,6 +17,8 @@ tags: [
   "Cost Engineering"
 ]
 draft: false
+featureimage: "/images/runpod-gemini-datacenter-server-racks.jpg"
+showHero: true
 ---
 
 Gemini wins on accuracy. RunPod wins on cost. I run vision-model inference for a personal image pipeline on RunPod GPUs instead of calling Google's Gemini API, and that split is the whole decision, not a verdict on which model is smarter.

@@ -4,6 +4,8 @@ meta_title: "Concurrent Claude Code Agents: Worktree Sprawl vs Deploy Drift vs W
 description: "'State drift' across concurrent Claude Code agents was three problems: worktree sprawl (unused feature), deploy drift (ungeneralized), wasted compute (open)."
 date: 2026-08-10T11:40:00Z
 lastmod: 2026-08-11T20:34:13Z
+featureimage: "/images/git-logo.svg"
+showHero: true
 categories: [
   "AI Infrastructure",
   "Software Architecture"

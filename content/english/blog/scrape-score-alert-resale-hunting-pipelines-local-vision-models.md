@@ -21,6 +21,8 @@ tags: [
   "Automation"
 ]
 draft: false
+featureimage: "/images/dutch-thrift-store-knick-knacks.jpg"
+showHero: true
 ---
 
 Two personal tools I've built, an estate-sale scanner and a resale-clothing monitor, run on the exact same architecture: scrape listings, score every photo with a local vision model, surface only the ones worth my attention. Same four stages, same database, same GPU, underneath two very different projects.

@@ -17,6 +17,8 @@ tags: [
   "Cost Engineering"
 ]
 draft: false
+featureimage: "/images/centrifugal-flyball-governor.jpg"
+showHero: true
 ---
 
 Anthropic will not tell you how many tokens or messages Claude Max 20x actually gives you, and I had to build a throttle for it anyway. I run several personal research projects on background schedules through `claude -p` — unattended fires that call Claude Code from cron and systemd timers while I'm not watching. Those fires draw from the **exact same quota** as the interactive Claude Code sessions I use to do actual work.

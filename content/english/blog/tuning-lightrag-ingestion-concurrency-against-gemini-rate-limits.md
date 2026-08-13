@@ -17,6 +17,8 @@ tags: [
   "Rate Limiting"
 ]
 draft: false
+featureimage: "/images/google-gemini-icon.svg"
+showHero: true
 ---
 
 Feeding a few hundred books into LightRAG through Gemini taught me that concurrency tuning is the wrong first lever, and that the rate-limit table you'd normally tune it against doesn't exist anymore anyway. I run a personal knowledge-graph project that ingests close to a thousand book-length documents through [LightRAG](https://github.com/HKUDS/LightRAG) (HKUDS), using Gemini for entity extraction and embeddings behind a LiteLLM proxy. The corpus is entity-dense enough that the LLM merge phase dominates ingestion time.

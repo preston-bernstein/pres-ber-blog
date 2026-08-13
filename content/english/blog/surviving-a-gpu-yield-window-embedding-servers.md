@@ -17,6 +17,8 @@ tags: [
   "LLM Infrastructure"
 ]
 draft: false
+featureimage: "/images/gigabyte-rtx-3090-eagle-oc-gpu.jpg"
+showHero: true
 ---
 
 Every embedding server I tested handles a vanished GPU the same way: queue requests until a buffer fills, then reject them. Ollama does this. TEI does this. Infinity and llama.cpp do it too — different buffer sizes, different error codes, same outcome. None of them pause a request and wait out a short outage; they drop it the moment the queue overflows or a limit is hit.

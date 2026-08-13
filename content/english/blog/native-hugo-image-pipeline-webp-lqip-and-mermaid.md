@@ -19,6 +19,8 @@ tags: [
   "Performance"
 ]
 draft: false
+featureimage: "/images/hugo-logo.svg"
+showHero: true
 ---
 
 This site had no image pipeline until this week. Every image in every post loaded at its original file size and format, usually a multi-megabyte PNG screenshot, with no responsive sizing and no loading placeholder.

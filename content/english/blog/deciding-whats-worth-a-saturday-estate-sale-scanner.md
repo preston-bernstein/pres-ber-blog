@@ -20,6 +20,8 @@ tags: [
   "Automation"
 ]
 draft: false
+featureimage: "/images/yard-sale-northern-ca-2005.jpg"
+showHero: true
 ---
 
 My estate-sale scanner has one job: decide which of a week's new listings deserve an actual Saturday. The scraping is boring. What's interesting is how the system scores photos nobody's labeled, and an asymmetric feedback loop that treats a good sale and a bad sale as completely different kinds of evidence. This is part 2 of a series; [part 1](/blog/scrape-score-alert-resale-hunting-pipelines-local-vision-models/) covers the shared architecture and GPU constraints behind this project and a second one.

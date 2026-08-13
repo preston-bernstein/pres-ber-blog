@@ -19,6 +19,8 @@ tags: [
   "Automation"
 ]
 draft: false
+featureimage: "/images/resale-clothing-monitor-thrift-rack.jpg"
+showHero: true
 ---
 
 My resale-clothing monitor's hardest problem isn't finding new listings. It's deciding which ones fit my taste well enough to interrupt me over, and the design leans hard toward **false positives over false negatives**, a call I can defend today but haven't actually stress-tested.

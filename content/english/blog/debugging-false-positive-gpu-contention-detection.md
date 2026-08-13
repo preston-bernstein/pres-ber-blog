@@ -18,6 +18,8 @@ tags: [
   "Go"
 ]
 draft: false
+featureimage: "/images/asus-strix-rtx-4090-gpu.jpg"
+showHero: true
 ---
 
 My GPU broker kept canceling live inference jobs over games that weren't running. Most of the time, nothing had launched at all.

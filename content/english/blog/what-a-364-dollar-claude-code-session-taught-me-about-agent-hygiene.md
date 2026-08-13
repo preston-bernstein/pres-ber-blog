@@ -17,6 +17,8 @@ tags: [
   "Cost Engineering"
 ]
 draft: false
+featureimage: "/images/data-center-server-room-cost.jpg"
+showHero: true
 ---
 
 A single Claude Code session in my home lab cost $364. I found it on my own `/usage` report, not from a billing alert, and it was enough to make me stop and read the full week behind it instead of writing it off as one bad run.

@@ -17,6 +17,8 @@ tags: [
   "Self-Hosting"
 ]
 draft: false
+featureimage: "/images/grafana-dashboard-shared-stack.png"
+showHero: true
 ---
 
 Run one shared Grafana and Prometheus stack for your whole home lab, not one per repo. I've got around 30 GitHub repos and 15-20 always-on self-hosted services, running mostly on one desktop plus a NAS ([split by the placement framework from an earlier post](/blog/not-every-docker-container-belongs-on-the-nas/)).

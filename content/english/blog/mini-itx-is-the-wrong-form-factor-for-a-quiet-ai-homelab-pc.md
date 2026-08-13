@@ -16,6 +16,8 @@ tags: [
   "AI Infrastructure"
 ]
 draft: false
+featureimage: "/images/via-epia-m910-mini-itx-board.jpg"
+showHero: true
 ---
 
 Form factor is the call that matters most on this build, and the popular answer gets it wrong. Every "quiet home-lab PC" guide points at mini-ITX: small, tucked in a corner, low power draw.

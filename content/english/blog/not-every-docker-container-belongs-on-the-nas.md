@@ -17,6 +17,8 @@ tags: [
   "Self-Hosting"
 ]
 draft: false
+featureimage: "/images/synology-nas-hardware.jpg"
+showHero: true
 ---
 
 Family-facing and storage-coupled services stay on the NAS. Compute-heavy personal projects move to a separate host with real memory to spare. That's the whole framework, and it took months of pain to earn: a Synology DS1522+ with 8GB of RAM, roughly 35 Docker containers, and a box that kept falling over under memory pressure.

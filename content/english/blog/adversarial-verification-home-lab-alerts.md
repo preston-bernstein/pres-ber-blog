@@ -17,6 +17,8 @@ tags: [
   "Home Lab"
 ]
 draft: false
+featureimage: "/images/grafana-monitoring-dashboard.png"
+showHero: true
 ---
 
 Fifteen of eighteen root causes I proposed for four firing alerts turned out to be wrong. Four alerts were going off across my home infrastructure at once: a stuck download post-processing backlog, plus three separate automation alerts tied to a video-discovery pipeline.

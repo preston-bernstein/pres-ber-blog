@@ -17,6 +17,8 @@ tags: [
   "Debugging"
 ]
 draft: false
+featureimage: "/images/lightrag-logo.png"
+showHero: true
 ---
 
 A bulk-reprocess job against one of my LightRAG instances crashed three times in one afternoon, and I shipped eight legitimate fixes before I found the actual cause. That same afternoon I also fixed [a false-positive bug in the GPU broker](/blog/debugging-false-positive-gpu-contention-detection/) that arbitrates my home GPU between gaming and local inference.
