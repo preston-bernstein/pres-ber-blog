@@ -4,6 +4,8 @@ meta_title: "Closing ClamAV's Signature Gap in a Home-Lab Download Scan Gate"
 description: "ClamAV only matches known signatures. My download scan gate now layers PUA detection, third-party feeds, YARA rules, hash-only lookups, and entropy checks."
 date: 2026-08-10T12:20:00Z
 lastmod: 2026-08-11T20:34:13Z
+featureimage: "/images/clamav-antu-logo.svg"
+showHero: true
 categories: [
   "Home Lab",
   "Security",

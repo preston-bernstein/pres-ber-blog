@@ -16,6 +16,8 @@ tags: [
   "Hardware"
 ]
 draft: false
+featureimage: "/images/intel-nuc-mini-pc.jpg"
+showHero: true
 ---
 
 Idle power draw decides whether a dedicated low-power compute box saves you money over a gaming desktop, not the price tag stamped on the mini PC. A gaming desktop idles around 80-200W, depending on the board, the PSU, and how many drives happen to be spinning. A purpose-built low-power box, the N100-class mini PCs and similar, idles at 10-15W.

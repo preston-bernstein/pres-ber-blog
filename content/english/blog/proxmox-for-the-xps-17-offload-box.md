@@ -16,6 +16,8 @@ tags: [
   "Proxmox"
 ]
 draft: false
+featureimage: "/images/proxmox-ve-cluster-summary.png"
+showHero: true
 ---
 
 Proxmox VE won this one, plain and simple: five separate workloads sharing one box is exactly the situation where isolation stops being a nice-to-have.

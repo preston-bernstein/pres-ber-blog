@@ -4,7 +4,8 @@ meta_title: "Optimize Your JavaScript: Performance Enhancements with Top-Level A
 description: "Top-level await removes the async wrapper function JavaScript modules used to need, simplifying async module initialization code."
 date: 2024-07-05T20:58:50Z
 lastmod: 2026-08-11T20:34:13Z
-image: "/images/jsOptimization.png"
+featureimage: "/images/javascript-logo.svg"
+showHero: true
 categories: [
   "JavaScript",
   "Web Development",

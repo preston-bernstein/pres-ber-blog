@@ -4,7 +4,8 @@ meta_title: "Secure Your Docker Services: How to Create a Docker Compose Script 
 description: "How to route Docker services through a VPN container with network_mode: service:vpn in Docker Compose, and verify traffic actually exits through the VPN."
 date: 2024-07-01T22:01:16Z
 lastmod: 2026-08-11T20:34:13Z
-image: "/images/vpnMediaServer.png"
+featureimage: "/images/vpnMediaServer.webp"
+showHero: true
 categories: [
   "Docker Tutorials",
   "VPN and Security",

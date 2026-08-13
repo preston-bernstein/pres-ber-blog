@@ -4,6 +4,8 @@ meta_title: "Home Network Rebuild: ISP Modem Passthrough, UniFi Spine, Pi-hole D
 description: "The rebuild order that worked: ISP modem to passthrough, UniFi gateway and switch, Pi-hole DNS on a Pi controller, then downstream devices one at a time."
 date: 2026-08-10T12:25:00Z
 lastmod: 2026-08-11T20:34:13Z
+featureimage: "/images/networkSwitchesRack.jpg"
+showHero: true
 categories: [
   "Home Lab",
   "Networking"
