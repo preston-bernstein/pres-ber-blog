@@ -22,7 +22,7 @@ tags: [
 draft: false
 ---
 
-My estate-sale scanner's real job is deciding which of a week's new listings are worth a Saturday drive, and the interesting part isn't the scraping. It's how the system scores unlabeled photos, and an asymmetric feedback loop that treats a bad sale and a good sale as very different kinds of evidence. This is part 2 of a series; [part 1](/blog/scrape-score-alert-resale-hunting-pipelines-local-vision-models/) covers the shared architecture and GPU constraints behind this and a second project.
+My estate-sale scanner has one job: decide which of a week's new listings deserve an actual Saturday. The scraping is boring. What's interesting is how the system scores photos nobody's labeled, and an asymmetric feedback loop that treats a good sale and a bad sale as completely different kinds of evidence. This is part 2 of a series; [part 1](/blog/scrape-score-alert-resale-hunting-pipelines-local-vision-models/) covers the shared architecture and GPU constraints behind this project and a second one.
 
 ## Every photo runs through four cheap gates before any paid model call
 
@@ -45,7 +45,7 @@ flowchart TD
     E --> G[Item list: maker, era, materials, condition, confidence]
 ```
 
-The model gets told what I collect: quality furniture and antiques, kitsch and camp collectibles, vintage electronics. It lists each item with a maker guess, era, materials, condition, and a confidence tag:
+I tell the model what I collect: quality furniture and antiques, kitsch and camp collectibles, vintage electronics. It lists each item with a maker guess, era, materials, condition, and a confidence tag:
 
 ```text
 Danish teak side table, likely 1960s, veneer chip on one corner [high]
@@ -59,11 +59,11 @@ Plain text, not JSON. An internal comparison found the plain-text format caught 
 
 One score decides whether the rest of a sale's photos are worth analyzing at all. Process the first quarter of a sale's photos; if they come back strong, run the rest; if they come back empty, spot-check a handful from later in the listing before giving up on the sale entirely. That's pure cost control. It decides how many model calls a sale gets, not whether any single item is good.
 
-A second, separate score, built from a curated brand list, era keywords, and the model's own confidence tag, is what the dashboard actually sorts by. The budget heuristic optimizes for not wasting calls on a dead sale. The display score optimizes for what to look at first. Conflating the two would have made cheap sales look worse than they are.
+A second, separate score, built from a curated brand list, era keywords, and the model's own confidence tag, is what the dashboard actually sorts by. The budget heuristic optimizes for not wasting calls on a dead sale. The display score optimizes for what to look at first. But conflate the two, and cheap sales start looking worse than they actually are.
 
 ## A "waste" outcome teaches the system more than a "good" one does
 
-After visiting a sale, I log an outcome: good, meh, or waste. That single decision, what to do with each label, is the anti-overfit design in this whole project, and it's deliberately lopsided.
+After visiting a sale, I log an outcome: good, meh, or waste. That single decision, what to do with each label, is the anti-overfit design for this whole project. And it's deliberately lopsided.
 
 A "waste" outcome propagates in bulk. Every photo from that sale becomes a confirmed-negative training example, because "the whole sale was junk" is a clean, complete signal. A "good" outcome does not auto-label every photo in the sale as good. It only proves something there was worth it, not which item. Auto-labeling the whole sale would teach a future ranker that the box of tube socks next to the good chair was also desirable. Positive labels only get created when I tap the specific item that earned the trip. It's slower to build a clean positive set this way, but a small, correct one beats a large, contradictory one.
 
