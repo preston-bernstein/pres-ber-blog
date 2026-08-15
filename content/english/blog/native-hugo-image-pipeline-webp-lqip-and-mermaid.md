@@ -3,7 +3,7 @@ title: "A Native Hugo Image Pipeline: WebP, LQIP Blur-Up, and Mermaid Diagrams"
 meta_title: "Native WebP, LQIP, and Mermaid Diagrams in Hugo Without a CDN"
 description: "Hugo render hooks gave this blog automatic WebP, srcset, and blur-up placeholders, plus Mermaid diagrams from plain fenced code blocks. No CDN, no theme fork."
 date: 2026-08-10T18:00:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:22:11Z
 categories: [
   "Software Architecture",
   "Web Development",
@@ -92,7 +92,7 @@ Before this, the only way to add a diagram to a post was Blowfish's `mermaid` sh
 
 [Mermaid](https://mermaid.js.org/), the diagramming library, not the theme feature, has a real, portable convention for this: a fenced code block tagged with the word `mermaid` as its language name, the same triple-backtick-plus-language convention you'd use for any other code block, just with `mermaid` in place of `python` or `bash`. [GitHub](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams), GitLab, and most Markdown renderers already recognize that convention natively.
 
-Hugo's code-block render hook lets this site recognize it too: `render-codeblock-mermaid.html` intercepts any fenced block tagged that way and wraps its raw content in a `<pre class="mermaid">` element, the exact markup the existing shortcode already produced. Same CSS, same Mermaid JavaScript runtime, picked up identically no matter which syntax wrote it. The diagram earlier in this post, the one showing the image hook's decision flow, is a real instance of that fenced block, not a mockup.
+Hugo's code-block render hook lets this site recognize it too: `render-codeblock-mermaid.html` intercepts any fenced block tagged that way and wraps its raw content in a `<pre class="mermaid">` element, the exact markup the existing shortcode already produced. Same CSS, same Mermaid JavaScript runtime, picked up identically no matter which syntax wrote it. The diagram earlier in this post, the one showing the image hook's decision flow, comes from that exact fenced block instead of a mockup.
 
 ## Loading the Mermaid bundle exactly once, from either entry point
 
@@ -128,4 +128,4 @@ I also wrote real browser tests, not just a clean build, to catch a regression h
 - Its colors really change between light and dark mode after clicking the appearance switcher.
 - The LQIP placeholder clears once the real image loads, rather than just being present in the markup.
 
-{{< alert icon="circle-info" >}}One gap I'm not pretending isn't there: there's still no isolated fixture anywhere on this site for "fenced block only, no shortcode" or "shortcode only, no fenced block" in separate pages. This post exercises both at once, which proves the double-load guard but not each syntax fully alone. That guard's logic is simple enough to have checked by reading the template directly, so I'm treating it as covered, not untested.{{< /alert >}}
+{{< alert icon="circle-info" >}}One gap I'm not pretending isn't there: there's still no isolated fixture anywhere on this site for "fenced block only, no shortcode" or "shortcode only, no fenced block" in separate pages. This post exercises both at once, which proves the double-load guard but not each syntax fully alone. That guard's logic is simple enough to have checked by reading the template directly, so I'm treating it as covered.{{< /alert >}}

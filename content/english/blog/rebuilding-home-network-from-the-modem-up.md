@@ -3,7 +3,7 @@ title: "Rebuilding a Home Network from the Modem Up, One Phase at a Time"
 meta_title: "Home Network Rebuild: ISP Modem Passthrough, UniFi Spine, Pi-hole DNS"
 description: "The rebuild order that worked: ISP modem to passthrough, UniFi gateway and switch, Pi-hole DNS on a Pi controller, then downstream devices one at a time."
 date: 2026-08-10T12:25:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:18:32Z
 featureimage: "/images/networkSwitchesRack.jpg"
 showHero: true
 categories: [
@@ -20,7 +20,7 @@ tags: [
 draft: false
 ---
 
-I rebuilt my home network from the ISP modem outward, not by dropping in a new router and hoping the rest of the stack sorted itself out. The order was fixed:
+I rebuilt my home network from the ISP modem outward instead of dropping in a new router and hoping the rest of the stack sorted itself out. The order was fixed:
 
 1. Modem into **passthrough** (a mode where the ISP box stops doing routing and just hands its public IP straight through).
 2. UniFi gateway and switch as the core.
@@ -39,7 +39,7 @@ A gateway sitting behind a modem that's still doing its own routing and NAT gets
 
 Before I unplugged a single cable, I checked that the Raspberry Pi meant to run both the UniFi controller software and Pi-hole was actually in working order. That's a controller and a DNS filter sharing one small board, so if the board is flaky, both systems inherit the problem.
 
-I SSH into the Pi directly, not through any intermediate device, and check three things:
+I SSH into the Pi directly, skipping any intermediate device, and check three things:
 
 - The UniFi controller process is running.
 - Pi-hole's FTL service is active.
@@ -51,7 +51,7 @@ If any of those fail, I fix them before phase one starts. A rebuild with an unre
 
 The next step was confirming what the UniFi switch actually was: model, MAC address, firmware version. I had this written down from an earlier setup, but hardware gets swapped and notes go stale. I checked the label on the unit itself instead of trusting a document from months ago — skipping that step is how you end up troubleshooting a switch that isn't the switch you think it is.
 
-## Factory reset comes before adoption, not after
+## Reset the Gateway Before the Controller Ever Adopts It
 
 I factory reset the UniFi gateway before letting the controller adopt it, instead of adopting whatever configuration state it happened to be in. Holding the reset button through a full LED flash cycle wipes prior config and puts the device back to a known default. That matters, because adopting a gateway with leftover settings from a previous topology is how you get rules that contradict what you're about to build.
 
@@ -69,13 +69,13 @@ Most of the time this works from the UI in a few minutes. But when it doesn't, t
 
 ## Wiring the spine follows a strict power-on order
 
-Physical wiring came after every device was individually verified, not before:
+Physical wiring came only after every device was individually verified:
 
 - The modem's LAN port feeds the gateway's WAN port.
 - The gateway's LAN port feeds the UniFi switch, which acts as the spine, the central point everything downstream connects through.
 - The switch feeds the Pi controller on one port and the rest of the existing switch gear on another.
 
-Power-on order matters too — skipping it doesn't necessarily break anything, but it's one more variable I didn't need while troubleshooting a fresh spine.
+Power-on order matters too. Skipping it doesn't necessarily break anything, but it's one more variable I didn't need while troubleshooting a fresh spine.
 
 Here's the spine those wiring steps actually build, in the order signal flows through it:
 
@@ -89,13 +89,13 @@ flowchart LR
 
 Power-on order runs switch first, then gateway, then the Pi last, so the gateway always has something to talk to the moment it boots.
 
-## Passthrough is a modem setting, not a gateway setting
+## Passthrough Is a Modem-Side Setting
 
 Passthrough gets configured on the ISP modem, not on the UniFi side, which is a detail that trips people up. It lives in the modem's own admin firewall settings, tied to the gateway's MAC address so the modem knows which downstream device gets the real public IP.
 
 After enabling it and letting the modem reboot, I check two things:
 
-- The gateway's WAN interface picked up a public IP, not a private one handed out by the modem's own NAT.
+- The gateway's WAN interface picked up a real public IP, instead of a private one handed out by the modem's own NAT.
 - The controller's dashboard shows that same address.
 
 {{< alert icon="circle-info" >}}If those two don't match, passthrough isn't actually active yet, no matter what the modem's settings page claims.{{< /alert >}}

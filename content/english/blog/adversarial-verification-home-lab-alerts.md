@@ -3,7 +3,7 @@ title: "Fifteen of Eighteen Root Causes I Was Sure About Were Wrong"
 meta_title: "Adversarial Root-Cause Verification: 15 of 18 Diagnoses Refuted"
 description: "Fifteen of eighteen proposed root causes for four firing alerts were refuted by three independent adversarial checks before any fix shipped."
 date: 2026-08-10T11:50:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:19:38Z
 categories: [
   "Home Lab",
   "Software Architecture",
@@ -23,11 +23,11 @@ showHero: true
 
 Fifteen of eighteen root causes I proposed for four firing alerts turned out to be wrong. Four alerts were going off across my home infrastructure at once: a stuck download post-processing backlog, plus three separate automation alerts tied to a video-discovery pipeline.
 
-My first instinct on each one: form a theory fast, patch it, watch the alert clear. But I forced myself to do the opposite — generate every plausible root cause I could find, then attack each one before touching anything. Eighteen candidates went in. Three survived. **That refutation rate is the actual finding here, more than any single bug I fixed.**
+My first instinct on each one: form a theory fast, patch it, watch the alert clear. But I forced myself to do the opposite: generate every plausible root cause I could find, then attack each one before touching anything. Eighteen candidates went in. Three survived. **That refutation rate is the actual finding here, more than any single bug I fixed.**
 
-## The method was adversarial verification, not more logging
+## Adversarial verification means trying to kill your own hypothesis
 
-Adversarial verification means treating your own hypothesis as something to disprove, not something to confirm. For each candidate root cause, I ran three independent checks against three different failure modes:
+Adversarial verification means treating your own hypothesis as something to disprove. For each candidate root cause, I ran three independent checks against three different failure modes:
 
 - Is the claim actually correct?
 - Is there a more likely alternative explanation for the same symptom?
@@ -35,7 +35,7 @@ Adversarial verification means treating your own hypothesis as something to disp
 
 Two negative checks out of three killed a finding, and I moved on without touching code.
 
-I used parallel background agents to run these checks concurrently, one per lens, working off the same evidence but arguing independently — the same independence-over-agreement bet behind [the dueling-agent review design I sketched elsewhere](/blog/dueling-agent-orchestration-suites/). The mechanism doesn't matter much: you could run this with three colleagues, or with yourself on three separate days.
+I used parallel background agents to run these checks concurrently, one per lens, working off the same evidence but arguing independently. It's the same independence-over-agreement bet behind [the dueling-agent review design I sketched elsewhere](/blog/dueling-agent-orchestration-suites/). The mechanism doesn't matter much: you could run this with three colleagues, or with yourself on three separate days.
 
 **What matters is that confirmation and refutation are different jobs.** Doing both with the same brain in the same sitting is how bad root causes survive into production.
 
@@ -56,33 +56,33 @@ The whole investigation stayed read-only until every surviving finding cleared v
 - No restarts
 - No "let me just try this" during the diagnostic pass
 
-That discipline is what made the refuted list trustworthy — I never contaminated a measurement by fixing something mid-investigation.
+That discipline is what made the refuted list trustworthy. I never contaminated a measurement by fixing something mid-investigation.
 
-## A refuted finding: zero didn't mean what I thought it meant
+## Zero didn't mean what I thought it meant
 
 Earlier in this same session, before I tightened up the process, I had already reported that a download client's bandwidth was pinned at 0 B/s and blamed an empty configuration value colliding with a governor script that writes percentage-based limits. That looked like an obvious bug. It would have been an easy one-line fix: set the missing value.
 
 It was wrong, and setting that value would have made things actively worse. I traced the actual code path in this download client's percentage-limit branch.
 
-{{< alert icon="circle-info" >}}A zero limit there means unlimited, not stopped — the log line that reads like a stall is literally the client's own phrasing for "no cap applied."{{< /alert >}}
+{{< alert icon="circle-info" >}}A zero limit there means unlimited, not stopped. The log line that reads like a stall is literally the client's own phrasing for "no cap applied."{{< /alert >}}
 
 I confirmed this three separate ways, including running the branch logic directly inside the container and cross-checking it against a measured throughput number that only made sense if the download was, in fact, running at full speed. Setting the value I'd flagged would have flipped the client into a different code branch entirely, one that computes a mismatched percentage on every release cycle and throws a runtime error every time.
 
 I would have taken a healthy, fast-running download client and broken it myself, on my own advice. It's the same trust-a-single-signal failure that produced [my GPU broker's phantom-game bug](/blog/debugging-false-positive-gpu-contention-detection/): one plausible reading of one signal, promoted straight to ground truth.
 
-## A confirmed finding: the alert metric was lying about its own units
+## The alert metric was lying about its own units
 
-One of the four original alerts was measuring how long the oldest item had been stuck in the post-processing queue. The number it reported never looked right — it read low even when I could see items sitting untouched for days.
+One of the four original alerts was measuring how long the oldest item had been stuck in the post-processing queue. The number it reported never looked right. It read low even when I could see items sitting untouched for days.
 
-The bug turned out to be in how the metric collector seeded its internal clock: it stamped each item's "first seen" time from the moment the collector itself first observed it, not from when the item actually entered the queue. Every entry read back the exact same duration, no matter how long it had really been waiting, because **the whole gauge was secretly measuring collector uptime**.
+The bug turned out to be in how the metric collector seeded its internal clock: it stamped each item's "first seen" time from the moment the collector itself first observed it, instead of when the item actually entered the queue. Every entry read back the exact same duration, no matter how long it had really been waiting, because **the whole gauge was secretly measuring collector uptime**.
 
 That one survived all three checks cleanly. The alternative-cause reviewer couldn't find a queue-processing explanation that fit the flat, identical readings across separate instances. The fix-safety reviewer confirmed the correct source of truth was already present in the underlying data and just needed to be read instead of guessed.
 
 After I re-seeded the clock from the real timestamp, the two queue instances immediately started reporting different, correct numbers: one nearly four days old, the other over a day and a half. The alert had been reporting a real problem's existence without ever reporting its true severity, for as long as it had been deployed.
 
-## A second confirmed finding was worse than the alert it was supposed to fix
+## The budget governor's fix made the problem worse
 
-A budget governor script was supposed to reduce how often a discovery pipeline fired, to stay under a resource cap. Its "reduced" setting was implemented as a scheduling override applied on top of the baseline schedule — but the override mechanism in the underlying scheduler doesn't replace an existing schedule when you add to it that way. It appends.
+A budget governor script was supposed to reduce how often a discovery pipeline fired, to stay under a resource cap. Its "reduced" setting was implemented as a scheduling override applied on top of the baseline schedule. But the override mechanism in the underlying scheduler doesn't replace an existing schedule when you add to it that way. It appends.
 
 {{< alert >}}The lever meant to cut cadence was quietly increasing it: the "reduced" tier stacked a second firing schedule on top of the baseline instead of replacing it.{{< /alert >}}
 
@@ -96,7 +96,7 @@ I think it was worth it here. Two of the three survivors were actively harmful i
 
 The process also has a real blind spot. One finding, a file-permission mismatch behind a wave of import errors, split my reviewers: one found evidence the bad files existed for hours before the failures started, another found the same failures beginning within minutes of a container restart despite those files already being in place.
 
-Majority-refutation needs an actual majority, and a genuine split doesn't produce one. I left that finding open rather than act on a coin flip — the right call, but it means **adversarial verification didn't resolve it, it just kept me from pretending it had**.
+Majority-refutation needs an actual majority, and a genuine split doesn't produce one. I left that finding open rather than act on a coin flip. That was the right call, but it means **adversarial verification didn't resolve it, it just kept me from pretending it had**.
 
 The backlog itself is also still draining slower than it should, and I haven't traced a single item through the pipeline start to finish to prove why. Eighteen hypotheses in, some things are still genuinely unknown, and the honest move is to say so instead of closing the ticket.
 

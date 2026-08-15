@@ -3,7 +3,7 @@ title: "My GPU Broker Kept Killing Inference Jobs for Games That Weren't Running
 meta_title: "Fixing a False-Positive GPU Contention Bug in a Home-Lab Broker"
 description: "My GPU broker canceled inference for games that weren't running: Plex maintenance uses the same transcoder binary, and one process match forced a cancel."
 date: 2026-08-10T11:00:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:19:38Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -32,7 +32,7 @@ I found the bug while chasing a different crash: [the LightRAG embedding crash t
 
 Checking the broker's logs during the failure windows turned up the real problem: it kept flipping into a "yielding" state with nothing running.
 
-{{< alert icon="circle-info" >}}The broker flipped to yielding roughly every 10 to 20 minutes, around the clock — including the 1am to 6am stretch when nobody in this house was playing anything.{{< /alert >}}
+{{< alert icon="circle-info" >}}The broker flipped to yielding roughly every 10 to 20 minutes, around the clock, including the 1am to 6am stretch when nobody in this house was playing anything.{{< /alert >}}
 
 `ps aux` during one of those windows showed exactly one candidate: Steam's idle background client, doing nothing more incriminating than existing in the process table.
 
@@ -47,11 +47,11 @@ One matching line in `/proc` was enough to kill a running job. The detector poll
 
 The moment any one poll matched, the controller flipped to yielding and canceled whatever inference was in flight.
 
-There was no **debounce** — the industry term for waiting out a signal before trusting it — and no second signal to corroborate the first. One sample counted as ground truth. That design wasn't an oversight so much as an unexamined assumption: I'd built the hard-cancel policy deliberately, then never asked whether the thing triggering it deserved that much trust.
+There was no **debounce** (the industry term for waiting out a signal before trusting it) and no second signal to corroborate the first. One sample counted as ground truth. That design wasn't an oversight so much as an unexamined assumption: I'd built the hard-cancel policy deliberately, then never asked whether the thing triggering it deserved that much trust.
 
 ## Plex's own maintenance jobs look identical to real playback
 
-[Plex's own support documentation](https://support.plex.tv/articles/credits-detection/) confirms that Skip Intro and Credits detection, along with chapter-thumbnail generation, run as scheduled server maintenance through the same `Plex Transcoder` binary that handles real playback — on a cadence that has nothing to do with anyone pressing play. My detector grepped for that process name, so a 3am maintenance pass looked exactly like me starting a movie.
+[Plex's own support documentation](https://support.plex.tv/articles/credits-detection/) confirms that Skip Intro and Credits detection, along with chapter-thumbnail generation, run as scheduled server maintenance through the same `Plex Transcoder` binary that handles real playback, on a cadence that has nothing to do with anyone pressing play. My detector grepped for that process name, so a 3am maintenance pass looked exactly like me starting a movie.
 
 No amount of debounce timing fixes this: the false match isn't a brief blip, it can run for several minutes at a stretch. [Tautulli](https://github.com/Tautulli/Tautulli), a widely used third-party Plex monitoring tool, sidesteps the problem by reading Plex's `/status/sessions` API instead of the process table, since that endpoint only reports sessions that are actually "now playing." The real fix for the Plex side: stop grepping for the binary and ask Plex what's actually playing.
 
@@ -59,9 +59,9 @@ No amount of debounce timing fixes this: the false match isn't a brief blip, it 
 
 The gaming side is a different problem: I can't fix it by finding a better API, because none exists. Steam's overlay APIs report whether the overlay is active, not whether a game is running in the foreground. Heroic and Lutris expose no equivalent signal at all.
 
-Process-name matching is the only practical option left for gaming detection. The logs showed those false matches clustering as three-to-six-second blips, not Plex's multi-minute stretches — different noise shape, different fix.
+Process-name matching is the only practical option left for gaming detection. The logs showed those false matches clustering in three-to-six-second blips, much shorter than Plex's multi-minute stretches: different noise shape, different fix.
 
-## Confirmation gates the cancel, not the recovery
+## Confirmation only gates the cancel
 
 The fix makes the broker demand confirmation before it cancels a job, but not before it recovers from one. Here's the actual change, before and after:
 
@@ -80,13 +80,13 @@ flowchart LR
     end
 ```
 
-For the gaming side, the fix is the debounce pattern I should have had from the start: require several consecutive positive polls, not one, before flipping to yielding. I set the default at **two or three consecutive matches**.
+For the gaming side, the fix is the debounce pattern I should have had from the start: require several consecutive positive polls before flipping to yielding, instead of trusting a single one. I set the default at **two or three consecutive matches**.
 
-Recovery — the transition back out of yielding — stays instant and undebounced. Delaying it only costs a few extra seconds of inference downtime, and never risks letting inference run over an actual game. That asymmetry is deliberate: the two directions carry different failure costs. A genuine game launch now takes a few seconds longer for the GPU to free up, a small price against jobs dying for no reason.
+Recovery, the transition back out of yielding, stays instant and undebounced. Delaying it only costs a few extra seconds of inference downtime, and never risks letting inference run over an actual game. That asymmetry is deliberate: the two directions carry different failure costs. A genuine game launch now takes a few seconds longer for the GPU to free up, a small price against jobs dying for no reason.
 
-I've only shipped half of this fix. The poll-confirmation gate is small, self-contained, and went in first. The Plex session-API swap hasn't happened yet — it needs a token Plex issues locally, and I haven't wired that up. Until I do, a multi-minute Plex maintenance run will still trip the broker no matter how high I set the confirm-poll count: debounce only filters single-sample noise, and does nothing against a signal that stays true for five straight minutes.
+I've only shipped half of this fix. The poll-confirmation gate is small, self-contained, and went in first. The Plex session-API swap hasn't happened yet. It needs a token Plex issues locally, and I haven't wired that up. Until I do, a multi-minute Plex maintenance run will still trip the broker no matter how high I set the confirm-poll count: debounce only filters single-sample noise, and does nothing against a signal that stays true for five straight minutes.
 
-I'm also not confident two or three polls is the right number for every workload this machine runs. I picked it from a general flapping-detection convention, not from measurement on my own logs — I won't know if it's wrong until the false positives either stop or don't.
+I'm also not confident two or three polls is the right number for every workload this machine runs. I picked it from a general flapping-detection convention rather than from measurement on my own logs. I won't know if it's wrong until the false positives either stop or don't.
 
 ## Hard-canceling instead of throttling is a defensible but costly choice
 

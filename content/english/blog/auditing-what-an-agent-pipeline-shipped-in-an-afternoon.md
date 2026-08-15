@@ -3,7 +3,7 @@ title: "Shipping Fast Isn't the Same as Being Done: Auditing a CLI My Agent Pipe
 meta_title: "Auditing an Agent-Built CLI Tool Before Extending It to a Second Platform"
 description: "An agent pipeline built a working CLI in an afternoon. A separate audit still found four gaps: GitHub rate limits, an unsafe SQLite backup, no approval log."
 date: 2026-08-10T11:45:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:19:38Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -32,7 +32,7 @@ The pipeline is mine. Feed it a one-line description of what I want, and it runs
 
 For a small outreach-automation CLI (local SQLite state, a human approval gate before anything goes out, a GitHub-facing sourcing loop), that pipeline produced working software in an afternoon. It ran. It did the job I asked for. But it wasn't something I trusted enough to extend to a second platform without checking it first.
 
-## The pipeline optimizes for the spec, not for what the spec left out
+## The pipeline only checks against what the spec asked for
 
 Every phase in that pipeline checks the code against what I asked for. But none of that touches questions I never thought to ask in the spec.
 
@@ -103,11 +103,11 @@ Commercial approval-workflow tools keep exactly this kind of log by default. Min
 
 The tool finds candidates to reach out to using keyword matching against a configured niche list, and that's the whole signal. Comparable tools in this space enrich candidates with graph signals (repository stars, forks, contributor overlap) that catch relevance keyword matching alone misses.
 
-I haven't fixed this one yet. It's **queued, not resolved**, and I'm listing it here instead of pretending it's closed because the rest of this post is about being honest about what "done" actually took.
+I haven't fixed this one yet. It's on the list for later, and I'm naming it here instead of pretending it's closed, because the rest of this post is about being honest about what "done" actually took.
 
 ## Extending to a second platform meant deciding not to automate it
 
-The most consequential finding wasn't a bug at all. Before writing a single line for the second platform, I checked its user agreement. It explicitly bans the exact category of automation my GitHub loops already do:
+The biggest finding wasn't a bug. Before writing a single line for the second platform, I checked its user agreement, and it explicitly bans the exact category of automation my GitHub loops already do, spelled out item by item:
 
 - Auto-connecting
 - Auto-posting

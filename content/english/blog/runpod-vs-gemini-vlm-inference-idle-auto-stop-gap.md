@@ -3,7 +3,7 @@ title: "RunPod Beats Gemini on Cost for My Vision Pipeline, and the Idle-Stop Fe
 meta_title: "RunPod vs. Gemini for VLM Inference: Cost, Accuracy, and the Missing Idle-Auto-Stop"
 description: "Gemini wins on vision accuracy but RunPod wins on cost, as long as a watchdog calls podStop: dedicated RunPod pods have no idle auto-stop of their own."
 date: 2026-08-10T11:20:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:18:32Z
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -25,7 +25,7 @@ Gemini wins on accuracy. RunPod wins on cost. I run vision-model inference for a
 
 RunPod's low price only holds if something babysits it. The actual engineering problem here wasn't the model weights or the prompt tuning. It was a **cron job watching a clock**.
 
-This is a companion piece to [the estate-sale scanner series](/blog/scrape-score-alert-resale-hunting-pipelines-local-vision-models/) on this blog, one narrow decision about where the vision step runs, not a rewrite of that whole pipeline.
+This is a companion piece to [the estate-sale scanner series](/blog/scrape-score-alert-resale-hunting-pipelines-local-vision-models/) on this blog, covering one narrow decision about where the vision step runs rather than reworking that whole pipeline.
 
 | | Gemini 2.5 Flash | RunPod dedicated pod (Qwen2.5-VL) |
 |---|---|---|

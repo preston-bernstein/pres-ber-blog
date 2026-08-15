@@ -3,7 +3,7 @@ title: "Not Every Docker Container Belongs on the NAS"
 meta_title: "NAS vs Desktop Docker Placement: A RAM-Constrained Home Lab Framework"
 description: "Storage-coupled services stay on the NAS; compute-heavy projects move to a host with real memory. An 8GB DS1522+ under 35 containers forced the split."
 date: 2026-08-10T11:55:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:22:11Z
 categories: [
   "Home Lab",
   "Networking",
@@ -23,11 +23,11 @@ showHero: true
 
 Family-facing and storage-coupled services stay on the NAS. Compute-heavy personal projects move to a separate host with real memory to spare. That's the whole framework, and it took months of pain to earn: a Synology DS1522+ with 8GB of RAM, roughly 35 Docker containers, and a box that kept falling over under memory pressure.
 
-ContainerManager doesn't fail loudly when it runs low on headroom — it just quietly starts murdering things. It stalls. It swaps. Eventually something dies, and figuring out which container actually mattered enough to protect took longer than it should have.
+ContainerManager doesn't fail loudly when it runs low on headroom. It just quietly starts murdering things. It stalls. It swaps. Eventually something dies, and figuring out which container actually mattered enough to protect took longer than it should have.
 
-## Storage coupling decides placement, not how important a service feels
+## Storage coupling decides placement
 
-A service that's **coupled to storage or answers requests from other people in real time** belongs on the NAS regardless of how heavy it is. A photo backup tool sits next to the disks it writes to — someone in the house opens the app, it has to answer, so it stays put.
+A service that's **coupled to storage or answers requests from other people in real time** belongs on the NAS regardless of how heavy it is. A photo backup tool sits next to the disks it writes to; someone in the house opens the app, it has to answer, so it stays put.
 
 A knowledge-graph pipeline or a data-ingestion job is the opposite: it runs on my own schedule, tolerates a restart without anyone noticing, and doesn't need to answer anything at 11pm on a Tuesday. That kind of workload moved to my desktop, which has far more RAM than the NAS and isn't a fragile appliance I need to baby. ([The crash saga that proved the NAS couldn't carry the knowledge-graph workload](/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/) is its own post.)
 
@@ -58,7 +58,7 @@ Facial recognition itself talks to the database directly and doesn't care where 
 
 ## SQLite-backed services migrate cheaply; Postgres-backed services need a logical dump
 
-Migrating a stateful service safely comes down to what's storing its state. Anything backed by SQLite in a config directory — which covers most media-automation tools in the `*arr` family — migrates with a stop-the-container, sync-the-volume, start-on-the-new-host sequence. That's close to zero-risk: the database is just a file sitting still while you copy it.
+Migrating a stateful service safely comes down to what's storing its state. Anything backed by SQLite in a config directory, which covers most media-automation tools in the `*arr` family, migrates with a stop-the-container, sync-the-volume, start-on-the-new-host sequence. That's close to zero-risk: the database is just a file sitting still while you copy it.
 
 Postgres is a different problem. Copying a live data directory risks corruption, so the safe path is:
 
@@ -80,9 +80,9 @@ The fix is a **one-time script against the SQLite database** that rewrites the s
 
 A watchdog that lives on the same box it's protecting adds to the exact pressure it's supposed to catch.
 
-I run a lightweight watchdog on the NAS itself — a cron job paired with an [ntfy](https://ntfy.sh/) push notification — because that footprint is small enough not to matter. Anything heavier, like [Uptime Kuma](https://github.com/louislam/uptime-kuma), I'd rather run on the desktop watching the NAS remotely than install directly on the NAS.
+I run a lightweight watchdog on the NAS itself, a cron job paired with an [ntfy](https://ntfy.sh/) push notification, because that footprint is small enough not to matter. Anything heavier, like [Uptime Kuma](https://github.com/louislam/uptime-kuma), I'd rather run on the desktop watching the NAS remotely than install directly on the NAS.
 
-Putting monitoring next to the thing it watches feels natural — but on a RAM-constrained box, it's backwards.
+Putting monitoring next to the thing it watches feels natural. On a RAM-constrained box, it's backwards.
 
 ## A RAM upgrade is a hedge, not a proven fix
 
@@ -90,7 +90,7 @@ I haven't upgraded the NAS's memory. I genuinely don't know if it would solve th
 
 {{< alert >}}Third-party memory is a real risk on this model specifically: at least one report describes a 16GB module in a DS1522+ registering as only 8GB, so the upgrade can fail silently instead of throwing an obvious error.{{< /alert >}}
 
-Even with compatible memory, I couldn't find a solid first-hand account confirming it actually stops the crash pattern rather than just raising the ceiling before it comes back at a higher container count. So it stays on my list as a possible complement to the migration — insurance layered on a split that's already working, not a fix I'm betting the outcome on.
+Even with compatible memory, I couldn't find a solid first-hand account confirming it actually stops the crash pattern rather than just raising the ceiling before it comes back at a higher container count. So it stays on my list as a possible complement to the migration: insurance layered on a split that's already working.
 
 The framework holds up months in, but **the split isn't finished**. Every time a new self-hosted idea shows up, the first question is still which side of the line it belongs on, and I've gotten that call wrong at least once. A stack I placed on the desktop early has since moved a second time, to [the Proxmox box I built from a retired laptop](/blog/proxmox-for-the-xps-17-offload-box/), because "more RAM than the NAS" turned out not to be the same thing as "the right home for this workload."
 

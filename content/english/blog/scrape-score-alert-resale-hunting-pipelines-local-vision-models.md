@@ -3,7 +3,7 @@ title: "Scrape, Score, Alert: The Pattern Behind Two Home-Lab Vision Pipelines"
 meta_title: "Local Vision-LLM Pipeline Architecture: A Home-Lab Case Study, Part 1"
 description: "Part 1: an estate-sale scanner and a resale monitor share one architecture — scrape, prefilter, score with local vision models, alert — on SQLite and one GPU."
 date: 2026-08-10T10:00:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-15T13:18:32Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -68,7 +68,7 @@ That's why both projects ended up with a tiered cascade instead of calling the b
 
 Fitting a large vision model onto a consumer-class GPU brought its own failure mode. The full-precision checkpoint of one candidate model didn't fit, and it left the worker in a permanently unhealthy state until I switched to an **FP8-quantized** build of the same model, which loaded cleanly.
 
-Serverless GPU workers that scale to zero when idle — the thing that keeps cost near zero between runs — carry a real cold-start cost too. One backend took roughly eight minutes to spin up from cold, against a hardcoded two-minute timeout on the client side.
+Serverless GPU workers scale to zero when idle, which is exactly what keeps cost near zero between runs, but they carry a real cold-start cost too. One backend took roughly eight minutes to spin up from cold, against a hardcoded two-minute timeout on the client side.
 
 {{< alert >}}That mismatch was a guaranteed failure on the first image of every single run. It stayed that way until I timed the cold start myself, instead of assuming a fixed timeout was generous enough.{{< /alert >}}
 
