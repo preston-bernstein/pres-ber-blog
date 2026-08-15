@@ -1,5 +1,15 @@
 # CLAUDE.md
 
+## Voice contract (read before drafting or editing any post)
+
+**Intake is a hard gate — use `/voice-draft <slug-or-topic>`** (`~/.claude/commands/voice-draft.md`), which runs the whole pipeline: source gather, the interview, verbatim intake, draft from intake only, provenance audit, checks, and ship on Preston's word. No post gets drafted or substantially rewritten without an intake in `docs/intake/<slug>.md` — Preston's own answers to `docs/post-intake.md` (voice memo transcript or bullets, raw). A draft may contain no fact, feeling, or scene that isn't in the intake or the linked notes; if a detail isn't there, leave it vague or ask. Invented specifics and stapled-on casual mannerisms are the two ways this has already failed (2026-08-15).
+
+Load `~/.claude/skills/writing-style.md` before writing, revising, or reviewing any post body. Its **"Sound like a person" section runs first and sets the order of work**: (1) collect what Preston actually said or wrote about the thing (the intake first, then session notes, DECISIONS files, commit messages, chat lines, memory entries) and keep his phrasing; (2) draft as if telling one person who asked, then cut to at most 65% of that draft; (3) run the AI-tell checklist last, never first — a checklist-driven rewrite produces checklist prose. Then satisfy the GEO contract below. The GEO contract governs *structure* (what goes first, what's linked); writing-style governs whether the result sounds like Preston. A post that passes every GEO check and still reads as generated is not done.
+
+Two known ways the GEO contract gets satisfied wrongly (both happened, 2026-08-15): "front-load the answer" (rule 1) is not a hollow-intensifier verdict sentence ("X won this one, plain and simple") — state the actual reason first. "Subheads state a claim" (rule 7) does not mean 5–6 equal-weight sections of ~4 equal paragraphs each with the same claim-explain-land shape and one conceit across all headers — attention should be uneven (three paragraphs on the thing that annoyed you, one sentence on the thing everyone knows), paragraph length should swing, and most paragraphs should end on a fact, not a button. Name the actual repo/container/error/time instead of "a service"/"a pipeline". Don't gloss terms an engineer who chose to read the post already knows.
+
+Every post also gets writing-style's self-check items 14–19 (last-sentences read, ≤65% length, "actually"/"That's"/"Here's the…" counts, vague nouns, paragraph spread, person present) before `geo-gate.py`.
+
 ## GEO content contract
 
 Every published post and site page follows these rules. They exist because AI answer engines cite content that front-loads answers, names its numbers, and links its sources (arXiv 2311.09735).

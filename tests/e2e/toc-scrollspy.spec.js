@@ -14,9 +14,11 @@ test.describe("Table of contents (sticky + scrollspy)", () => {
     await page.goto(POST);
     const toc = page.locator(".toc");
     await expect(toc).toBeVisible();
-    const introLink = toc.getByRole("link", { name: "Introduction" });
+    // Regex, not an exact string: Hugo's typography renders a straight apostrophe
+    // as a curly one (U+2019) in the built heading text.
+    const introLink = toc.getByRole("link", { name: /Docker Containers Inherit Your Connection.s Exposure by Default/ });
     await expect(introLink).toBeVisible();
-    await expect(toc.getByRole("link", { name: "Overview of Docker Compose and VPNs" })).toBeVisible();
+    await expect(toc.getByRole("link", { name: "Docker Compose Handles Orchestration; a VPN Container Handles Privacy" })).toBeVisible();
   });
 
   test("stays visible (sticky) after scrolling deep into the article", async ({ page }) => {
@@ -30,13 +32,15 @@ test.describe("Table of contents (sticky + scrollspy)", () => {
   test("scrollspy updates the highlighted section as the reader scrolls", async ({ page }) => {
     await page.goto(POST);
     const toc = page.locator(".toc");
-    const introLink = toc.getByRole("link", { name: "Introduction" });
+    // Regex, not an exact string: Hugo's typography renders a straight apostrophe
+    // as a curly one (U+2019) in the built heading text.
+    const introLink = toc.getByRole("link", { name: /Docker Containers Inherit Your Connection.s Exposure by Default/ });
     // Blowfish's smartTOC JS toggles a literal "active" class on the current
     // section's link (themes/blowfish/layouts/partials/toc.html) -- confirmed
     // directly against the rendered DOM, not assumed from the visual underline style.
     await expect(introLink).toHaveClass(/active/);
 
-    // Scroll well past Introduction into a later section.
+    // Scroll well past the first section into a later section.
     await page.mouse.wheel(0, 2500);
     await page.waitForTimeout(300); // smartTOC's scroll listener needs a tick to fire
 
