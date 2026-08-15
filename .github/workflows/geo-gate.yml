@@ -44,6 +44,22 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
+      - name: Set up Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: '3.11'
+
+      # linkblog-commons is a private repo. LINKBLOG_COMMONS_PAT is a fine-grained
+      # GitHub PAT scoped to Contents: Read-only on that one repo, stored as a repo
+      # secret (Settings > Secrets and variables > Actions) -- provisioned manually,
+      # CI cannot create it. Pinned to a commit SHA, not a branch, so an unrelated
+      # upstream change can't silently break this repo's push-to-main deploy.
+      - name: Install linkblog-commons
+        run: pip install "git+https://x-access-token:${{ secrets.LINKBLOG_COMMONS_PAT }}@github.com/preston-bernstein/linkblog-commons.git@f12f008aed587d7d643db8ec5b787f60474ee96a"
+
+      - name: Build linkblog content
+        run: python3 scripts/build-linkblog.py
+
       - name: Build
         run: npm run build
 

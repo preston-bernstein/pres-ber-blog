@@ -19,17 +19,19 @@ Source for [prestonbernstein.com](https://www.prestonbernstein.com), a personal 
 
 ```
 content/english/
-  blog/       # posts (Markdown)
+  blog/       # long-form posts (Markdown, hand-authored)
+  links/      # short link+commentary posts (generated, see Linkblog below)
   authors/    # author bio(s)
   pages/      # static pages (privacy policy, elements, ...)
   contact/    # contact page
   sections/   # homepage sections (call-to-action, ...)
 config/       # Hugo site config (_default)
 assets/       # images, svg processed by Hugo pipes
-data/         # authors data
+data/         # authors data, linkposts.json (see Linkblog below)
 i18n/         # locale strings (currently empty -- Blowfish ships its own)
+static/       # files copied verbatim into public/ (links/atom.xml, see Linkblog below)
 themes/blowfish/  # vendored theme (git submodule, see .gitmodules)
-scripts/      # (currently empty -- see git history for retired Hugoplate scaffolding scripts)
+scripts/      # geo-gate.py (release gate), build-linkblog.py (see Linkblog below)
 ```
 
 ## Quick start
@@ -60,6 +62,41 @@ npm run build             # hugo --gc --minify ...
 ## Writing a post
 
 Add a Markdown file under `content/english/blog/` with Blowfish's post front matter (see existing posts in that directory for the shape). Tags, categories, and author are set in front matter and drive the tag/category/author pages.
+
+## Linkblog
+
+Short link+commentary posts live under `/links/`, structurally separate from
+`content/english/blog/`. Nothing under `content/english/links/*.md` is hand-edited
+except `_index.md` -- everything else, plus `static/links/atom.xml`, is fully
+regenerated on every build by `scripts/build-linkblog.py` and committed to git (not
+`.gitignore`d), so a bad slug or permalink shows up in the PR diff before it goes live.
+
+To add a link post, add an entry to `data/linkposts.json`:
+
+```json
+{
+  "url": "https://example.com/some-article",
+  "published": "2026-08-15T10:00:00+00:00",
+  "comment": "Why this is worth reading.",
+  "tags": ["some-tag"]
+}
+```
+
+`url` and `published` must be treated as immutable once an entry has been published --
+changing either changes the generated page's slug, breaking any existing external link
+to it. `published` must be a timezone-aware ISO 8601 datetime (a bare date is rejected).
+
+Locally: `python3 scripts/build-linkblog.py` validates every entry, wipes and
+regenerates `content/english/links/*.md`, and regenerates `static/links/atom.xml`. CI
+runs this same script (both `main.yml` and `geo-gate.yml`) immediately before
+`npm run build`, using [linkblog-commons](https://github.com/preston-bernstein/linkblog-commons)
+(a private sibling repo) for the actual rendering. Since it's private, CI installs it via
+a fine-grained GitHub PAT (`Contents: Read-only` on just that repo) stored as the repo
+secret `LINKBLOG_COMMONS_PAT` -- **Preston must provision this manually** in
+Settings > Secrets and variables > Actions; CI cannot create it itself, and the
+pip-install step fails with a clear auth error until it exists. The dependency is
+pinned to a specific commit SHA, not a branch, so an unrelated change to
+linkblog-commons can't silently break this repo's push-to-main deploy.
 
 ## Deploy
 
