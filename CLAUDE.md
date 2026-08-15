@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## Voice contract (read before drafting or editing any post)
+
+Load `~/.claude/skills/writing-style.md` before writing, revising, or reviewing any post body — run it as a pass after the GEO contract below is satisfied, not instead of it. The GEO contract governs *structure* (what goes first, what's linked); the writing-style skill governs whether the resulting sentences sound like Preston instead of generated verdict-copy. A post that passes every GEO check below and still reads as AI-written is not done. In particular, satisfying "front-load the answer" (rule 1) must not produce a hollow-intensifier verdict sentence ("X won this one, plain and simple") or a scored-contest section-header conceit repeated across the whole piece — see writing-style.md's "hollow verdict intensifiers" and "one conceit is a device, not a default" rules. State the actual reason first, not a dramatic framing of the outcome.
+
 ## GEO content contract
 
 Every published post and site page follows these rules. They exist because AI answer engines cite content that front-loads answers, names its numbers, and links its sources (arXiv 2311.09735).
