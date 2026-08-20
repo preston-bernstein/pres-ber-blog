@@ -3,11 +3,11 @@ title: "Home"
 description: "Preston Bernstein is an Atlanta-based full-stack developer writing about home-lab infrastructure, self-hosted services, and AI agent engineering."
 ---
 
-I'm Preston Bernstein, a full-stack developer based in Atlanta with over ten years of experience building and optimizing web applications, and the infrastructure they run on.
+I'm Preston Bernstein, a full-stack developer in Atlanta with over ten years building and running web applications and the infrastructure under them.
 
-Most of what I write about comes out of my own home lab: a Synology NAS, a desktop with one much-fought-over GPU, a retired laptop [running Proxmox VE](/blog/proxmox-for-the-xps-17-offload-box/), and a UniFi network with Pi-hole DNS filtering underneath all of it. On top of that hardware I run self-hosted media automation, photo backup, knowledge-graph pipelines built on LightRAG, local LLM inference through Ollama, and a growing amount of AI agent tooling — Claude Code pipelines that spec, build, review, and deploy software with me supervising rather than typing.
+Most of it comes out of my home lab: a Synology NAS, a GPU desktop, a retired laptop [running Proxmox VE](/blog/proxmox-for-the-xps-17-offload-box/), and self-hosted services: LightRAG, Ollama, and Claude Code agents that build and deploy alongside me.
 
-The blog is where the debugging sessions and design decisions get written down honestly, including the parts that failed or stayed unresolved. Posts cover home-lab infrastructure and networking, self-hosted service placement and observability, and practical AI/LLM engineering: agent workflows, local inference, retrieval pipelines, and cost control.
+The blog covers home-lab infrastructure and networking, self-hosted service observability, and AI/LLM engineering, including the debugging sessions that didn't go cleanly.
 
 A few places to start:
 
