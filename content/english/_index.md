@@ -3,7 +3,7 @@ title: "Home"
 description: "Preston Bernstein is an Atlanta-based full-stack developer writing about home-lab infrastructure, self-hosted services, and AI agent engineering."
 ---
 
-I'm Preston Bernstein, a full-stack developer in Atlanta with over ten years building and running web applications and the infrastructure under them.
+I'm Preston Bernstein, a full-stack developer in Atlanta with over a decade building and running web applications and the infrastructure under them.
 
 Most of it comes out of my home lab: a Synology NAS, a GPU desktop, a retired laptop [running Proxmox VE](/blog/proxmox-for-the-xps-17-offload-box/), and self-hosted services: LightRAG, Ollama, and Claude Code agents that build and deploy alongside me.
 

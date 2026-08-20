@@ -21,6 +21,7 @@ date: 2026-08-19
 - CTA links in homepage: about page, blog, GitHub, LinkedIn | content/english/_index.md line 19 | "read more [about me](/about/), browse the [blog](/blog/), see my projects on [GitHub]..., or connect on [LinkedIn]"
 - Nielsen Norman Group usability data: concise writing alone lifts usability 58% vs promotional copy | vault Research/concise-homepage-copy.md | "58% from conciseness alone"
 - Developer homepage bio target length: 3–6 sentences | vault Research/concise-homepage-copy.md | "3–6 sentences as the target length for a developer/portfolio homepage bio"
+- Experience duration correction (2026-08-19, Preston in chat, mid-review): actual experience is 13 years, not ten — "just say over a decade" instead | chat, this session | "i have 13 years experience, so we should just say over a decade"
 
 ## Preston's own words
 
