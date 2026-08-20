@@ -5,7 +5,7 @@ description: "Preston Bernstein is a full-stack developer in Atlanta who builds 
 draft: false
 ---
 
-I'm Preston Bernstein, a full-stack developer based in Atlanta, GA, with over ten years of experience across front-end and back-end work. My professional focus is building and optimizing web applications; my off-hours focus is the infrastructure underneath them.
+I'm Preston Bernstein, a full-stack developer based in Atlanta, GA, with over a decade of experience across front-end and back-end work. My professional focus is building and optimizing web applications; my off-hours focus is the infrastructure underneath them.
 
 ## What I work on
 

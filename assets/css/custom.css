@@ -1,0 +1,24 @@
+/* Homepage is a single fixed-viewport shell (body has h-screen -- see
+   themes/blowfish/layouts/partials/home/profile.html), meant to never need
+   scrolling. The theme's default prose paragraph spacing (20px top/bottom
+   per block) pushed the intro + reading list + CTA past the viewport height
+   on common laptop screens. Scoped to the homepage profile block only --
+   other pages keep the theme's default prose rhythm. */
+main article.h-full.flex.flex-col.items-center.justify-center.text-center
+  > section.prose
+  > * {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+main article.h-full.flex.flex-col.items-center.justify-center.text-center
+  > section.prose
+  > *:first-child {
+  margin-top: 0;
+}
+
+main article.h-full.flex.flex-col.items-center.justify-center.text-center
+  > section.prose
+  > *:last-child {
+  margin-bottom: 0;
+}
