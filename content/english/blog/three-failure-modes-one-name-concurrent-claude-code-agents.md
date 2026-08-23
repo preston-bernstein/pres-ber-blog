@@ -3,7 +3,7 @@ title: "Three Failure Modes Wearing One Name: Running Concurrent Claude Code Age
 meta_title: "Concurrent Claude Code Agents: Worktree Sprawl vs Deploy Drift vs Wasted Compute"
 description: "'State drift' across concurrent Claude Code agents was three problems: worktree sprawl (unused feature), deploy drift (ungeneralized), wasted compute (open)."
 date: 2026-08-10T11:40:00Z
-lastmod: 2026-08-15T13:27:20Z
+lastmod: 2026-08-23T03:18:03Z
 featureimage: "/images/git-logo.svg"
 showHero: true
 categories: [
@@ -26,7 +26,7 @@ Three failure modes were hiding behind one name, and only one of them was actual
 - **Deploy drift**: a running service that no longer matches what an agent thought it built. A problem I'd already solved once, for one project, and just needed generalizing. Resolved.
 - **Wasted compute**: idle capacity across my machines. Still open; nothing solved it.
 
-Calling all three "state drift" was the mistake. That's the reason it took this long to notice only one of them actually was about drift.
+Calling all three "state drift" was the mistake. That's the reason it took this long to notice only one of them was ever about drift.
 
 ```mermaid
 flowchart TD
@@ -56,15 +56,15 @@ That distinction explained most of what I'd been seeing. My deliberate multi-age
 
 Deploy drift means a running service no longer matches what the agent that built it believes is deployed: config edited by hand after the fact, a container that never picked up the latest image, a service pointed at a stale checkout. No worktree cleanup script reaches that gap between git state and live state.
 
-I'd already closed that gap once, for one home-lab service, with a script that checks the deploy target after every push and diffs what's actually running against what git says should be running, backed by a written rule that every service needs the same coverage. The pattern the wider search turned up, a scheduled check that shells out over SSH to compare live state against the repo, was structurally the thing I'd already built.
+I'd already closed that gap once, for one home-lab service, with a script that checks the deploy target after every push and diffs what's running against what git says should be running, backed by a written rule that every service needs the same coverage. The pattern the wider search turned up, a scheduled check that shells out over SSH to compare live state against the repo, was structurally the thing I'd already built.
 
 The gap wasn't a missing tool. It was that the pattern only ran against one project instead of **every project with something deployed**.
 
 Heavier options exist: a continuous-reconciliation controller built for orchestrating containers across a cluster, diffing live state against a git manifest on every change. My footprint is a handful of systemd services and Docker Compose stacks on two machines; adopting that would mean running infrastructure to manage infrastructure I don't have. The actual fix is unglamorous: copy the pattern I already trust to the rest of the repos that deploy something.
 
-## Nobody has actually solved wasted compute
+## Nobody has solved wasted compute
 
-Compute utilization across my machines is where the search came back empty-handed. Agents sit idle on one box while the other has spare capacity, and nothing I found actually schedules work across that gap the way a real fleet scheduler would.
+Compute utilization across my machines is where the search came back empty-handed. Agents sit idle on one box while the other has spare capacity, and nothing I found schedules work across that gap the way a real fleet scheduler would.
 
 The closest candidate was a small, early open-source CLI built for exactly this: routing work and judging reliability across agent runtimes.
 
@@ -72,7 +72,7 @@ The closest candidate was a small, early open-source CLI built for exactly this:
 
 I own that gap. If I want it solved, I have to build a thin version myself, and I haven't started.
 
-## A follow-up audit checked whether the fix actually held
+## A follow-up audit checked whether the fix held
 
 Two weeks after landing on that plan, I went back and checked every repo on both machines against the documented worktree lifecycle instead of taking the research sweep's conclusion on faith, and the audit held up. Claude Code's own `EnterWorktree`/`ExitWorktree` lifecycle, the tools for opening and closing a worktree mid-session, works correctly in exactly the one workflow I built for it, and nowhere else yet. That workflow opens a worktree at the start of a run and closes it right after a successful merge.
 

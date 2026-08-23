@@ -3,7 +3,7 @@ title: "It Took Nine Fixes to Stop a LightRAG Crash. The First Eight Were All Re
 meta_title: "Debugging a LightRAG + Ollama Embedding Crash: Eight Real Fixes, One Root Cause"
 description: "Eight real fixes didn't stop a LightRAG crash. The host NAS was out of memory, 5GB deep in swap, stalling network I/O; the real fix was moving the workload."
 date: 2026-08-10T11:15:00Z
-lastmod: 2026-08-15T13:22:11Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -51,8 +51,6 @@ I kept narrowing, three more fixes deep:
 
 Each was a legitimate correction. None changed the outcome. By fix eight I'd addressed concurrency, idle timeouts, a GPU driver bug, retry logic, and connection reuse, and the job still died in the same seventeen-to-thirty-seven-minute window every time. **That consistency was the actual clue.** Something systemic was setting the clock. I kept adjusting the wrong thing.
 
-Here's the shape of the whole afternoon:
-
 ```mermaid
 flowchart TD
     A[Bulk reprocess job crashes] --> B[Fix 1: revert concurrency 4 to 1]
@@ -68,13 +66,13 @@ flowchart TD
 
 ## The host itself was out of memory
 
-Checking the NAS's own resource state directly settled it.
+I checked the NAS's own resource state directly, and that settled it.
 
 {{< alert icon="circle-info" >}}
 The box had 7.7GB of RAM, roughly 38 Docker containers running on it, and under 500MB genuinely free during a live run, with over 5GB in swap and the kernel's swap-reclaim daemon burning real CPU just to keep everything upright.
 {{< /alert >}}
 
-LightRAG's own footprint was tiny, under 1.5GB, but it didn't need to be large to get caught in the crossfire.
+LightRAG's own footprint was tiny, under 1.5GB, but even a small footprint got caught in the crossfire.
 
 Under that kind of sustained memory pressure, the kernel can stall a process's network handling unpredictably, and from either endpoint's perspective that looks exactly like the other side vanished mid-response. No exception in my code, no crash log on Ollama's side, nothing to grep for.
 
@@ -89,7 +87,7 @@ I migrated the LightRAG instance off the NAS onto a desktop machine with far mor
 
 I'd reasoned that co-locating services meant loopback would work. It doesn't, for the reason above.
 
-Switching to the machine's real local-network address fixed the connection immediately. The reprocess job then ran clean for fifty-two minutes, well past the worst crash point of thirty-seven, with steady progress and zero halts.
+I switched to the machine's real local-network address, and the connection worked immediately. The reprocess job then ran clean for fifty-two minutes, well past the worst crash point of thirty-seven, with steady progress and zero halts.
 
 I also owe a correction to my own process here. Partway through this, I declared an earlier fix verified after watching a run for thirty clean minutes, then stopped monitoring it to go write notes. The job crashed seven minutes later.
 
@@ -97,7 +95,7 @@ I also owe a correction to my own process here. Partway through this, I declared
 Thirty minutes of no errors isn't proof of anything if you stop watching before the job finishes.
 {{< /alert >}}
 
-I don't think that mistake changes the eventual diagnosis, but it added a full extra round of debugging that a longer, unattended check would have skipped.
+I still trust the eventual diagnosis, but the mistake added a full extra round of debugging that a longer, unattended check would have skipped.
 
 ## The GPU broker bug was a genuinely different problem, same day
 

@@ -1,9 +1,9 @@
 ---
 title: "GitHub's Agents Tab Puts Claude and Codex in the Repo UI. It's a Separate Bill From Claude Code."
 meta_title: "GitHub Agent HQ vs Claude Code: What the Repo Agents Tab Actually Does"
-description: "GitHub's Agents tab runs Claude or Codex against issues from the repo UI, live since January 2026 — billed through Copilot credits, not your Anthropic account."
+description: "GitHub's Agents tab runs Claude or Codex against issues from the repo UI, live since January 2026, billed through Copilot credits, not your Anthropic account."
 date: 2026-08-10T12:30:00Z
-lastmod: 2026-08-15T13:16:22Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -22,7 +22,7 @@ draft: false
 
 GitHub's per-repo Agents tab is a mission-control surface, [live since January 26, 2026](https://github.blog/changelog/2026-01-26-introducing-the-agents-tab-in-your-repository/), where GitHub-hosted coding agents pick up issues and turn them into PRs. No terminal required. Copilot's own agent lives there by default, and [Claude and Codex have been selectable alongside it in public preview since February 4, 2026](https://github.blog/changelog/2026-02-04-claude-and-codex-are-now-available-in-public-preview-on-github/). The tab is part of **Agent HQ**, the umbrella [GitHub announced on October 28, 2025](https://github.blog/news-insights/company-news/welcome-home-agents/), meant to give every agent vendor one shared surface across Issues, PRs, and Actions.
 
-My read after digging into how it actually works: this is a real product, not a rebrand of anything Anthropic ships, and it covers a narrower slice of my workflow than local Claude Code already handles. Whether I keep reaching for it once the novelty wears off is the part I genuinely don't know yet.
+My read after digging into how it works: this is a real product, not a rebrand of anything Anthropic ships, and it covers a narrower slice of my workflow than local Claude Code already handles. Whether I keep reaching for it once the novelty wears off is the part I genuinely don't know yet.
 
 ## Running Claude or Codex in the Agents tab draws down Copilot credits
 
@@ -32,7 +32,7 @@ Running Claude or Codex inside GitHub's Agents tab requires a paid Copilot plan,
 - **Pro+**: $39/month, $70 in AI credits
 - **Max**: $100/month, $200 in AI credits
 
-Every session the tab runs draws down those credits. GitHub [moved the whole system to usage-based credit billing on June 1, 2026](https://github.blog/changelog/2026-06-01-updates-to-github-copilot-billing-and-plans/), so cost tracks the work actually done instead of a flat seat price.
+Every session the tab runs draws down those credits. GitHub [moved the whole system to usage-based credit billing on June 1, 2026](https://github.blog/changelog/2026-06-01-updates-to-github-copilot-billing-and-plans/), so cost tracks the work done instead of a flat seat price.
 
 Anthropic's own bridge into GitHub runs on a completely separate path: the `claude-code-action` GitHub App, which [you install yourself by running `/install-github-app`](https://code.claude.com/docs/en/github-actions) from the Claude Code CLI, and which bills straight against an `ANTHROPIC_API_KEY` stored as a repo secret.
 
@@ -44,7 +44,7 @@ GitHub's Copilot cloud agent [reads whatever `CLAUDE.md` sits at a repo's root](
 
 An `excludeAgent` property exists for scoping a file to specific agents, useful once Copilot needs house rules that shouldn't also apply to Claude or Codex running in the same repo. I haven't hit that case yet.
 
-{{< alert >}}GitHub caps a single instructions file around 1,000 lines before response quality reportedly drops. That's a ceiling worth knowing before any `CLAUDE.md` grows past what an agent, local or cloud, can actually use.{{< /alert >}}
+{{< alert >}}GitHub caps a single instructions file around 1,000 lines before response quality reportedly drops, a ceiling worth knowing before any `CLAUDE.md` grows past what an agent, local or cloud, can use.{{< /alert >}}
 
 ## The permission model is generic where mine is already specific
 
@@ -58,16 +58,16 @@ GitHub is explicit about both sides of that line: bug fixes, doc updates, depend
 
 GitHub's own framing puts it plainly: local agents for interactive work that needs immediate feedback, cloud agents for tasks that can run all the way to a finished PR with nobody watching, and a `/delegate` command meant to hand a task from one mode to the other without losing context. I was already running that model before this tab existed. What's new is a GitHub-native trigger for the cloud half, reachable from the repo UI or a phone instead of only from my own machine.
 
-## Benchmark rankings show what the tab is actually routing to
+## Benchmark rankings show what the tab routes to
 
-Third-party benchmarks rank the models the tab routes to, and Copilot's own agent isn't near the top:
+Third-party benchmarks rank the models the tab routes to, and Copilot's own agent ranks near the bottom:
 
 - **Claude Opus**: 88.6% on SWE-bench Verified
 - **Codex**: 77.3% on Terminal-Bench 2.0
 - **Cursor**: ~74% on SWE-bench
 - **Copilot's own agent**: ~54%
 
-Picking Claude or Codex from inside the Agents tab, instead of defaulting to Copilot's built-in agent, means picking the same models I already reach for locally. GitHub sits underneath that choice as a router and a billing layer, not a rival source of intelligence.
+Picking Claude or Codex from inside the Agents tab, instead of defaulting to Copilot's built-in agent, means picking the same models I already reach for locally. GitHub sits underneath that choice as a router and a billing layer.
 
 If Copilot's own agent were the only option in that tab, I'd have skipped this whole investigation. But Claude sits there as a first-class pick, and the real question the tab poses is whether I want GitHub's UI and GitHub's bill wrapped around Claude, or my own.
 

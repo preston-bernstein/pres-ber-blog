@@ -3,7 +3,7 @@ title: "RunPod Beats Gemini on Cost for My Vision Pipeline, and the Idle-Stop Fe
 meta_title: "RunPod vs. Gemini for VLM Inference: Cost, Accuracy, and the Missing Idle-Auto-Stop"
 description: "Gemini wins on vision accuracy but RunPod wins on cost, as long as a watchdog calls podStop: dedicated RunPod pods have no idle auto-stop of their own."
 date: 2026-08-10T11:20:00Z
-lastmod: 2026-08-15T13:18:32Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -35,17 +35,17 @@ This is a companion piece to [the estate-sale scanner series](/blog/scrape-score
 
 ## Gemini scores higher on accuracy, but my pipeline doesn't need every field to be right
 
-Gemini 2.5 Flash tops a structured-extraction benchmark for vision-language models (VLMs, models that take an image and a text prompt together and return structured output) at 0.75 mAP, the best score of any model tested, self-hosted or managed. Qwen2.5-VL, the self-hosted model I actually run, trails that number on raw accuracy.
+Gemini 2.5 Flash tops a structured-extraction benchmark for vision-language models (VLMs) at 0.75 mAP, the best score of any model tested, self-hosted or managed. Qwen2.5-VL, the self-hosted model I run, trails that number on raw accuracy.
 
-But Qwen doesn't have a marginal cost per call, and that's the number that shows up on my bill. Every image I send to Gemini costs money no matter what; every image I send to a GPU I already control costs whatever fraction of an hour that request eats off the card.
+But Qwen has no marginal cost per call, and that's the number that shows up on my bill. Every image I send to Gemini costs money no matter what; every image I send to a GPU I already control costs whatever fraction of an hour that request eats off the card.
 
-That accuracy gap only matters if the pipeline can tolerate what Qwen actually delivers, and mine can. Every field it extracts carries a **confidence tag**, and anything low-confidence gets flagged for a human to glance at instead of trusted outright. A task that needs every field right on the first pass shouldn't make this trade at all.
+That accuracy gap only matters if the pipeline can tolerate what Qwen delivers, and mine can. Every field it extracts carries a **confidence tag**, and anything low-confidence gets flagged for a human to glance at instead of trusted outright. A task that needs every field right on the first pass shouldn't make this trade at all.
 
 ## Serverless pricing looked like the whole answer until I read the sizing requirements
 
-RunPod's serverless tier scales to zero between requests, so idle time costs nothing. That's the actual reason serverless looks attractive for a personal project with bursty traffic.
+RunPod's serverless tier scales to zero between requests, so idle time costs nothing, which is the actual reason serverless looks attractive for a personal project with bursty traffic.
 
-But Qwen2.5-VL **isn't a drop-in fit** on a serverless worker. Community deployment threads spell out what it takes to fit the model weights alongside the KV cache the image tokens generate:
+But Qwen2.5-VL **needs real tuning to fit** on a serverless worker. Community deployment threads spell out what it takes to fit the model weights alongside the KV cache the image tokens generate:
 
 - A 48GB-class card: L40, L40S, or RTX 6000 Ada
 - GPU memory utilization tuned to 0.90
@@ -53,11 +53,11 @@ But Qwen2.5-VL **isn't a drop-in fit** on a serverless worker. Community deploym
 
 {{< alert icon="circle-info" >}}[vLLM's own multimodal serving docs](https://docs.vllm.ai/en/latest/features/multimodal_inputs/) require setting `--limit-mm-per-prompt` explicitly, for example `image=1` for a pipeline that sends one photo per request, because the default silently drops image inputs instead of accepting them.{{< /alert >}}
 
-The same vLLM community thread that gave me those sizing numbers also flags multi-image batching efficiency as an open problem with no confirmed fix. I don't send multiple images per request today, so that gap doesn't block me, but it's a sign the serverless-vision path is younger than the serverless-text path I already use elsewhere.
+The same vLLM community thread that gave me those sizing numbers also flags multi-image batching efficiency as an open problem with no confirmed fix. I don't send multiple images per request today, so I can live with that gap, but it's a sign the serverless-vision path is younger than the serverless-text path I already use elsewhere.
 
 ## Dedicated pods are cheaper per hour, and that's exactly what makes them dangerous
 
-A dedicated RunPod GPU, an A40 with 48GB running a vLLM template, prices out around $0.44 an hour. That's a small fraction of what a bigger card costs me for other GPU work I run at home. At that rate, a dedicated pod running vision inference all day still costs less than a handful of Gemini calls at any real volume.
+A dedicated RunPod GPU, an A40 with 48GB running a vLLM template, prices out around $0.44 an hour — a small fraction of what a bigger card costs me for other GPU work I run at home. At that rate, a dedicated pod running vision inference all day still costs less than a handful of Gemini calls at any real volume.
 
 But **it bills for every minute it's running**, whether or not anything is actually calling it.
 
@@ -75,7 +75,7 @@ I didn't invent this out of necessity. RunPod's own cost-control guidance recomm
 
 I'd already written a version of this watchdog for a different self-hosted GPU job, so this was mostly reuse.
 
-Here's what the watchdog does, on a loop:
+The watchdog runs a simple loop:
 
 ```mermaid
 flowchart LR
@@ -89,6 +89,6 @@ flowchart LR
 
 I've committed to dedicated-pod-plus-watchdog for now, but I haven't run a real head-to-head between serverless and dedicated at my actual production volume yet.
 
-The sizing and batching caveats from the vLLM community are enough to make me wary of trusting serverless vision inference on faith, so a dedicated pod with a watchdog is the safer default while that's unverified. I could end up moving to serverless once I actually benchmark cold-start latency and per-image cost against what the watchdog setup gives me today.
+The sizing and batching caveats from the vLLM community are enough to make me wary of trusting serverless vision inference on faith, so a dedicated pod with a watchdog is the safer default while that's unverified. I could end up moving to serverless once I benchmark cold-start latency and per-image cost against what the watchdog setup gives me today.
 
 For now, the dedicated pod is cheaper and the watchdog keeps it honest, but the whole arrangement still comes down to that same cron job watching the clock. I'd rather admit that's a decision I haven't fully stress-tested than pretend the comparison is closed.

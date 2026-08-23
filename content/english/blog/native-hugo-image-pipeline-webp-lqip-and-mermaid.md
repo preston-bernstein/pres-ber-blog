@@ -3,7 +3,7 @@ title: "A Native Hugo Image Pipeline: WebP, LQIP Blur-Up, and Mermaid Diagrams"
 meta_title: "Native WebP, LQIP, and Mermaid Diagrams in Hugo Without a CDN"
 description: "Hugo render hooks gave this blog automatic WebP, srcset, and blur-up placeholders, plus Mermaid diagrams from plain fenced code blocks. No CDN, no theme fork."
 date: 2026-08-10T18:00:00Z
-lastmod: 2026-08-15T13:22:11Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Software Architecture",
   "Web Development",
@@ -29,7 +29,7 @@ Diagrams had exactly one path in: a Blowfish theme shortcode you had to remember
 
 Both problems share a mechanism, so I fixed them in the same pass: [Hugo render hooks](https://gohugo.io/render-hooks/), which let a site override how the built-in Markdown renderer turns one specific element (an image, a code block) into HTML.
 
-## Render hooks, not a CDN
+## Render hooks handle this instead of a CDN
 
 The obvious alternative to fixing this in Hugo would have been an image CDN, a hosted service like Cloudinary or imgix that resizes and reformats images on request. I didn't want a third-party dependency for something Hugo already does natively at build time.
 
@@ -43,7 +43,7 @@ The image hook does three things to every local raster image (a PNG or JPEG that
 
 1. **Converts it to WebP** at two widths, 800px and 1280px, quality 75. WebP is a modern image format that produces meaningfully smaller files than PNG or JPEG at the same visual quality. That's the actual win here, since the original screenshots on this blog were often 1–3MB PNGs.
 2. **Builds a `srcset`** so the browser picks whichever of the two sizes fits the reader's screen, instead of always downloading the largest version.
-3. **Generates a low-quality placeholder.** LQIP stands for low-quality image placeholder: a tiny, heavily compressed preview (24px wide, WebP quality 40) encoded directly into the HTML as a base64 data URI. It shows as a blurred background while the real image loads, then swaps out once the image finishes (`onload`, checking the image actually has real pixels rather than firing on a broken image).
+3. **Generates a low-quality placeholder.** LQIP stands for low-quality image placeholder: a tiny, heavily compressed preview (24px wide, WebP quality 40) encoded directly into the HTML as a base64 data URI. It shows as a blurred background while the real image loads, then swaps out once the image finishes (`onload`, checking the image has real pixels rather than firing on a broken image).
 
 Neither the resizing nor the srcset widths upscale past the source: both are capped at the image's own width, so a small source image never exceeds its native resolution.
 
@@ -54,7 +54,7 @@ Two cases skip all of this on purpose:
 
 There's also a site-wide escape hatch, a `disableImageOptimizationMD` parameter that reverts every image on the site to the original, unconverted file, for the rare case where exact pixel fidelity matters more than page weight.
 
-Here's the decision flow the hook actually runs, from a Markdown image reference to the final rendered figure:
+The decision flow the hook runs, from a Markdown image reference to the final rendered figure:
 
 ```mermaid
 flowchart TD
@@ -72,7 +72,7 @@ flowchart TD
     J --> K
 ```
 
-Here's a real image going through that exact path, reused from [the Docker Compose VPN guide on this blog](/blog/secure-services-docker-compose-and-nordvpn/) rather than a synthetic test image, so the pipeline does real work here instead of showing off on a stock photo of a laptop on a beach:
+A real image going through that exact path, reused from [the Docker Compose VPN guide on this blog](/blog/secure-services-docker-compose-and-nordvpn/) rather than a synthetic test image, so the pipeline does real work here instead of showing off on a stock photo of a laptop on a beach:
 
 ![Docker Compose network diagram showing application containers routed through a NordVPN container via a shared network namespace, with only the VPN container publishing ports to the host](images/blog/secure-services-docker-compose-and-nordvpn/dockerComposeWithVPNDiagram.png "The Docker Compose + VPN topology from an earlier post on this blog, now served as WebP with a blur-up placeholder")
 
@@ -86,7 +86,7 @@ I caught this during spec review, before it shipped, by deliberately testing aga
 
 A conditional that silently skips work instead of erroring is invisible until someone tests the exact input it was written to exclude.
 
-## Diagrams from a plain code fence, not just a custom shortcode
+## Diagrams now render from a plain code fence
 
 Before this, the only way to add a diagram to a post was Blowfish's `mermaid` shortcode, Hugo's mechanism for calling a custom template from inside Markdown by name, wrapped around the content it applies to. It works. But it's specific to this theme: paste the same Markdown into GitHub, or into any other Hugo site without that exact shortcode installed, and instead of a diagram you get a wall of raw arrows and brackets sitting on the page as plain text.
 
@@ -96,7 +96,7 @@ Hugo's code-block render hook lets this site recognize it too: `render-codeblock
 
 ## Loading the Mermaid bundle exactly once, from either entry point
 
-Mermaid's JavaScript runtime is a real cost, tens of kilobytes a reader's browser has to fetch and execute, so it should only load on pages that actually use it, and it should never load twice on the same page. Blowfish's theme already handled the first half of that for the shortcode: a partial checks `.Page.HasShortcode "mermaid"` and only then fetches, minifies, concatenates, and fingerprints the Mermaid library and its config into one bundle.
+Mermaid's JavaScript runtime is a real cost, tens of kilobytes a reader's browser has to fetch and execute, so it should only load on pages that use it, and it should never load twice on the same page. Blowfish's theme already handled the first half of that for the shortcode: a partial checks `.Page.HasShortcode "mermaid"` and only then fetches, minifies, concatenates, and fingerprints the Mermaid library and its config into one bundle.
 
 Forking that theme file too would mean re-syncing it by hand on every future Blowfish update. So instead I added a second, narrower check in a site-level partial, `extend-head-uncached.html`. It loads the same bundle only when the page's raw source contains a fenced block tagged `mermaid` *and* the shortcode is absent — that "and shortcode is absent" clause is the **double-load guard**:
 
@@ -128,4 +128,4 @@ I also wrote real browser tests, not just a clean build, to catch a regression h
 - Its colors really change between light and dark mode after clicking the appearance switcher.
 - The LQIP placeholder clears once the real image loads, rather than just being present in the markup.
 
-{{< alert icon="circle-info" >}}One gap I'm not pretending isn't there: there's still no isolated fixture anywhere on this site for "fenced block only, no shortcode" or "shortcode only, no fenced block" in separate pages. This post exercises both at once, which proves the double-load guard but not each syntax fully alone. That guard's logic is simple enough to have checked by reading the template directly, so I'm treating it as covered.{{< /alert >}}
+{{< alert icon="circle-info" >}}One real gap here: there's still no isolated fixture anywhere on this site for "fenced block only, no shortcode" or "shortcode only, no fenced block" in separate pages. This post exercises both at once, which proves the double-load guard but not each syntax fully alone. That guard's logic is simple enough to have checked by reading the template directly, so I'm treating it as covered.{{< /alert >}}

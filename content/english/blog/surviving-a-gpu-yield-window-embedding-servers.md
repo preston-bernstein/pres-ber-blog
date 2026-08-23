@@ -3,7 +3,7 @@ title: "No Embedding Server Survives a GPU Yield Gracefully. I Had to Build That
 meta_title: "GPU-Yield Tolerance for Embeddings: What Ollama, TEI, and llama.cpp Don't Do"
 description: "Ollama, TEI, Infinity, and llama.cpp all reject requests when the GPU disappears. My broker parks embedding requests up to 600s and replays them after a yield."
 date: 2026-08-10T11:05:00Z
-lastmod: 2026-08-15T13:24:15Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -45,26 +45,26 @@ I went looking for prior art before writing a line of this. The pattern held acr
 - [TEI's `--max-concurrent-requests` flag](https://huggingface.co/docs/text-embeddings-inference/en/cli_arguments) is explicit reject-fast backpressure by design.
 - Infinity and llama.cpp follow the same logic with their own limits.
 
-All of them treat a full queue as a hard stop rather than something to wait out. That's a reasonable default for a public-facing server fielding requests from strangers. It's the wrong default for a private broker that knows exactly why the GPU is unavailable and roughly how long the wait will be.
+All of them treat a full queue as a hard stop rather than something to wait out: reasonable for a public-facing server fielding requests from strangers, wrong for a private broker that knows exactly why the GPU is unavailable and roughly how long the wait will be.
 
 ## LightRAG has no protection of its own, so it has to come from below
 
 I run LightRAG for a knowledge-graph project ([the same one whose ingestion concurrency I tuned separately](/blog/tuning-lightrag-ingestion-concurrency-against-gemini-rate-limits/)). It talks straight to an embedding backend with no retry logic and no backpressure of its own. The maintainers' fix for slow embed calls is to set `TIMEOUT=None` and disable the timeout entirely, rather than add retries.
 
-Three separate open issues track embed failures during batch ingest across different backends, and one traces directly to an embed call timing out mid-ingest. None of that gets fixed inside LightRAG. Whatever protection exists has to sit underneath it, in whatever actually talks to the GPU. That's why this logic belongs in the broker instead of waiting on some upstream project to add it.
+Three separate open issues track embed failures during batch ingest across different backends, and one traces directly to an embed call timing out mid-ingest. None of that gets fixed inside LightRAG. Whatever protection exists has to sit underneath it, in whatever actually talks to the GPU. This logic belongs in the broker because LightRAG's maintainers aren't going to add it upstream.
 
 ## litellm's Router solves a different problem than mine
 
 The closest thing to a real solution I found was [litellm's Router](https://docs.litellm.ai/docs/routing), which supports fallback, cooldown, and timeout configuration for embedding calls. It's a useful primitive I'd reach for if I ever wanted a second embedding backend to fail over to. But its timeout wraps the entire call including retries, rather than each individual attempt inside it. Backend selection is what it solves. Waiting for one backend to come back online is a different problem.
 
-I also checked two open-source Ollama proxies: Olla (roughly 260 stars, actively maintained) and ollamaMQ (roughly 114 stars, a fair-share queue proxy written in Rust). Both are solid queueing and failover tools. Neither parks a request through an outage and replays it once the outage ends. That's the specific behavior I needed, and nothing I found already did it.
+I also checked two open-source Ollama proxies: Olla (roughly 260 stars, actively maintained) and ollamaMQ (roughly 114 stars, a fair-share queue proxy written in Rust). Both are solid queueing and failover tools. Neither parks a request through an outage and replays it once the outage ends, the one behavior I needed and never found already built.
 
 ## The fix: park requests instead of rejecting them
 
 The fix lives in the fronting proxy inside my broker, one layer above Ollama. When a yield starts, batch-class synchronous requests (in practice, embeddings) get **parked** instead of bounced:
 
 - **Hold bound**: 600 seconds by default.
-- **Parked-queue ceiling**: past it, the broker returns a fast 503. That's the same reject-fast principle TEI already applies, just moved up a layer instead of reinvented.
+- **Parked-queue ceiling**: past it, the broker returns a fast 503, the same reject-fast principle TEI already applies, just moved up a layer instead of reinvented.
 - **Replay**: when the yield ends, parked requests replay in FIFO order with a cap on how many go out at once, so the queue doesn't dump a burst back onto Ollama the instant the GPU returns.
 - **Metrics**: Prometheus gauges for parked depth, time spent parked, and replay outcomes, plus an alert rule. TEI already treats queue depth as worth exposing, so I didn't see a reason to do less.
 
@@ -95,7 +95,7 @@ Before I flip that flag on, I want to smoke-test it through LightRAG's actual em
 
 ## Next: proving the parking logic survives a real embed burst
 
-The parking logic passes against requests I send it directly, one at a time. What it hasn't seen yet is a forced yield in the middle of a real embed burst. That's the exact failure mode this whole thing exists to survive, and the test is next:
+The parking logic passes against requests I send it directly, one at a time. What it hasn't seen yet is a forced yield in the middle of a real embed burst, the exact failure mode this whole thing exists to survive. The test is next:
 
 1. Trigger a yield artificially while LightRAG is mid-ingest.
 2. Confirm zero failures on the caller's side.

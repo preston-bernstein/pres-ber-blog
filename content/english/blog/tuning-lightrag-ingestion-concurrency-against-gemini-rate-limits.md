@@ -3,7 +3,7 @@ title: "Tuning LightRAG Ingestion Concurrency Against a Rate-Limited Gemini API"
 meta_title: "LightRAG + Gemini: Concurrency Tuning Without Silent 429 Failures"
 description: "LightRAG marks a document FAILED on any Gemini 429. The biggest fix: EMBEDDING_BATCH_NUM was 2 instead of 32, causing 16x more requests, plus LiteLLM retries."
 date: 2026-08-10T11:10:00Z
-lastmod: 2026-08-15T13:27:20Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Machine Learning",
   "Software Architecture",
@@ -31,11 +31,11 @@ This post is what I found chasing that down: the actual concurrency knobs, why G
 
 The failure mode is quiet, and that's what makes it dangerous. When a Gemini call returns HTTP 429, LightRAG doesn't queue the document and try again later. It **marks the document FAILED and moves on**. No crash, no page, nothing. Unless you're watching the per-document status table, you won't notice until the corpus finishes and a chunk of it is just missing from the graph.
 
-That's exactly what happened on my first real run against this corpus: documents dropped out of the pipeline looking, from a distance, like success.
+Documents dropped out of the pipeline on my first real run against this corpus, looking, from a distance, like success.
 
 ## Do LightRAG's concurrency knobs control your Gemini rate limit?
 
-Four environment variables govern ingestion concurrency in LightRAG. I ended up trusting the source over the docs prose to actually understand them:
+Four environment variables govern ingestion concurrency in LightRAG. I ended up trusting the source over the docs prose to understand them:
 
 - `MAX_ASYNC_LLM`: concurrent LLM calls (extraction, merge, keyword generation, answer synthesis). Default 4.
 - `MAX_PARALLEL_INSERT`: documents processed in parallel. Default 3; [LightRAG's own `env.example`](https://github.com/HKUDS/LightRAG/blob/main/env.example) recommends keeping it near `MAX_ASYNC_LLM / 3`.
@@ -56,7 +56,7 @@ There's also a second, independent limiter on paid tiers: a spend-based burst ca
 
 {{< alert >}}You can sit well under your requests-per-minute limit and still get 429'd by the burst cap.{{< /alert >}}
 
-The derivation that actually holds up: set `MAX_ASYNC_LLM` to roughly your live RPM times average call latency in seconds, divided by 60. Flash's latency runs 1-3 seconds per call, so a 10 RPM tier caps you at 2-4 concurrent calls, while a paid tier with thousands of RPM lets you approach the documented profile.
+The derivation that holds up: set `MAX_ASYNC_LLM` to roughly your live RPM times average call latency in seconds, divided by 60. Flash's latency runs 1-3 seconds per call, so a 10 RPM tier caps you at 2-4 concurrent calls, while a paid tier with thousands of RPM lets you approach the documented profile.
 
 Insert parallelism and embedding pool size both derive from that number. They don't set it. Tune to the ratio first and you're tuning against a number that doesn't reflect your actual ceiling.
 
@@ -88,7 +88,7 @@ Concurrency limits are a best-effort guess at the ceiling, and best-effort guess
 
 The same absorb-don't-fail principle drove [the request-parking layer I built for my local embedding broker](/blog/surviving-a-gpu-yield-window-embedding-servers/); here the absorbing layer is the proxy. [LiteLLM's router](https://docs.litellm.ai/docs/routing) supports `rpm` and `tpm` caps per model in its `model_list`, and if you don't set `max_parallel_requests` explicitly it derives concurrency from those numbers automatically.
 
-It also supports a `retry_policy` with a dedicated `RateLimitErrorRetries` count, separate from timeout or server-error retries. **That's the setting that actually matters here**: a 429 that hits LiteLLM with that policy configured gets retried with backoff instead of surfacing as an error LightRAG has to interpret.
+It also supports a `retry_policy` with a dedicated `RateLimitErrorRetries` count, separate from timeout or server-error retries. **This is the setting that matters**: a 429 that hits LiteLLM with that policy configured gets retried with backoff instead of surfacing as an error LightRAG has to interpret.
 
 Set those caps to your project's real live limits, add the retry policy, and a burst that exceeds your ceiling turns into a delayed request instead of a failed document. Skip that layer and every concurrency tweak is a bet that you never overshoot. Eventually you will.
 
@@ -110,4 +110,4 @@ If you're running LightRAG against any rate-limited cloud LLM, check three thing
 - Your provider's live rate limit for your actual tier
 - Whether your proxy retries 429s or just lets them through
 
-Concurrency tuning is the part that feels like engineering. Getting those three right is the part that actually keeps documents from quietly turning FAILED while you're not looking.
+Concurrency tuning is the part that feels like engineering. Getting those three right is the part that keeps documents from quietly turning FAILED while you're not looking.

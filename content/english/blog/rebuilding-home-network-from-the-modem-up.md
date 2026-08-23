@@ -3,7 +3,7 @@ title: "Rebuilding a Home Network from the Modem Up, One Phase at a Time"
 meta_title: "Home Network Rebuild: ISP Modem Passthrough, UniFi Spine, Pi-hole DNS"
 description: "The rebuild order that worked: ISP modem to passthrough, UniFi gateway and switch, Pi-hole DNS on a Pi controller, then downstream devices one at a time."
 date: 2026-08-10T12:25:00Z
-lastmod: 2026-08-15T13:18:32Z
+lastmod: 2026-08-23T03:18:03Z
 featureimage: "/images/networkSwitchesRack.jpg"
 showHero: true
 categories: [
@@ -33,11 +33,11 @@ Bottom-up, slowest layer first. Nothing skipped ahead of what it depended on.
 
 Most rebuild guides start at the router, because the router is the interesting box. I started at the AT&T modem instead, because it's the one thing everything else would eventually depend on. Get it wrong there and you're redoing every phase that comes after it.
 
-A gateway sitting behind a modem that's still doing its own routing and NAT gets a private IP instead of the real one, and half its features either misbehave or silently don't work. Fix that after the fact and you're re-wiring a spine you already built. Fix it first, and every phase after stands on a foundation that's actually solid.
+A gateway sitting behind a modem that's still doing its own routing and NAT gets a private IP instead of the real one, and half its features either misbehave or silently don't work. Fix that after the fact and you're re-wiring a spine you already built. Fix it first, and every phase after stands on a foundation that's solid.
 
 ## The Pi controller has to prove itself before touching hardware
 
-Before I unplugged a single cable, I checked that the Raspberry Pi meant to run both the UniFi controller software and Pi-hole was actually in working order. That's a controller and a DNS filter sharing one small board, so if the board is flaky, both systems inherit the problem.
+Before I unplugged a single cable, I checked that the Raspberry Pi meant to run both the UniFi controller software and Pi-hole was in working order. A controller and a DNS filter share one small board, so if the board is flaky, both systems inherit the problem.
 
 I SSH into the Pi directly, skipping any intermediate device, and check three things:
 
@@ -45,11 +45,11 @@ I SSH into the Pi directly, skipping any intermediate device, and check three th
 - Pi-hole's FTL service is active.
 - Pi-hole's local API responds.
 
-If any of those fail, I fix them before phase one starts. A rebuild with an unreliable controller doesn't announce itself — it just produces mystery failures later that look like network problems and aren't.
+If any of those fail, I fix them before phase one starts. A rebuild with an unreliable controller fails silently. It just produces mystery failures later that look like network problems and aren't.
 
 ## Physical inspection beats trusting old notes
 
-The next step was confirming what the UniFi switch actually was: model, MAC address, firmware version. I had this written down from an earlier setup, but hardware gets swapped and notes go stale. I checked the label on the unit itself instead of trusting a document from months ago — skipping that step is how you end up troubleshooting a switch that isn't the switch you think it is.
+The next step was confirming what the UniFi switch was: model, MAC address, firmware version. I had this written down from an earlier setup, but hardware gets swapped and notes go stale. I checked the label on the unit itself instead of trusting a document from months ago — skipping that step is how you end up troubleshooting a switch that isn't the switch you think it is.
 
 ## Reset the Gateway Before the Controller Ever Adopts It
 
@@ -65,7 +65,7 @@ Once it settles, the gateway is reachable at its default local address over a di
 2. Open the controller's web dashboard from the Pi.
 3. Adopt the gateway once it shows up as pending.
 
-Most of the time this works from the UI in a few minutes. But when it doesn't, there's a **command-line fallback** that points the device at the controller's inform address directly, run over a direct SSH session into the gateway itself, and then the UI adoption is retried. I didn't need the fallback this time, but I wrote it into the plan anyway, because the one time you skip documenting the fallback is the one time you need it at 11pm.
+Most of the time this works from the UI in a few minutes. But when it fails, there's a **command-line fallback** that points the device at the controller's inform address directly, run over a direct SSH session into the gateway itself, and then the UI adoption is retried. I didn't need the fallback this time, but I wrote it into the plan anyway, because the one time you skip documenting the fallback is the one time you need it at 11pm.
 
 ## Wiring the spine follows a strict power-on order
 
@@ -75,9 +75,9 @@ Physical wiring came only after every device was individually verified:
 - The gateway's LAN port feeds the UniFi switch, which acts as the spine, the central point everything downstream connects through.
 - The switch feeds the Pi controller on one port and the rest of the existing switch gear on another.
 
-Power-on order matters too. Skipping it doesn't necessarily break anything, but it's one more variable I didn't need while troubleshooting a fresh spine.
+Power-on order matters too. Skipping it usually turns out fine, but it's one more variable I didn't need while troubleshooting a fresh spine.
 
-Here's the spine those wiring steps actually build, in the order signal flows through it:
+The spine those wiring steps build looks like this, in the order signal flows through it:
 
 ```mermaid
 flowchart LR
@@ -108,10 +108,10 @@ After enabling it and letting the modem reboot, I check two things:
 
 ## Where downstream devices land was a decision I hadn't made yet
 
-Here's the part of the plan I can't write up as finished, because it wasn't. Before the rebuild, the NAS, desktop, laptop, and a couple of media devices connected straight into modem ports, flat, no managed switch in the path. Once the modem is just a passthrough bridge and the UniFi gateway is the real router, those devices need a new home: stay on the old flat ports and lose DHCP consistency with everything else, or get rewired into the managed spine and gain it.
+One part of the plan I can't write up as finished, because it wasn't. Before the rebuild, the NAS, desktop, laptop, and a couple of media devices connected straight into modem ports, flat, no managed switch in the path. Once the modem is just a passthrough bridge and the UniFi gateway is the real router, those devices need a new home: stay on the old flat ports and lose DHCP consistency with everything else, or get rewired into the managed spine and gain it.
 
-I listed four options in my planning notes and didn't pick one. It touches a NAS with a bonded network connection I didn't want to reroute on a guess ([the same NAS whose workload placement got its own post](/blog/not-every-docker-container-belongs-on-the-nas/)), and a couple of devices whose physical cable runs I hadn't confirmed. That's an honest gap — I'd rather admit the plan stalled on a real unknown than pretend I closed it out.
+I listed four options in my planning notes and didn't pick one. It touches a NAS with a bonded network connection I didn't want to reroute on a guess ([the same NAS whose workload placement got its own post](/blog/not-every-docker-container-belongs-on-the-nas/)), and a couple of devices whose physical cable runs I hadn't confirmed. That's an honest gap. I'd rather admit the plan stalled on a real unknown than pretend I closed it out.
 
 ## The plan mattered more than the finish line
 
-What I actually got out of this wasn't a finished network. It was a sequence I trust: verify the controller, confirm hardware, reset before adopting, wire in a fixed order, flip passthrough, filter DNS, and only then touch the devices that depend on all of it. Each phase has a clear pass or fail condition, which means when something breaks later, I know roughly which layer to check first instead of guessing across the whole stack. The device-landing question is still sitting there unresolved, and I'd rather leave it open in writing than pretend the rebuild wrapped up neatly. It didn't, not yet.
+What I got out of this wasn't a finished network. It was a sequence I trust: verify the controller, confirm hardware, reset before adopting, wire in a fixed order, flip passthrough, filter DNS, and only then touch the devices that depend on all of it. Each phase has a clear pass or fail condition, which means when something breaks later, I know roughly which layer to check first instead of guessing across the whole stack. The device-landing question is still sitting there unresolved, and I'd rather leave it open in writing than pretend the rebuild wrapped up neatly. It didn't, not yet.
