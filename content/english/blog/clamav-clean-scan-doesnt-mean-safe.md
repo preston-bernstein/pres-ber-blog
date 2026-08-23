@@ -1,9 +1,9 @@
 ---
 title: "A Clean ClamAV Scan Doesn't Mean the File Is Safe"
 meta_title: "Closing ClamAV's Signature Gap in a Home-Lab Download Scan Gate"
-description: "ClamAV only matches known signatures. My download scan gate now layers PUA detection, third-party feeds, YARA rules, hash-only lookups, and entropy checks."
+description: "ClamAV only matches known signatures. My download scan gate layers PUA detection, third-party feeds, YARA rules, and hash-only lookups on top of it."
 date: 2026-08-10T12:20:00Z
-lastmod: 2026-08-23T03:18:03Z
+lastmod: 2026-08-23T16:00:00Z
 featureimage: "/images/clamav-antu-logo.svg"
 showHero: true
 categories: [
@@ -21,21 +21,15 @@ tags: [
 draft: false
 ---
 
-A clean ClamAV scan means nothing matched a known signature. It does not mean the file is safe. I run a scan gate in front of my media-download pipeline: everything that lands from the download clients gets checked by a ClamAV daemon before it's allowed into the library. (The pipeline sits on the placement split from [Not every Docker container belongs on the NAS](/blog/not-every-docker-container-belongs-on-the-nas/).)
+A clean ClamAV scan is one of the mini indicators something's wrong or off, not proof. I don't trust much to stay secure for long: things change too fast, and there are too many vectors to attack a system. The gate in front of my media-download pipeline runs a file through five more checks past ClamAV's own signature match.
 
-For a long time I treated a clean verdict as the end of the question. It isn't. ClamAV is a **signature engine**: it only catches what someone has already seen, fingerprinted, and shipped a rule for. Zero-days and packed or obfuscated executables walk right past it.
-
-Worse: ClamAV is open source, so anyone can download the exact detection logic and test their malware against it before release. Free QA for the bad guys.
-
-{{< alert >}}That's not a hypothetical: researchers have measured samples built specifically to dodge open-source detectors evading ClamAV 70 to 85 percent of the time, without even needing inside knowledge of the engine.{{< /alert >}}
-
-The full layered gate, in the order a file passes through it:
+Everything that lands from the download clients gets checked before it's allowed into the library. (The pipeline sits on the placement split from [Not every Docker container belongs on the NAS](/blog/not-every-docker-container-belongs-on-the-nas/).) The sequence:
 
 ```mermaid
 flowchart TD
     A[File lands from download client] --> B[clamd signature scan + extension blocklist]
-    B --> C[PUA detection: DetectPUA flag]
-    C --> D["Third-party signature feeds:<br/>Sanesecurity, SecuriteInfo, URLhaus, MalwarePatrol"]
+    B --> C[DetectPUA: keygen/crack flag]
+    C --> D["Third-party feeds:<br/>Sanesecurity, SecuriteInfo, URLhaus, MalwarePatrol"]
     D --> E[YARA-Forge Core rules, native in clamd]
     E --> F{Borderline verdict?}
     F -->|Yes| G["SHA-256 hash lookup:<br/>VirusTotal / MetaDefender, hash only"]
@@ -44,78 +38,46 @@ flowchart TD
     H --> I[Verdict: clean / flagged / infected / blocked]
 ```
 
-## Signature scanning only catches what's already been seen
+## Signature scanning only catches malware someone's already found
 
-Every ClamAV signature exists because someone already found and analyzed that malware sample. A brand-new keygen or crack, repacked or lightly modified, has no signature yet, and it sails through clean.
+Every ClamAV signature exists because someone already found and analyzed that sample. A new keygen or crack has no signature yet and sails through clean; packed binaries are worse, since the payload's scrambled until runtime. ClamAV is open source, so anyone can test malware against the exact detection logic before release, no inside knowledge required.
 
-Packed and obfuscated binaries make this worse: the payload is scrambled until runtime, so a static signature scanner has nothing to match against, even for a known threat.
+My original gate was one layer: clamd plus a blocklist on extensions like `.exe`, `.scr`, `.bat`. The real threat is commodity crack and keygen malware bundled into an executable a downloader was told to run, exactly what this scanner is built to miss.
 
-My original scan gate had one static layer: clamd plus a blocklist on file extensions like `.exe`, `.scr`, `.bat`, and a handful of others. That layer stops the laziest attacks and nothing else.
+## Turning on PUA detection hasn't bitten me yet
 
-The real threat model for a media pipeline isn't a nation-state implant. It's **commodity crack and keygen malware** bundled into an executable a downloader was told to run. That's exactly the category built to slip past this kind of scanner.
+ClamAV has a [`DetectPUA`](https://docs.clamav.net/faq/faq-pua.html) flag for potentially unwanted applications: adware, riskware, keygens, cracks, available via `clamd.conf`. PUA signatures are less rigorously curated than core malware ones, so more false positives are expected, and category-exclusion filtering (flagging keygens without adware) is broken in my version.
 
-## PUA detection targets the actual threat, with a real tradeoff
+I turned it on anyway.
 
-ClamAV has a flag, [`DetectPUA`](https://docs.clamav.net/faq/faq-pua.html), that flags potentially unwanted applications: adware, riskware, and, most relevant here, keygens and cracks. Turning it on is a one-line config change to `clamd.conf`. No code touched.
+So far, nobody's been annoyed. Still hypothetical, as far as I know.
 
-But it's not a free lunch. PUA signatures are **less rigorously curated** than core malware signatures, so expect more false positives on legitimate but aggressively-bundled installers.
+## The third-party feeds were the one decision backed by real research
 
-ClamAV's own category-exclusion filtering for PUA is currently broken in the shipped version I'm running, so I can't cleanly say "flag keygens but ignore adware" and trust the exclusion list to hold. I'm turning it on anyway, tuning against real false positives as they show up. The alternative is leaving the single most on-target detection knob switched off.
+[`clamav-unofficial-sigs`](https://github.com/extremeshok/clamav-unofficial-sigs) pulls in four more feeds, [Sanesecurity](https://sanesecurity.com/), SecuriteInfo, [URLhaus](https://urlhaus.abuse.ch/), and MalwarePatrol, into the same database directory clamd already reads. No code changes to the gate, just a cron job and a shared volume. Of everything I added, this is the best ratio of detection gained to effort spent, and the one backed by real research instead of a guess. The research tried to be thorough and current, but it might be outdated by now, which is just how security goes. Still a good way to stay current, and sources I trust.
 
-## Third-party signature feeds close known gaps for free
+## YARA rules run inside clamd, but only a trimmed subset
 
-ClamAV's own database misses a lot that other groups have already catalogued. [`clamav-unofficial-sigs`](https://github.com/extremeshok/clamav-unofficial-sigs) is a maintained aggregator that pulls in four feeds and drops them straight into the same database directory clamd already reads:
+Clamd loads `.yar` files natively and scans files it's already unpacked from archives and installers, an advantage standalone YARA doesn't have. Its support is only a subset though: no imports, no external variables, a 64-string cap per rule, minimum two-byte strings.
 
-- [Sanesecurity](https://sanesecurity.com/)
-- SecuriteInfo
-- [URLhaus](https://urlhaus.abuse.ch/)
-- MalwarePatrol
+I use [YARA-Forge](https://github.com/YARAHQ/yara-forge)'s curated "Core" tier over raw community rules. One bad rule reportedly took a three-hour scan job to seven.
 
-No changes to my scan gate's code, no new dependency in the pipeline logic — just a cron job and a shared volume.
+## The hash lookup is deliberately not built yet
 
-Of everything I added, this is the **best ratio of detection gained to effort spent**: pure config that widens the signature set clamd already checks against on every scan.
+A hash lookup asks a different question than signatures or YARA: has anyone else already seen this file and scored it? It computes a SHA-256 of anything flagged as borderline and checks it against VirusTotal's or MetaDefender's free tier, hash only: uploading the actual file would make it permanently visible and searchable.
 
-## YARA rules run inside clamd, but only the trimmed kind
+It's not shipped yet. I put it aside for now. I actually would like to build it and see where it goes. Maybe that's its own post.
 
-Clamd loads `.yar` files natively from the same database directory (no separate engine required) and applies YARA rules against files it has already unpacked from archives and installers. That's a real advantage over running YARA standalone, since clamd's decomposition sees inside the containers a raw file scan would miss.
+## Entropy checks catch what hashes and signatures both miss
 
-But clamd's YARA support is only a **subset** of full YARA:
+A hash lookup only works once someone else has scored the file. [Detect It Easy](https://github.com/horsicq/Detect-It-Easy) identifies packers and reports Shannon entropy; a reading above roughly 7 bits signals packed or encrypted code. It's a heuristic, so it routes to quarantine-and-alert instead of an auto-block: plenty of legitimate installers are also highly compressed.
 
-- No imports
-- No external variables
-- A 64-string cap per rule
-- Minimum two-byte string segments
+## I don't know if the sandbox call has ever been tested
 
-Community rule packs written for full YARA often won't load as-is. I'm using [YARA-Forge's curated "Core" tier](https://github.com/YARAHQ/yara-forge) instead of pulling raw rules from wherever, because unvetted community rules have a documented history of tanking scan performance.
+A self-hosted sandbox like [CAPEv2](https://github.com/kevoreilly/CAPEv2) (detonating a file in an isolated VM to watch what it does) is doable on a single box with nested virtualization, but I'm not building it. It's a heavyweight answer for a threat model that's mostly commodity keygen and crack malware rather than a targeted attacker needing behavioral analysis to unmask.
 
-{{< alert >}}One bad community rule reportedly took a three-hour scan job to seven.{{< /alert >}}
+I don't know if anything's come close to needing it. Nothing has, as far as I know, but that doesn't mean it hasn't happened. Probably a good time to go back and check.
 
-Curation here isn't optional polish: it's the difference between a scan gate that finishes and one that doesn't.
+## Security is priority one; a clean scan is just one of the mini indicators
 
-## A hash lookup adds a second opinion without uploading anything
-
-Signature and YARA scans both run locally against files I already have. A hash lookup asks a different question: has anyone else already seen this exact file and scored it? I compute a SHA-256 of anything the local scan flags as borderline and check it against VirusTotal's or MetaDefender's free tier — **hash only, never the file itself**.
-
-That distinction matters for a pipeline that occasionally handles cracked software. Uploading the actual file to a public multi-scanner makes it permanently visible and searchable by anyone. That's exactly the exposure I don't want for downloads that were never meant to be public.
-
-This isn't shipped in my scan gate's code yet: it needs a new verdict state that plugs into the same aggregation logic the gate already uses, so a "flagged, pending second opinion" result sits in the same priority chain as infected, blocked, and clean.
-
-## Entropy and packer detection catch what hashes can't
-
-A hash lookup only works if someone else has already seen the file. A packer or entropy check doesn't need that. [Detect It Easy](https://github.com/horsicq/Detect-It-Easy), and its CLI `diec`, identifies packers and protectors on executables and reports Shannon entropy. A section reading above roughly **7 bits of entropy** is the standard first signal that it's packed or encrypted rather than plain code.
-
-That reading is a heuristic on its own. I plan to route it to quarantine-and-alert rather than a silent auto-block, because plenty of legitimate installers are also highly compressed, and I don't want to nuke a real release over a false positive I can't explain later.
-
-## What I'm deliberately not building
-
-A self-hosted dynamic-analysis sandbox (actually detonating suspicious files in an isolated VM to watch what they do) is technically doable in a home lab. [CAPEv2](https://github.com/kevoreilly/CAPEv2) runs fine on a single box with nested virtualization. But I'm not building it.
-
-It's a heavyweight answer to a threat model that's mostly commodity keygen and crack malware, not a targeted attacker who needs behavioral analysis to unmask. If one of the layers above misses something in an actual incident, that's the trigger to revisit sandboxing.
-
-## The honest residual gap
-
-None of this closes the gap completely, and I don't think any config change could. A sufficiently novel packer that mimics legitimate compression entropy, paired with a payload built against ClamAV's public signature set and PUA rules specifically, can still get through every layer I've described.
-
-The hash lookup only helps once a file is already known to someone. A first-seen sample gets a pass there by definition.
-
-What changed isn't that my scan gate is now airtight. It's that I stopped treating a clean verdict as **proof of safety**, and started treating it as one data point among several, none of which is trustworthy alone. That's a more honest place to operate from, even if it's a less comfortable one.
+A clean scan is one of the mini indicators that something's wrong or off. I always need more than that. Really it's a trade-off between plugging every hole and staying as current as you can be, and there's only so much compute and only so much of my own time to spend making sure things are safe. Analysis paralysis is a real thing. That said, security is priority one for anything I do.
