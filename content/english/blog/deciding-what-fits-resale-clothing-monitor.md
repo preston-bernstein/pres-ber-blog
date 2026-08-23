@@ -3,7 +3,7 @@ title: "Deciding What Fits: Inside My Resale-Clothing Monitor"
 meta_title: "Resale Monitor Two-Pass LLM Scoring and False-Positive Bias: A Home-Lab Case Study, Part 3"
 description: "Part 3 of 3: the resale monitor rejects 40-60% of listings with free rules before any model call, and its false-positive bias still has no counterweight."
 date: 2026-08-10T10:10:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-23T03:21:52Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -23,7 +23,7 @@ featureimage: "/images/resale-clothing-monitor-thrift-rack.jpg"
 showHero: true
 ---
 
-My resale-clothing monitor's hardest problem isn't finding new listings. It's deciding which ones fit my taste well enough to interrupt me over, and the design leans hard toward **false positives over false negatives**, a call I can defend today but haven't actually stress-tested.
+My resale-clothing monitor's hardest problem isn't finding new listings. It's deciding which ones fit my taste well enough to interrupt me over, and the design leans hard toward **false positives over false negatives**, a call I can defend today but haven't stress-tested.
 
 Three posts make up this series: [part 1](/blog/scrape-score-alert-resale-hunting-pipelines-local-vision-models/) covers the shared architecture, [part 2](/blog/deciding-whats-worth-a-saturday-estate-sale-scanner/) covers a sibling project, an estate-sale scanner, running on the same foundation, and this is the third.
 
@@ -66,7 +66,7 @@ The provider for each pass, local, cloud, or a hybrid, sits behind one interface
 
 Once a listing has a real score, it's **never re-scored**. That alone is the single biggest cost reduction in the pipeline, ahead of anything model-related.
 
-Here's the scoring pipeline a listing moves through:
+A listing moves through this scoring pipeline:
 
 ```mermaid
 flowchart TD
@@ -85,7 +85,7 @@ flowchart TD
 
 Missing a genuinely good item is worse than one extra alert I dismiss in two seconds. For a system with one user and nothing riding on a bad alert, I still think that's the right call.
 
-But it doesn't push back against alert volume creeping up as more edge cases land in MAYBE instead of NO over time, and **nothing in the current design notices that drift or corrects for it**. If this ever had to serve more than one household, that gap would be the first thing I'd have to actually solve instead of shrug at.
+But it doesn't push back against alert volume creeping up as more edge cases land in MAYBE instead of NO over time, and **nothing in the current design notices that drift or corrects for it**. If this ever had to serve more than one household, that gap would be the first thing I'd have to solve instead of shrug at.
 
 ## Feedback splits into two tiers with different lifespans
 
@@ -108,13 +108,13 @@ When the design changed to stop depending on that bot's webhook, the alert trans
 
 The fix: a proper API endpoint on the dashboard, no more depending on a chat bot's callback.
 
-## Where both projects' open questions actually meet
+## Where both projects' open questions meet
 
 Both this project's MAYBE-drift and the estate scanner's cascade-complexity doubt (in [part 2](/blog/deciding-whats-worth-a-saturday-estate-sale-scanner/)) share a shape I didn't notice until writing all three of these posts back to back: **every incident across both systems announced itself eventually**, through a dashboard that looked stale or a log that looked suspiciously clean. Neither open question has that kind of tell.
 
 Two things wouldn't announce themselves at all:
 
 - Alert volume creeping up over months as more edge cases land in MAYBE instead of NO.
-- A feedback loop gradually reinforcing a preference I don't actually hold anymore.
+- A feedback loop gradually reinforcing a preference I don't hold anymore.
 
 I'd have to notice it myself, on some Saturday, looking at a list that feels a little worse than it used to for reasons I can't immediately name. I haven't built anything that would catch it sooner than that, and I don't have a good reason why not beyond not having hit it yet.

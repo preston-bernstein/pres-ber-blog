@@ -3,7 +3,7 @@ title: "Deciding What's Worth a Saturday: Inside My Estate-Sale Scanner"
 meta_title: "Estate-Sale Scanner Scoring and Anti-Overfit Design: A Home-Lab Case Study, Part 2"
 description: "Part 2 of 3: the estate-sale scanner treats a bad sale as bulk negative labels but a good sale as one positive, and three failures never threw an error."
 date: 2026-08-10T10:05:00Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-23T03:21:52Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -64,7 +64,7 @@ One score decides whether the rest of a sale's photos are worth analyzing at all
 - **Strong results** → run the rest of the sale.
 - **Empty results** → spot-check a handful from later in the listing before giving up on the sale entirely.
 
-A second, separate **display score** is what the dashboard actually sorts by, built from three inputs: a curated brand list, era keywords, and the model's own confidence tag. The budget heuristic optimizes for not wasting calls on a dead sale; the display score optimizes for what to look at first. Conflate the two, and cheap sales start looking worse than they actually are.
+A second, separate **display score** is what the dashboard sorts by, built from three inputs: a curated brand list, era keywords, and the model's own confidence tag. The budget heuristic optimizes for not wasting calls on a dead sale; the display score optimizes for what to look at first. Conflate the two, and cheap sales start looking worse than they are.
 
 ## A "waste" outcome teaches the system more than a "good" one does
 
@@ -78,7 +78,7 @@ There's also a real ground-truth run behind the scenes. Occasionally I run every
 
 ## The tiered cascade's complexity is the part I'm least sure about
 
-The reference-pass math tells me the cheap tiers catch most of what the expensive tier would have found, which is the number I actually wanted. It doesn't tell me whether a dumber two-tier version, a quality gate plus one model call, would have caught nearly as much for a lot less engineering. **I never built that version to find out.**
+The reference-pass math tells me the cheap tiers catch most of what the expensive tier would have found, which is the number I wanted. It doesn't tell me whether a dumber two-tier version, a quality gate plus one model call, would have caught nearly as much for a lot less engineering. **I never built that version to find out.**
 
 The tiered design looks rigorous because I can point at a recall number that justifies it. I'd be lying if I said that number wasn't also the thing that let me stop second-guessing myself and ship it.
 
@@ -102,7 +102,7 @@ The fix split "found nothing" into three honest, differently-alarmed outcomes:
 - The source site's page structure likely changed.
 - The vision backend failed enough calls that the count can't be trusted.
 
-For a period, the scan ran on one machine and served the dashboard from a different one, **each with its own separate copy of the same SQLite file**. The dashboard was quietly showing stale results relative to what the last real scan had actually found, with nothing anywhere to flag that the two had diverged.
+For a period, the scan ran on one machine and served the dashboard from a different one, **each with its own separate copy of the same SQLite file**. The dashboard was quietly showing stale results relative to what the last real scan had found, with nothing anywhere to flag that the two had diverged.
 
 Fixed by consolidating both onto a single always-on host — the kind of bug that's obvious in hindsight and invisible while it's happening.
 

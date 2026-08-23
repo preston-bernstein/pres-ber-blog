@@ -3,7 +3,7 @@ title: "My GPU Broker Kept Killing Inference Jobs for Games That Weren't Running
 meta_title: "Fixing a False-Positive GPU Contention Bug in a Home-Lab Broker"
 description: "My GPU broker canceled inference for games that weren't running: Plex maintenance uses the same transcoder binary, and one process match forced a cancel."
 date: 2026-08-10T11:00:00Z
-lastmod: 2026-08-15T13:19:38Z
+lastmod: 2026-08-23T03:21:52Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -28,7 +28,7 @@ The service is a Go broker I run at home that arbitrates my desktop's single GPU
 
 In my house, whoever's playing a game or watching something wins that argument. That priority order is correct. The detector deciding when to enforce it was not.
 
-I found the bug while chasing a different crash: [the LightRAG embedding crash that took nine fixes to actually stop](/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/). A bulk ingestion job that leans on the broker for embeddings kept dying partway through with a read error on the Ollama calls, which cascaded into a full pipeline halt. Nothing in the job's own code looked wrong.
+I found the bug while chasing a different crash: [the LightRAG embedding crash that took nine fixes to stop](/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/). A bulk ingestion job that leans on the broker for embeddings kept dying partway through with a read error on the Ollama calls, which cascaded into a full pipeline halt. Nothing in the job's own code looked wrong.
 
 Checking the broker's logs during the failure windows turned up the real problem: it kept flipping into a "yielding" state with nothing running.
 
@@ -53,7 +53,7 @@ There was no **debounce** (the industry term for waiting out a signal before tru
 
 [Plex's own support documentation](https://support.plex.tv/articles/credits-detection/) confirms that Skip Intro and Credits detection, along with chapter-thumbnail generation, run as scheduled server maintenance through the same `Plex Transcoder` binary that handles real playback, on a cadence that has nothing to do with anyone pressing play. My detector grepped for that process name, so a 3am maintenance pass looked exactly like me starting a movie.
 
-No amount of debounce timing fixes this: the false match isn't a brief blip, it can run for several minutes at a stretch. [Tautulli](https://github.com/Tautulli/Tautulli), a widely used third-party Plex monitoring tool, sidesteps the problem by reading Plex's `/status/sessions` API instead of the process table, since that endpoint only reports sessions that are actually "now playing." The real fix for the Plex side: stop grepping for the binary and ask Plex what's actually playing.
+No amount of debounce timing fixes this: the false match isn't a brief blip, it can run for several minutes at a stretch. [Tautulli](https://github.com/Tautulli/Tautulli), a widely used third-party Plex monitoring tool, sidesteps the problem by reading Plex's `/status/sessions` API instead of the process table, since that endpoint only reports sessions that are "now playing." The real fix for the Plex side: stop grepping for the binary and ask Plex what's playing.
 
 ## No game launcher exposes a real "foreground game" signal
 
