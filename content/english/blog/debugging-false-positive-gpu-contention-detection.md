@@ -1,9 +1,9 @@
 ---
 title: "My GPU Broker Kept Killing Inference Jobs for Games That Weren't Running"
 meta_title: "Fixing a False-Positive GPU Contention Bug in a Home-Lab Broker"
-description: "My GPU broker canceled inference for games that weren't running: Plex maintenance uses the same transcoder binary, and one process match forced a cancel."
+description: "A GPU broker false-canceled inference over phantom games and Plex maintenance; the debounce plus session-API fix has run clean since it shipped August 2, 2026."
 date: 2026-08-10T11:00:00Z
-lastmod: 2026-08-23T03:21:52Z
+lastmod: 2026-08-23T12:00:00Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -22,82 +22,42 @@ featureimage: "/images/asus-strix-rtx-4090-gpu.jpg"
 showHero: true
 ---
 
-My GPU broker kept canceling live inference jobs over games that weren't running. Most of the time, nothing had launched at all.
+The debounce and Plex session-API fix for my GPU broker's false-positive contention bug is still in place and still working. What I want now is to push it further: use the GPU more efficiently and let more of what wants it run concurrently, instead of always handing the whole card to whichever gaming or Plex process shows up.
 
-The service is a Go broker I run at home that arbitrates my desktop's single GPU between gaming, Plex transcoding, and local inference through [Ollama](https://ollama.com/); the same broker later grew [a parking layer for embedding requests caught mid-yield](/blog/surviving-a-gpu-yield-window-embedding-servers/). When it detects gaming or Plex activity, it force-cancels whatever inference is running and unloads the model from VRAM, no exceptions.
+## Two Different Bugs Were Causing the Same Failure
 
-In my house, whoever's playing a game or watching something wins that argument. That priority order is correct. The detector deciding when to enforce it was not.
+The broker is a Go service I run at home, arbitrating my desktop's one GPU between gaming, Plex transcoding, and [Ollama](https://ollama.com/) inference; it later grew [a parking layer for embedding requests caught mid-yield](/blog/surviving-a-gpu-yield-window-embedding-servers/), too. Detection used to poll `/proc` every three seconds for process-name matches: `Plex Transcoder`, Steam's launch marker, Heroic's and Lutris's runner patterns, a bare `wine .exe`. One matching poll was enough: it canceled whatever inference job was running and unloaded the model from VRAM. No debounce, no second signal, one sample as ground truth.
 
-I found the bug while chasing a different crash: [the LightRAG embedding crash that took nine fixes to stop](/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/). A bulk ingestion job that leans on the broker for embeddings kept dying partway through with a read error on the Ollama calls, which cascaded into a full pipeline halt. Nothing in the job's own code looked wrong.
+[Plex's own support docs](https://support.plex.tv/articles/credits-detection/) confirm its transcoder binary runs background maintenance (Skip Intro, Credits detection, chapter thumbnails, loudness analysis) on a server-scheduled cadence, completely independent of anyone watching something, and a bare process match couldn't tell that apart from real playback. Gaming launchers threw a different kind of false positive: three-to-six-second process-match blips from background housekeeping, not sustained play.
 
-Checking the broker's logs during the failure windows turned up the real problem: it kept flipping into a "yielding" state with nothing running.
+That's just how it is when you're building stuff. Devils in the details.
 
-{{< alert icon="circle-info" >}}The broker flipped to yielding roughly every 10 to 20 minutes, around the clock, including the 1am to 6am stretch when nobody in this house was playing anything.{{< /alert >}}
+## The Fix Asks Plex Directly and Debounces Everything Else
 
-`ps aux` during one of those windows showed exactly one candidate: Steam's idle background client, doing nothing more incriminating than existing in the process table.
+The Plex fix stops grepping for the process and asks Plex directly: it now queries its `/status/sessions` API, scoped to real "Now Playing" activity the way [Tautulli's session-based detection](https://github.com/Tautulli/Tautulli) already does, and it still fails toward yielding on any API error. The gaming fix is a debounce (`BROKER_YIELD_CONFIRM_POLLS`, default two consecutive same-reason detections before entering yield), while clearing contention stays instant and undebounced, since recovery only ever helps inference and never risks starving a real game. Both landed August 2nd and are accepted and implemented as ADR-0012.
 
-## A single matching process was enough to cancel a running job
-
-One matching line in `/proc` was enough to kill a running job. The detector polls `/proc` every three seconds for command-line substrings:
-
-- `Plex Transcoder`
-- Steam's launch marker
-- Heroic's and Lutris's runner patterns
-- a bare `wine .exe`
-
-The moment any one poll matched, the controller flipped to yielding and canceled whatever inference was in flight.
-
-There was no **debounce** (the industry term for waiting out a signal before trusting it) and no second signal to corroborate the first. One sample counted as ground truth. That design wasn't an oversight so much as an unexamined assumption: I'd built the hard-cancel policy deliberately, then never asked whether the thing triggering it deserved that much trust.
-
-## Plex's own maintenance jobs look identical to real playback
-
-[Plex's own support documentation](https://support.plex.tv/articles/credits-detection/) confirms that Skip Intro and Credits detection, along with chapter-thumbnail generation, run as scheduled server maintenance through the same `Plex Transcoder` binary that handles real playback, on a cadence that has nothing to do with anyone pressing play. My detector grepped for that process name, so a 3am maintenance pass looked exactly like me starting a movie.
-
-No amount of debounce timing fixes this: the false match isn't a brief blip, it can run for several minutes at a stretch. [Tautulli](https://github.com/Tautulli/Tautulli), a widely used third-party Plex monitoring tool, sidesteps the problem by reading Plex's `/status/sessions` API instead of the process table, since that endpoint only reports sessions that are "now playing." The real fix for the Plex side: stop grepping for the binary and ask Plex what's playing.
-
-## No game launcher exposes a real "foreground game" signal
-
-The gaming side is a different problem: I can't fix it by finding a better API, because none exists. Steam's overlay APIs report whether the overlay is active, not whether a game is running in the foreground. Heroic and Lutris expose no equivalent signal at all.
-
-Process-name matching is the only practical option left for gaming detection. The logs showed those false matches clustering in three-to-six-second blips, much shorter than Plex's multi-minute stretches: different noise shape, different fix.
-
-## Confirmation only gates the cancel
-
-The fix makes the broker demand confirmation before it cancels a job, but not before it recovers from one. Here's the actual change, before and after:
+Each poll now runs through this path before anything gets canceled:
 
 ```mermaid
-flowchart LR
-    subgraph Before["Before: single-poll trigger"]
-        A1[Poll /proc every 3s] --> A2{Any match?}
-        A2 -->|1 match| A3[Cancel inference immediately]
-    end
-    subgraph After["After: debounced trigger"]
-        B1[Poll /proc every 3s] --> B2{Match?}
-        B2 -->|1st match| B3[Wait for confirmation]
-        B3 --> B4{2-3 consecutive matches?}
-        B4 -->|Yes| B5[Cancel inference]
-        B4 -->|No, false blip| B6[Ignore, keep running]
-    end
+flowchart TD
+    A[Poll /proc every 3s] --> B{Process-name match?}
+    B -->|Plex Transcoder| C[Query Plex /status/sessions API]
+    C -->|Real Now Playing| E[Confirmed contention]
+    C -->|Maintenance only, no session| F[Ignore, keep running]
+    B -->|Gaming pattern| D{2 consecutive matches?}
+    D -->|Yes| E
+    D -->|No, single blip| F
+    E --> G[Hard-cancel inference, unload VRAM]
 ```
 
-For the gaming side, the fix is the debounce pattern I should have had from the start: require several consecutive positive polls before flipping to yielding, instead of trusting a single one. I set the default at **two or three consecutive matches**.
+## The Poll Count Was Right, New Edge Cases Weren't
 
-Recovery, the transition back out of yielding, stays instant and undebounced. Delaying it only costs a few extra seconds of inference downtime, and never risks letting inference run over an actual game. That asymmetry is deliberate: the two directions carry different failure costs. A genuine game launch now takes a few seconds longer for the GPU to free up, a small price against jobs dying for no reason.
+The confirmation count itself was right: two polls filtered what needed filtering. What kept happening instead were new edge cases surfacing later, avenging themselves after some different combination of events I hadn't planned for. It's a pretty normal pattern when you build something and then use it: edge cases show up that you didn't plan for, which is why observability and monitoring matter so much when you're building anything.
 
-I've only shipped half of this fix. The poll-confirmation gate is small, self-contained, and went in first. The Plex session-API swap hasn't happened yet. It needs a token Plex issues locally, and I haven't wired that up. Until I do, a multi-minute Plex maintenance run will still trip the broker no matter how high I set the confirm-poll count: debounce only filters single-sample noise, and does nothing against a signal that stays true for five straight minutes.
+## The Hard-Cancel Policy Still Bugs Me
 
-I'm also not confident two or three polls is the right number for every workload this machine runs. I picked it from a general flapping-detection convention rather than from measurement on my own logs. I won't know if it's wrong until the false positives either stop or don't.
+The hard-cancel policy is still a little annoying, honestly. I'd rather the process on the GPU could put itself into a place where it pauses its work, so I could just pick it back up instead of losing whatever it had been doing. I really don't like losing that work. But keeping it simple until you've figured out the better version is a good way to do things, so that's the tradeoff I'm living with for now.
 
-## Hard-canceling instead of throttling is a defensible but costly choice
+## What Started This: A Different Crash Entirely
 
-Hard-canceling instead of throttling is the right call for my house, and it's also why this bug turned into a real pipeline outage instead of a minor annoyance. My broker treats every real contention event as a **hard stop**:
-
-- cancel the inference request
-- unload the model
-- hand the GPU over completely
-
-[Process Lasso](https://bitsum.com/) does something closer to priority scheduling instead, deprioritizing background compute rather than killing it outright when a game starts. That approach would have made this whole bug far less painful: a false positive would have meant a slower inference request instead of a canceled one.
-
-I built it as a hard cutover on purpose. I wanted a guarantee that the GPU comes back completely clean the moment someone in this house wants to play, and priority-based throttling can't promise that as cleanly. I still think that tradeoff was right for a shared family machine.
-
-The debounce fix is live; the Plex fix isn't. I'll find out whether either was tuned right the next time this job runs unattended overnight, and either survives or it doesn't.
+All of this started because of [a LightRAG bulk-ingest job that kept crashing with a read error on its Ollama calls, cascading into a full pipeline halt](/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/). Tracing that crash back to the broker's false-positive yields was a little annoying. I didn't really want to work on it. But that's how it goes: when something like that turns up, you handle it in the moment if you can, or you document it so you can handle it later. It's all just iterative.
