@@ -22,7 +22,18 @@ showHero: true
 
 I don't trust my agent pipeline, and I'm not going to. My gut says every agent pipeline run needs an audit pass, as close to every time as I can manage, because nothing that comes out of one is ever perfect. Run it for a while first and you can pull real data on how it's been doing, and that's when you get data-based ideas about where to focus the refinement instead of guessing.
 
-The pipeline runs a fixed sequence: write a spec, run it through seven parallel agents that attack it from different angles (the same independence argument behind [the dueling-agent-suites design I sketched separately](/blog/dueling-agent-orchestration-suites/)), spin up parallel build agents against the hardened spec, run a code review pass, then smoke-test the result. Fed a one-line description of a small outreach-automation CLI (local SQLite state, a human approval gate, a GitHub-facing sourcing loop), it produced working software in an afternoon. It ran. It did the job I asked for.
+The pipeline runs a fixed sequence: write a spec, run it through seven parallel agents that attack it from different angles (the same independence argument behind [the dueling-agent-suites design I sketched separately](/blog/dueling-agent-orchestration-suites/)), spin up parallel build agents against the hardened spec, run a code review pass, then smoke-test the result.
+
+```mermaid
+flowchart TD
+    A[Spec written] --> B[7 parallel adversarial challenge agents]
+    B --> C[Parallel build agents]
+    C --> D[Code review pass]
+    D --> E[Smoke test]
+    E --> F[Working CLI]
+```
+
+Fed a one-line description of a small outreach-automation CLI (local SQLite state, a human approval gate, a GitHub-facing sourcing loop), it produced working software in an afternoon. It ran. It did the job I asked for.
 
 ## The Pipeline Only Catches What The Spec Asked For
 
