@@ -3,7 +3,7 @@ title: "Step-by-Step Guide to Creating a Secure Docker Compose Script with VPN I
 meta_title: "Secure Your Docker Services: How to Create a Docker Compose Script with VPN Integration"
 description: "How to route Docker services through a VPN container with network_mode: service:vpn in Docker Compose, and verify traffic actually exits through the VPN."
 date: 2024-07-01T22:01:16Z
-lastmod: 2026-08-15T13:23:19Z
+lastmod: 2026-08-23T03:18:03Z
 featureimage: "/images/vpnMediaServer.webp"
 showHero: true
 categories: [
@@ -198,7 +198,7 @@ volumes:
 
 ##### Example: Basic Docker Compose File
 
-Here's a simple example with two services: a web server and a database.
+A simple example with two services, a web server and a database:
 
 ```yaml
 version: '3.8'
@@ -229,7 +229,7 @@ volumes:
   db-data:
 ```
 
-That's the whole shape of a Compose file: services, networks, volumes. Everything from here is just filling in `services:` correctly for a VPN-routed setup.
+This is the whole shape of a Compose file: services, networks, volumes. Everything from here is just filling in `services:` correctly for a VPN-routed setup.
 
 ## Configuring Each Service to Use the VPN
 
@@ -305,7 +305,7 @@ Set each dependent service's `network_mode` to the VPN service's name, and its t
 
 ###### Example: Updated Docker Compose File with VPN:
 
-Here's a step-by-step example:
+A step-by-step example:
 
 ```yaml {hl_lines=[22,34]}
 version: '3.8'

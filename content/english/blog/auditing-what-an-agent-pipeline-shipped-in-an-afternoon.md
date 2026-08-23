@@ -3,7 +3,7 @@ title: "Shipping Fast Isn't the Same as Being Done: Auditing a CLI My Agent Pipe
 meta_title: "Auditing an Agent-Built CLI Tool Before Extending It to a Second Platform"
 description: "An agent pipeline built a working CLI in an afternoon. A separate audit still found four gaps: GitHub rate limits, an unsafe SQLite backup, no approval log."
 date: 2026-08-10T11:45:00Z
-lastmod: 2026-08-15T13:19:38Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "AI Infrastructure",
   "Software Architecture"
@@ -38,7 +38,7 @@ Every phase in that pipeline checks the code against what I asked for. But none 
 
 I hadn't written "honor GitHub's rate-limit contract" or "make sure the SQLite backup survives a write in progress" anywhere, so nothing in the pipeline went looking for those gaps. **A spec-driven pipeline is only as complete as the spec.**
 
-Here's the shape of both passes, side by side: the pipeline that shipped the CLI, and the separate audit that checked its work.
+The pipeline that shipped the CLI and the separate audit that checked its work looked like this:
 
 ```mermaid
 flowchart LR
@@ -69,7 +69,7 @@ My tool has three loops that poll and post against GitHub (sourcing, checking, a
 - A points-per-minute budget on REST calls
 - A separate, much stricter cap on content-creating requests per minute and per hour
 
-{{< alert >}}GitHub's docs are explicit that repeatedly ignoring rate-limit errors can get an integration banned outright, not just throttled.{{< /alert >}}
+{{< alert >}}GitHub's docs are explicit that repeatedly ignoring rate-limit errors risks an outright ban, worse than a throttle.{{< /alert >}}
 
 My loops were calling the API and hoping, with no code anywhere that read a `Retry-After` header or backed off on a 403.
 
@@ -85,7 +85,7 @@ None of that is clever. All of it was missing.
 
 The tool's entire state (accounts, drafts, leads) lives in one SQLite file, and the backup routine copied that file directly on a schedule.
 
-SQLite in its default mode buffers recent writes in a separate **write-ahead log** file. A plain file copy of the main database while that log holds unflushed writes can capture a database that looks intact and isn't. Testing won't catch this: it only bites the one time you actually need the backup to be good.
+SQLite in its default mode buffers recent writes in a separate **write-ahead log** file. A plain file copy of the main database while that log holds unflushed writes can capture a database that looks intact and isn't. Testing won't catch this: it only bites the one time you need the backup to be good.
 
 The fix is a single command swap, from a raw copy to [SQLite's own online-backup call](https://www.sqlite.org/backup.html) that captures a consistent snapshot regardless of what's mid-flight.
 
@@ -103,7 +103,7 @@ Commercial approval-workflow tools keep exactly this kind of log by default. Min
 
 The tool finds candidates to reach out to using keyword matching against a configured niche list, and that's the whole signal. Comparable tools in this space enrich candidates with graph signals (repository stars, forks, contributor overlap) that catch relevance keyword matching alone misses.
 
-I haven't fixed this one yet. It's on the list for later, and I'm naming it here instead of pretending it's closed, because the rest of this post is about being honest about what "done" actually took.
+I haven't fixed this one yet. It's on the list for later, and I'm naming it here instead of pretending it's closed, because the rest of this post is about being honest about what "done" took.
 
 ## Extending to a second platform meant deciding not to automate it
 
@@ -124,7 +124,7 @@ So the second-platform build changed shape entirely. Instead of extending the sa
 
 I don't know yet whether a dedicated audit pass like this needs to happen after every run of my build pipeline, or whether this project just happened to be unusual enough (real external APIs, real state that has to survive a backup, a second platform with real legal terms) to need one. Running an audit like this on every small tool I build would be pure overhead for most of them.
 
-I lean toward doing it whenever a tool talks to another service's API or holds state I'd actually miss if it corrupted, and skipping it otherwise. But I've only tested that rule on one project so far.
+I lean toward doing it whenever a tool talks to another service's API or holds state I'd miss if it corrupted, and skipping it otherwise. But I've only tested that rule on one project so far.
 
 The build pipeline did exactly what I asked it to do, fast and correctly. **"What I asked for" and "what I actually needed before trusting this thing" turned out to be two different lists.**
 

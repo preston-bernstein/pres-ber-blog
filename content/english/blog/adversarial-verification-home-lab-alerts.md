@@ -3,7 +3,7 @@ title: "Fifteen of Eighteen Root Causes I Was Sure About Were Wrong"
 meta_title: "Adversarial Root-Cause Verification: 15 of 18 Diagnoses Refuted"
 description: "Fifteen of eighteen proposed root causes for four firing alerts were refuted by three independent adversarial checks before any fix shipped."
 date: 2026-08-10T11:50:00Z
-lastmod: 2026-08-15T13:19:38Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
   "Software Architecture",
@@ -29,7 +29,7 @@ My first instinct on each one: form a theory fast, patch it, watch the alert cle
 
 Adversarial verification means treating your own hypothesis as something to disprove. For each candidate root cause, I ran three independent checks against three different failure modes:
 
-- Is the claim actually correct?
+- Is the claim correct?
 - Is there a more likely alternative explanation for the same symptom?
 - Would acting on this fix cause harm even if the diagnosis were right?
 
@@ -39,7 +39,7 @@ I used parallel background agents to run these checks concurrently, one per lens
 
 **What matters is that confirmation and refutation are different jobs.** Doing both with the same brain in the same sitting is how bad root causes survive into production.
 
-Here's how the 18 candidates actually funneled down:
+The 18 candidates funneled down like this:
 
 ```mermaid
 flowchart TD

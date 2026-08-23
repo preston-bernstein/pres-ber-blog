@@ -3,7 +3,7 @@ title: "Not Every Docker Container Belongs on the NAS"
 meta_title: "NAS vs Desktop Docker Placement: A RAM-Constrained Home Lab Framework"
 description: "Storage-coupled services stay on the NAS; compute-heavy projects move to a host with real memory. An 8GB DS1522+ under 35 containers forced the split."
 date: 2026-08-10T11:55:00Z
-lastmod: 2026-08-15T13:22:11Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
   "Networking",
@@ -21,9 +21,9 @@ featureimage: "/images/synology-nas-hardware.jpg"
 showHero: true
 ---
 
-Family-facing and storage-coupled services stay on the NAS. Compute-heavy personal projects move to a separate host with real memory to spare. That's the whole framework, and it took months of pain to earn: a Synology DS1522+ with 8GB of RAM, roughly 35 Docker containers, and a box that kept falling over under memory pressure.
+Family-facing and storage-coupled services stay on the NAS. Compute-heavy personal projects move to a separate host with real memory to spare. That framework took months of pain to earn: a Synology DS1522+ with 8GB of RAM, roughly 35 Docker containers, and a box that kept falling over under memory pressure.
 
-ContainerManager doesn't fail loudly when it runs low on headroom. It just quietly starts murdering things. It stalls. It swaps. Eventually something dies, and figuring out which container actually mattered enough to protect took longer than it should have.
+ContainerManager doesn't fail loudly when it runs low on headroom. It just quietly starts murdering things. It stalls. It swaps. Eventually something dies, and figuring out which container mattered enough to protect took longer than it should have.
 
 ## Storage coupling decides placement
 
@@ -31,7 +31,7 @@ A service that's **coupled to storage or answers requests from other people in r
 
 A knowledge-graph pipeline or a data-ingestion job is the opposite: it runs on my own schedule, tolerates a restart without anyone noticing, and doesn't need to answer anything at 11pm on a Tuesday. That kind of workload moved to my desktop, which has far more RAM than the NAS and isn't a fragile appliance I need to baby. ([The crash saga that proved the NAS couldn't carry the knowledge-graph workload](/blog/nine-fixes-lightrag-embedding-crash-one-afternoon/) is its own post.)
 
-The shift buys headroom on the box that actually has to stay predictable.
+The shift buys headroom on the box that has to stay predictable.
 
 The placement call itself is a simple branch:
 
@@ -44,7 +44,7 @@ flowchart TD
 
 ## Immich's remote machine-learning support is meant to run alongside the local container, not replace it
 
-Immich, the self-hosted photo app I use for family photo backup, [officially supports running its machine-learning container on a separate host](https://docs.immich.app/guides/remote-machine-learning) from the main server, through the `IMMICH_MACHINE_LEARNING_URL` setting. That's documented, production-used behavior.
+Immich, the self-hosted photo app I use for family photo backup, [officially supports running its machine-learning container on a separate host](https://docs.immich.app/guides/remote-machine-learning) from the main server, through the `IMMICH_MACHINE_LEARNING_URL` setting. It's documented, production-used behavior.
 
 The trap is treating it as a full swap: point Immich only at the desktop's ML container, and **Smart Search and Face Detection break outright** the moment the desktop is off, because my desktop isn't an always-on box the way the NAS is. Immich's own docs are explicit about the right pattern instead:
 
@@ -52,15 +52,15 @@ The trap is treating it as a full swap: point Immich only at the desktop's ML co
 - Add the remote URL alongside it, not in place of it.
 - Jobs degrade to local processing instead of failing outright.
 
-Facial recognition itself talks to the database directly and doesn't care where the ML container lives, so the underlying Postgres database can stay NAS-side no matter what.
+Facial recognition itself talks to the database directly regardless of where the ML container lives, so the underlying Postgres database can stay NAS-side no matter what.
 
 {{< alert icon="circle-info" >}}The ML container ships with no authentication at all. Keep it on the local network and never forward it.{{< /alert >}}
 
 ## SQLite-backed services migrate cheaply; Postgres-backed services need a logical dump
 
-Migrating a stateful service safely comes down to what's storing its state. Anything backed by SQLite in a config directory, which covers most media-automation tools in the `*arr` family, migrates with a stop-the-container, sync-the-volume, start-on-the-new-host sequence. That's close to zero-risk: the database is just a file sitting still while you copy it.
+How safely a stateful service migrates depends on what's storing its state. Anything backed by SQLite in a config directory, which covers most media-automation tools in the `*arr` family, migrates with a stop-the-container, sync-the-volume, start-on-the-new-host sequence. That's close to zero-risk: the database is just a file sitting still while you copy it.
 
-Postgres is a different problem. Copying a live data directory risks corruption, so the safe path is:
+Postgres is a different problem. A live data directory can corrupt if you copy it directly, so the safe path is:
 
 1. Take a logical dump while the source stays running.
 2. Transfer that dump to the destination.
@@ -82,7 +82,7 @@ A watchdog that lives on the same box it's protecting adds to the exact pressure
 
 I run a lightweight watchdog on the NAS itself, a cron job paired with an [ntfy](https://ntfy.sh/) push notification, because that footprint is small enough not to matter. Anything heavier, like [Uptime Kuma](https://github.com/louislam/uptime-kuma), I'd rather run on the desktop watching the NAS remotely than install directly on the NAS.
 
-Putting monitoring next to the thing it watches feels natural. On a RAM-constrained box, it's backwards.
+Monitoring feels natural next to the thing it watches. On a RAM-constrained box, it's backwards.
 
 ## A RAM upgrade is a hedge, not a proven fix
 

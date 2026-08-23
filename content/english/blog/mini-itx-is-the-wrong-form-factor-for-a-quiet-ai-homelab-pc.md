@@ -3,7 +3,7 @@ title: "Mini-ITX Is the Wrong Form Factor for a Quiet AI Home-Lab PC"
 meta_title: "Mini-ITX vs mATX for a Quiet, Upgradable AI Home-Lab PC"
 description: "Mini-ITX forces small high-RPM fans and SFX PSUs: louder, less room to grow. mATX on an AM5 B650 board wins for a quiet, upgradable RTX 3060 inference box."
 date: 2026-08-10T12:05:00Z
-lastmod: 2026-08-15T13:22:11Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
   "Hardware"
@@ -22,7 +22,7 @@ showHero: true
 
 Form factor is the call that matters most on this build, and the popular answer gets it wrong. Every "quiet home-lab PC" guide points at mini-ITX: small, tucked in a corner, low power draw.
 
-I already own an RTX 3060 and want a box around it that stays **quiet, stays cool, and stays upgradable**, meaning I can swap the CPU, RAM, storage, and eventually the GPU without replacing the motherboard underneath them. Mini-ITX fails on all three at once. Seeing why took real bench data and practitioner threads, not case marketing copy.
+I already own an RTX 3060 and want a box around it that stays **quiet, stays cool, and stays upgradable**, meaning I can swap the CPU, RAM, storage, and eventually the GPU without replacing the motherboard underneath them. Mini-ITX fails on all three at once. Seeing why took real bench data and practitioner threads instead of case marketing copy.
 
 ## Mini-ITX trades away the two things this build needs
 
@@ -33,7 +33,7 @@ Mini-ITX cases force two acoustic penalties that stay hidden until you look at t
 
 Practitioner testing backs this up: builders chasing a genuinely silent PC report mATX and ATX cases as consistently quieter than ITX equivalents at equivalent airflow.
 
-Mini-ITX also caps upgrade room in ways a spec sheet doesn't show until you're staring at four empty screw holes wondering where the second M.2 slot went. Most ITX boards ship two RAM slots, one M.2. That's fine on day one. It's a wall on day four hundred, when I want:
+Mini-ITX also caps upgrade room in ways a spec sheet hides until you're staring at four empty screw holes wondering where the second M.2 slot went. Most ITX boards ship two RAM slots and one M.2 slot: fine on day one, a wall on day four hundred, when I want:
 
 - A second GPU for a small inference cluster
 - More NVMe for a growing model cache
@@ -47,21 +47,21 @@ mATX solves the acoustic problem ITX claims to own, without the expansion penalt
 
 mATX boards typically carry **four RAM slots and two or three M.2 slots**, plus a full-length PCIe slot for the GPU and often room for a second card down the road. I stop fighting the case for room to grow.
 
-The tradeoff I'm accepting here is real. A mATX build sits noticeably larger on a desk or shelf than a genuinely compact ITX box. The Fractal Design Ridge measures around 32dB idle by itself, real engineering in a real quiet ITX case, and mATX doesn't beat that on size.
+The tradeoff I'm accepting here is real. A mATX build sits noticeably larger on a desk or shelf than a genuinely compact ITX box. The Fractal Design Ridge measures around 32dB idle by itself, real engineering in a real quiet ITX case, and the Ridge still wins on size.
 
-But it wins on the constraint I actually have: upgrade room and noise together. If quiet in the smallest possible box is the only requirement, ITX with a case like the Ridge is still the right call. That isn't my constraint set.
+But it wins on the constraint I have: upgrade room and noise together. If quiet in the smallest possible box is the only requirement, ITX with a case like the Ridge is still the right call. My constraint set is a different one.
 
 ## Socket choice decides how long the board lasts
 
 AM5 is the safer bet for a board I don't want to replace in two years. [AMD extended AM5 platform support through 2029](https://www.tomshardware.com/pc-components/cpus/amd-confirms-am5-support-through-2029-zen-4-and-5-platform-will-likely-see-two-more-generations-at-least), up from an earlier 2027 commitment, with Zen 6 and likely Zen 7 landing on the same socket.
 
-Intel's next socket, LGA1954, has only a VP's public statement pointing toward similar multi-generation support, **not a locked commitment** the way AMD's is. A CPU swap two or three years out should mean unscrewing four cooler mounts. It shouldn't mean a new motherboard, new RAM, and an OS reinstall.
+Intel's next socket, LGA1954, has only a VP's public statement pointing toward similar multi-generation support, a softer commitment than AMD's locked-in 2029 date. A CPU swap two or three years out should mean unscrewing four cooler mounts. It shouldn't mean a new motherboard, new RAM, and an OS reinstall.
 
 ## Chipset tier drives idle power more than the CPU spec sheet
 
 Chipset tier changes idle power draw on AM5 boards more than most builders expect. Measured bench data on a single-chip B650E board showed **roughly 71W idle**, tying the dual-chip X670E flagship board tested alongside it. The second chip on X670 and X670E boards buys nothing here. It just adds another die pulling power around the clock.
 
-I'm buying a single-chip B650 or B650E board and skipping X670E outright. This machine runs continuously as an inference host, and idle draw compounds over a year in a way a gaming rig's idle time never does. That's [the same idle-power math that decided my last box purchase](/blog/gaming-desktop-vs-dedicated-compute-box-idle-power/).
+I'm buying a single-chip B650 or B650E board and skipping X670E outright. This machine runs continuously as an inference host, and idle draw compounds over a year in a way a gaming rig's idle time never does, following [the same idle-power math that decided my last box purchase](/blog/gaming-desktop-vs-dedicated-compute-box-idle-power/).
 
 ## The CPU's job is sitting at 20W, not winning benchmarks
 
@@ -82,9 +82,9 @@ Measured efficiency curves tell the story:
 
 550 to 650W, full-size ATX, is the right target.
 
-## The board and case pick still isn't verified
+## The board and case pick still needs verification
 
-One piece of this build isn't locked yet. I haven't picked a specific mATX board or case, and I don't want to dress up a guess as a confirmed pick the way the rest of this list is confirmed. Candidates worth pricing out, none backed by the same measured bench data as the CPU, chipset tier, and PSU sizing:
+One piece of this build remains undecided. I haven't picked a specific mATX board or case, and I don't want to dress up a guess as a confirmed pick the way the rest of this list is confirmed. Candidates worth pricing out, none backed by the same measured bench data as the CPU, chipset tier, and PSU sizing:
 
 - **Board:** ASRock B650M Pro RS or MSI B650M Mortar
 - **Case:** Fractal Design Pop Air or Meshify 2 Compact

@@ -3,7 +3,7 @@ title: "A Clean ClamAV Scan Doesn't Mean the File Is Safe"
 meta_title: "Closing ClamAV's Signature Gap in a Home-Lab Download Scan Gate"
 description: "ClamAV only matches known signatures. My download scan gate now layers PUA detection, third-party feeds, YARA rules, hash-only lookups, and entropy checks."
 date: 2026-08-10T12:20:00Z
-lastmod: 2026-08-15T13:19:38Z
+lastmod: 2026-08-23T03:18:03Z
 featureimage: "/images/clamav-antu-logo.svg"
 showHero: true
 categories: [
@@ -29,7 +29,7 @@ Worse: ClamAV is open source, so anyone can download the exact detection logic a
 
 {{< alert >}}That's not a hypothetical: researchers have measured samples built specifically to dodge open-source detectors evading ClamAV 70 to 85 percent of the time, without even needing inside knowledge of the engine.{{< /alert >}}
 
-Here's the full layered gate, in the order a file actually passes through it:
+The full layered gate, in the order a file passes through it:
 
 ```mermaid
 flowchart TD

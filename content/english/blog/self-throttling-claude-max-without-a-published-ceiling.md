@@ -3,7 +3,7 @@ title: "Building a Self-Throttling Governor for Claude Max With No Published Cei
 meta_title: "Claude Max Cadence Governor: Throttling Without a Documented Limit"
 description: "Claude Max publishes no absolute usage ceiling, so my governor calibrates from real 429s, ramping claude -p cadence against 5-hour and 7-day rolling windows."
 date: 2026-08-10T11:25:00Z
-lastmod: 2026-08-15T13:24:55Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "AI Infrastructure",
   "Software Architecture",
@@ -21,7 +21,7 @@ featureimage: "/images/centrifugal-flyball-governor.jpg"
 showHero: true
 ---
 
-Anthropic will not tell you how many tokens or messages Claude Max 20x actually gives you, and I had to build a throttle for it anyway. I run several personal research projects on background schedules through `claude -p` — unattended fires that call Claude Code from cron and systemd timers while I'm not watching. Those fires draw from the **exact same quota** as the interactive Claude Code sessions I use to do actual work.
+Anthropic will not tell you how many tokens or messages Claude Max 20x gives you, and I had to build a throttle for it anyway. I run several personal research projects on background schedules through `claude -p` — unattended fires that call Claude Code from cron and systemd timers while I'm not watching. Those fires draw from the **exact same quota** as the interactive Claude Code sessions I use to do actual work.
 
 If a background job burns the pool at 2pm, my 2:15pm session pays for it. [A single $364 session](/blog/what-a-364-dollar-claude-code-session-taught-me-about-agent-hygiene/) made that competition concrete enough to build against. I wanted those jobs to back off automatically as usage climbed, and hand the room back the moment I sat down to work. Anthropic gives you nothing to calibrate that against.
 
@@ -63,7 +63,7 @@ As either figure approaches its ceiling, the governor ramps down the cadence of 
 
 As usage clears on either rolling window, cadence ramps back up on the same gradual curve it ramped down on.
 
-Here's the loop the governor actually runs:
+The loop the governor runs:
 
 ```mermaid
 flowchart TD
@@ -76,11 +76,11 @@ flowchart TD
     G[429 response received] -.->|calibrates working ceiling| D
 ```
 
-The "ceiling it's currently tracking" part is the honest workaround for not having a real number. Since Anthropic doesn't publish one, the governor **calibrates its threshold from live signals**: when a `claude -p` fire actually gets rate-limited, Claude's own error response carries a reset timestamp, and the governor parses that as ground truth and adjusts its working ceiling estimate from it.
+The "ceiling it's currently tracking" part is the honest workaround for not having a real number. Since Anthropic doesn't publish one, the governor **calibrates its threshold from live signals**: when a `claude -p` fire gets rate-limited, Claude's own error response carries a reset timestamp, and the governor parses that as ground truth and adjusts its working ceiling estimate from it.
 
 Absent a fresh 429 to calibrate against, it falls back to a conservative default. The design works like an adaptive controller: it reacts to real signals because there's no spec sheet to check against.
 
-I wired the throttle into the two places that actually spend tokens unattended:
+I wired the throttle into the two places that spend tokens unattended:
 
 - A scheduled research campaign that fires on a timer.
 - A document-ingestion pipeline, where the lever isn't fire frequency but concurrency: how many ingestion workers run in parallel against the shared quota.

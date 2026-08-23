@@ -3,7 +3,7 @@ title: "Scrape, Score, Alert: The Pattern Behind Two Home-Lab Vision Pipelines"
 meta_title: "Local Vision-LLM Pipeline Architecture: A Home-Lab Case Study, Part 1"
 description: "Part 1: an estate-sale scanner and a resale monitor share one architecture — scrape, prefilter, score with local vision models, alert — on SQLite and one GPU."
 date: 2026-08-10T10:00:00Z
-lastmod: 2026-08-15T13:18:32Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
   "Machine Learning",
@@ -49,7 +49,7 @@ A run is one process that walks through the stages in order and writes its resul
 
 The choice isn't free, though. The first time I want two scrapers writing to the same SQLite file at once, or want one stage to retry independently of the one before it, this is the design that starts to hurt. I haven't hit that yet. I expect I will.
 
-What differs between the two projects is entirely inside the middle two boxes: what gets filtered out before it costs anything, and what the model actually gets asked to judge. That's what the next two posts cover.
+What differs between the two projects is entirely inside the middle two boxes: what gets filtered out before it costs anything, and what the model actually gets asked to judge. The next two posts cover exactly that.
 
 ## One shared GPU forces the same cost tradeoff on both projects
 

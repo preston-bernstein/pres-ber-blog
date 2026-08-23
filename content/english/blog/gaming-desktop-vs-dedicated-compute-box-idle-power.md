@@ -1,9 +1,9 @@
 ---
 title: "Gaming Desktop or Dedicated Compute Box: Idle Power Decides, Not Sticker Price"
 meta_title: "Gaming Desktop vs. Dedicated Compute Box for Home Lab: The Idle Power Math"
-description: "A mini PC only cuts power costs if the desktop actually sleeps. Mine runs 24/7 for services, so the second box is about isolation, not watts."
+description: "A mini PC only cuts power costs if the desktop sleeps. Mine runs 24/7 for services, so the second box exists for isolation, watts aside."
 date: 2026-08-10T12:00:00Z
-lastmod: 2026-08-15T13:16:22Z
+lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
   "Hardware"
@@ -20,9 +20,9 @@ featureimage: "/images/intel-nuc-mini-pc.jpg"
 showHero: true
 ---
 
-Idle power draw, not the price tag stamped on the mini PC, decides whether a dedicated low-power compute box actually saves you money over a gaming desktop. A gaming desktop idles around 80-200W, depending on the board, the PSU, and how many drives happen to be spinning. A purpose-built low-power box, the N100-class mini PCs and similar, idles at 10-15W.
+Idle power draw, not the price tag stamped on the mini PC, decides whether a dedicated low-power compute box saves you money over a gaming desktop. A gaming desktop idles around 80-200W, depending on the board, the PSU, and how many drives happen to be spinning. A purpose-built low-power box, the N100-class mini PCs and similar, idles at 10-15W.
 
-Whether that gap means anything on your electricity bill comes down to one question: does buying the mini PC actually let the desktop power off or sleep when you're not gaming? If the answer is no, the math falls apart. I found that out the hard way, pricing hardware for my own setup.
+Whether that gap means anything on your electricity bill comes down to one question: does buying the mini PC let the desktop power off or sleep when you're not gaming? If the answer is no, the math falls apart. I found that out the hard way, pricing hardware for my own setup.
 
 ## The wattage gap turns into real money over a year
 
@@ -35,7 +35,7 @@ Run the actual numbers and the wattage gap turns into real money fast:
 
 On paper, this is a fast, boring, obviously-correct upgrade.
 
-But that number only works if the desktop actually reaches that low idle draw during "off" hours instead of pulling more power doing something else. A desktop that's rendering, transcoding, or serving requests around the clock isn't idling at 80-200W. It's running at whatever load those tasks add on top of that baseline.
+But that number only works if the desktop reaches that low idle draw during "off" hours instead of pulling more power doing something else. A desktop that's rendering, transcoding, or serving requests around the clock isn't idling at 80-200W. It's running at whatever load those tasks add on top of that baseline.
 
 The savings calculation compares two idle states. If one of your machines never reaches an idle state, you're not comparing what you think you're comparing.
 
@@ -49,7 +49,7 @@ My own desktop killed the clean version of this argument, because it never stops
 
 None of that stops when I'm not gaming. The desktop was never going to drop to a true idle state, let alone power off, regardless of what other hardware I bought.
 
-That fact kills the power-savings case outright. Adding a 10-15W mini PC next to a desktop that keeps running at its existing load doesn't subtract 80-200W from the bill — it adds 10-15W on top of what I was already paying. **Total household power draw goes up, not down.**
+That fact kills the power-savings case outright. Adding a 10-15W mini PC next to a desktop that keeps running at its existing load doesn't subtract 80-200W from the bill — it adds 10-15W on top of what I was already paying. **Total household power draw goes up.**
 
 Anyone pricing this decision purely on wattage needs to check their own uptime pattern first, because the entire payback calculation assumes the expensive box gets to power down once the cheap box exists.
 
@@ -67,7 +67,7 @@ flowchart TD
 
 ## The case for a dedicated box shifts to reliability once power savings are off the table
 
-Once electricity cost stopped being the argument, **reliability** is what actually justified building a second box, and that case turned out to be stronger than I expected. Every driver update, every Windows patch, every game that wants a reboot to apply a change takes every hosted service down with it.
+Once electricity cost stopped being the argument, **reliability** is what justified building a second box, and that case turned out to be stronger than I expected. Every driver update, every Windows patch, every game that wants a reboot to apply a change takes every hosted service down with it.
 
 A media pipeline and a trading-research pipeline don't care about my GPU driver version. But they go offline anyway, every time I reboot for one. Decoupling the services from the gaming machine means a driver crash or a game install no longer doubles as a service outage.
 
@@ -85,7 +85,7 @@ Moving LLM inference to its own hardware is a real option. But it's a much bigge
 
 Bundling that decision in with "buy a $300 mini PC for CPU-only services" muddies two questions that have different price floors and different payback conditions. I split them on purpose.
 
-## What I'd actually check before buying
+## What I'd check before buying
 
 **Check your desktop's real uptime pattern before you check mini PC prices.** If it's already running 24/7 for reasons unrelated to gaming, buying a low-power box will not lower your electricity bill. Anyone telling you otherwise hasn't looked at your actual load.
 
