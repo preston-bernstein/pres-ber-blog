@@ -3,7 +3,7 @@ title: "Fifteen of Eighteen Root Causes I Was Sure About Were Wrong"
 meta_title: "Adversarial Root-Cause Verification: 15 of 18 Diagnoses Refuted"
 description: "Fifteen of eighteen proposed root causes for four firing alerts were refuted by three independent adversarial checks before any fix shipped."
 date: 2026-08-10T11:50:00Z
-lastmod: 2026-08-23T03:18:03Z
+lastmod: 2026-08-23T18:00:00Z
 categories: [
   "Home Lab",
   "Software Architecture",
@@ -21,83 +21,36 @@ featureimage: "/images/grafana-monitoring-dashboard.png"
 showHero: true
 ---
 
-Fifteen of eighteen root causes I proposed for four firing alerts turned out to be wrong. Four alerts were going off across my home infrastructure at once: a stuck download post-processing backlog, plus three separate automation alerts tied to a video-discovery pipeline.
+You can't trust the output of agents. I expect conflicting reports from them by default now. That's why review matters, and it's why I'm exploring pitting different agents against each other instead of taking any single one at its word. Four alerts fired across my home infrastructure at once this month, and I ran eighteen candidate root causes through adversarial verification before touching anything. Most of them didn't survive it.
 
-My first instinct on each one: form a theory fast, patch it, watch the alert clear. But I forced myself to do the opposite: generate every plausible root cause I could find, then attack each one before touching anything. Eighteen candidates went in. Three survived. **That refutation rate is the actual finding here, more than any single bug I fixed.**
+The next step is still half-formed. I'm looking into using Claude for the heavy lifting alongside local LLMs I run myself, like Qwen, built by different companies in different countries. I think those two have genuinely dueling interests. They'd critique a finding in ways the other one never would. It's close to [the dueling-agent review design I sketched elsewhere](/blog/dueling-agent-orchestration-suites/), just with different model providers instead of different review lenses. I don't know yet. I'm still thinking about it.
 
-## Adversarial verification means trying to kill your own hypothesis
+## Running Four Alerts Through 59 Agents, Not Grinding Through Them Myself
 
-Adversarial verification means treating your own hypothesis as something to disprove. For each candidate root cause, I ran three independent checks against three different failure modes:
+I always try to run things as concurrently as possible to save time. I don't trust what goes into an agent any more than I trust what comes out, so instead of grinding through four alerts myself, I split the investigation into four diagnostic lanes, one per alert, and ran 59 agents across them, built to not step on each other. Then I could just review what came back.
 
-- Is the claim correct?
-- Is there a more likely alternative explanation for the same symptom?
-- Would acting on this fix cause harm even if the diagnosis were right?
-
-Two negative checks out of three killed a finding, and I moved on without touching code.
-
-I used parallel background agents to run these checks concurrently, one per lens, working off the same evidence but arguing independently. It's the same independence-over-agreement bet behind [the dueling-agent review design I sketched elsewhere](/blog/dueling-agent-orchestration-suites/). The mechanism doesn't matter much: you could run this with three colleagues, or with yourself on three separate days.
-
-**What matters is that confirmation and refutation are different jobs.** Doing both with the same brain in the same sitting is how bad root causes survive into production.
-
-The 18 candidates funneled down like this:
+Each candidate got three independent checks: is the claim correct, is there a more likely alternative explanation, would acting on the fix cause harm even if the diagnosis holds. Two negative checks killed a finding without me touching code.
 
 ```mermaid
 flowchart TD
-    A[18 candidate root causes] --> B[3 independent adversarial checks per candidate]
-    B --> C{2 of 3 checks negative?}
-    C -->|Yes, 15 candidates| D[Refuted - no action taken]
-    C -->|No majority reached, 1 candidate| E[Left open - reviewers split, no coin flip]
-    C -->|No, holds up, 2 candidates| F[Confirmed - acted on]
+    A[18 candidate root causes] --> B[3 independent checks per candidate]
+    B -->|2 of 3 negative - 15 candidates| C[Refuted]
+    B -->|split, no majority - 1 candidate| D[Left open]
+    B -->|holds up - 2 candidates| E[Confirmed and fixed]
 ```
 
-The whole investigation stayed read-only until every surviving finding cleared verification:
+Eighteen candidates went in.
 
-- No config edits
-- No restarts
-- No "let me just try this" during the diagnostic pass
+Fifteen came back refuted, two got fixed, one stayed open. The fixes shipped as PR #34.
 
-That discipline is what made the refuted list trustworthy. I never contaminated a measurement by fixing something mid-investigation.
+## Two Reviewers Split on the Same Files, and a Split Doesn't Resolve Itself
 
-## Zero didn't mean what I thought it meant
+One of the three survivors split my reviewers right down the middle. 16,703 files owned by uid 1024, mode 0600. One reviewer found the bad files had existed for hours before the failures started. Another found the same failures beginning within minutes of a container restart, with those files already in place. Majority-refutation needs an actual majority, and a genuine split doesn't produce one, so I left it open instead of acting on a coin flip. Adversarial verification didn't resolve it. It just kept me from pretending it had.
 
-Earlier in this same session, before I tightened up the process, I had already reported that a download client's bandwidth was pinned at 0 B/s and blamed an empty configuration value colliding with a governor script that writes percentage-based limits. That looked like an obvious bug. It would have been an easy one-line fix: set the missing value.
+The other two survivors were actively harmful if left alone. One was a post-processing alert that measured how long its own metric collector had been running instead of how old the stuck item was. The other was a budget governor whose "reduced" cadence setting stacked a second schedule on top of the baseline instead of replacing it. Bugs happen, and I'm not upset when they do. It's good to be able to see them, cover them with observability and monitoring and tests, so the bug catches itself the next time it pops up. Good tools get maintained over time. They aren't built in a day.
 
-It was wrong, and setting that value would have made things actively worse. I traced the actual code path in this download client's percentage-limit branch.
+## The GPU Broker Problem I Still Haven't Fixed
 
-{{< alert icon="circle-info" >}}A zero limit there means unlimited, not stopped. The log line that reads like a stall is literally the client's own phrasing for "no cap applied."{{< /alert >}}
+The instinct behind all of this traces back to [a trust-a-single-signal mistake I made in my GPU broker](/blog/debugging-false-positive-gpu-contention-detection/), treating one signal, game detected, don't touch the GPU, as ground truth. I was never sold on the exact trigger for that mechanism. A Steam background process, a game update, or Plex briefly touching the GPU can all false-positive the same way. We're still trying to figure out how to handle different processes using the GPU briefly instead of one at a time. Right now the fix is blunt. It's all or nothing: kill or queue whatever GPU process the LLM flags. It works, but it's not elegant, and it's not really solved.
 
-I confirmed this three separate ways, including running the branch logic directly inside the container and cross-checking it against a measured throughput number that only made sense if the download was, in fact, running at full speed. Setting the value I'd flagged would have flipped the client into a different code branch entirely, one that computes a mismatched percentage on every release cycle and throws a runtime error every time.
-
-I would have taken a healthy, fast-running download client and broken it myself, on my own advice. It's the same trust-a-single-signal failure that produced [my GPU broker's phantom-game bug](/blog/debugging-false-positive-gpu-contention-detection/): one plausible reading of one signal, promoted straight to ground truth.
-
-## The alert metric was lying about its own units
-
-One of the four original alerts was measuring how long the oldest item had been stuck in the post-processing queue. The number it reported never looked right. It read low even when I could see items sitting untouched for days.
-
-The bug turned out to be in how the metric collector seeded its internal clock: it stamped each item's "first seen" time from the moment the collector itself first observed it, instead of when the item actually entered the queue. Every entry read back the exact same duration, no matter how long it had really been waiting, because **the whole gauge was secretly measuring collector uptime**.
-
-That one survived all three checks cleanly. The alternative-cause reviewer couldn't find a queue-processing explanation that fit the flat, identical readings across separate instances. The fix-safety reviewer confirmed the correct source of truth was already present in the underlying data and just needed to be read instead of guessed.
-
-After I re-seeded the clock from the real timestamp, the two queue instances immediately started reporting different, correct numbers: one nearly four days old, the other over a day and a half. The alert had been reporting a real problem's existence without ever reporting its true severity, for as long as it had been deployed.
-
-## The budget governor's fix made the problem worse
-
-A budget governor script was supposed to reduce how often a discovery pipeline fired, to stay under a resource cap. Its "reduced" setting was implemented as a scheduling override applied on top of the baseline schedule. But the override mechanism in the underlying scheduler doesn't replace an existing schedule when you add to it that way. It appends.
-
-{{< alert >}}The lever meant to cut cadence was quietly increasing it: the "reduced" tier stacked a second firing schedule on top of the baseline instead of replacing it.{{< /alert >}}
-
-Separately, a blank scheduling directive left in one code path caused the whole timer unit to fail to load at all, silently, with no warning that it had been disabled rather than paused. Both bugs shipped together and had been live long enough that nobody would have found either by reading the code once and moving on.
-
-## What this cost, and what it still couldn't tell me
-
-Running eighteen hypotheses through three-lens verification is not fast. It took a long investigation session, and most of the eighteen candidates burned real analysis time before getting refuted. That's the tax you pay for not shipping a plausible-sounding fix on the first guess.
-
-I think it was worth it here. Two of the three survivors were actively harmful if left alone, and the one I would have shipped from my earlier, faster pass would have made a healthy system fail on the next release cycle.
-
-The process also has a real blind spot. One finding, a file-permission mismatch behind a wave of import errors, split my reviewers: one found evidence the bad files existed for hours before the failures started, another found the same failures beginning within minutes of a container restart despite those files already being in place.
-
-Majority-refutation needs an actual majority, and a genuine split doesn't produce one. I left that finding open rather than act on a coin flip. That was the right call, but it means **adversarial verification didn't resolve it, it just kept me from pretending it had**.
-
-The backlog itself is also still draining slower than it should, and I haven't traced a single item through the pipeline start to finish to prove why. Eighteen hypotheses in, some things are still genuinely unknown, and the honest move is to say so instead of closing the ticket.
-
-The point of this exercise was never about the agents. It was about building a process where a plausible root cause has to survive someone actively trying to kill it before I'm allowed to act on it. Fifteen didn't survive. I'm glad I found out before I touched anything.
+The backlog is still draining slower than it should, and I haven't traced a single item through the pipeline start to finish to prove why. I've only got so much time in a day. I should have done that already, and I'll probably get to it later. I don't like leaving things open, but you just have to use your time wisely, and that's the main thing.
