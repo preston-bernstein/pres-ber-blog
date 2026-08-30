@@ -1,0 +1,16 @@
+# Third-party actions must be pinned to a commit; this account's own reusable
+# workflows may be referenced by tag. Same policy the shared linter generates
+# when a repo ships no config of its own.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        preston-bernstein/*: ref-pin
+        "*": hash-pin
+  ref-version-mismatch:
+    ignore:
+      # GitHub's ref API resolves SamKirkland/FTP-Deploy-Action v4.4.0 to
+      # 110f9186 (2026-04-23); zizmor resolves the same tag to 3a9c65ae
+      # (2026-04-20). The pin is a commit SHA either way, so the security
+      # property holds and only the version comment is in dispute.
+      - main.yml:65
