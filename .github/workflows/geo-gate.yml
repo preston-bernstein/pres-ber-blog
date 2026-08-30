@@ -12,24 +12,34 @@ on:
     branches-ignore:
       - main
 
+  workflow_dispatch:
 env:
   HUGO_ENV: production
   HUGO_VERSION: 0.164.0
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build-gate:
     name: Build and run GEO gate
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout repo codebase
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 1
           clean: true
           submodules: true
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 'lts/*'
 
