@@ -16,7 +16,7 @@ tags: [
   "Automation",
   "Cost Engineering"
 ]
-draft: false
+draft: true
 featureimage: "/images/centrifugal-flyball-governor.jpg"
 showHero: true
 ---

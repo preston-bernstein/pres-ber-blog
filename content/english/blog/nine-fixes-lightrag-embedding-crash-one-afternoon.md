@@ -1,8 +1,8 @@
 ---
-title: "It Took Nine Fixes to Stop a LightRAG Crash. The First Eight Were All Real Bugs"
+title: "It Took Nine Fixes to Stop a LightRAG Crash"
 meta_title: "Debugging a LightRAG + Ollama Embedding Crash: Eight Real Fixes, One Root Cause"
 description: "Eight real fixes didn't stop a LightRAG crash. The host NAS was out of memory, 5GB deep in swap, stalling network I/O; the real fix was moving the workload."
-date: 2026-08-10T11:15:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Machine Learning",
@@ -29,7 +29,7 @@ The two bugs had nothing to do with each other; they just landed on the same day
 
 [LightRAG](https://github.com/HKUDS/LightRAG) is a knowledge-graph pipeline I run against a local Ollama embedding backend for a personal research project. I'd triggered its `reprocess_failed` endpoint against an 800-document backlog, and it kept dying with the same signature: an `httpx.ReadError`, then `IndexFlushError`, then `Pipeline halted`, cascading the entire in-flight batch to failed.
 
-A stray backup file on disk showed the cause: an earlier session had quietly raised `MAX_ASYNC` and `MAX_PARALLEL_INSERT` from 1 to 4, chasing throughput without realizing it would destabilize a local embedding backend. **Community guidance is explicit that parallel-insert should stay well under async concurrency, not equal to it**, and that gap matters more against a local model than a cloud API. ([The same knobs, tuned against a rate-limited cloud API instead](/blog/tuning-lightrag-ingestion-concurrency-against-gemini-rate-limits/), got a post of their own.)
+A stray backup file on disk showed the cause: an earlier session had quietly raised `MAX_ASYNC` and `MAX_PARALLEL_INSERT` from 1 to 4, chasing throughput without realizing it would destabilize a local embedding backend. **Community guidance is explicit that parallel-insert should stay well under async concurrency, not equal to it**, and that gap matters more against a local model than a cloud API. (The same knobs, tuned against a rate-limited cloud API instead, got a post of their own.)
 
 I reverted both settings to 1. It was a real bug that had probably been causing failures for a while, but it wasn't the crash.
 

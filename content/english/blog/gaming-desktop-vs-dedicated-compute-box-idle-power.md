@@ -15,7 +15,7 @@ tags: [
   "Self-Hosting",
   "Hardware"
 ]
-draft: false
+draft: true
 featureimage: "/images/intel-nuc-mini-pc.jpg"
 showHero: true
 ---

@@ -17,7 +17,7 @@ tags: [
 ]
 featureimage: "/images/github-octocat-logo.svg"
 showHero: true
-draft: false
+draft: true
 ---
 
 GitHub's per-repo Agents tab is a mission-control surface, [live since January 26, 2026](https://github.blog/changelog/2026-01-26-introducing-the-agents-tab-in-your-repository/), where GitHub-hosted coding agents pick up issues and turn them into PRs. No terminal required. Copilot's own agent lives there by default, and [Claude and Codex have been selectable alongside it in public preview since February 4, 2026](https://github.blog/changelog/2026-02-04-claude-and-codex-are-now-available-in-public-preview-on-github/). The tab is part of **Agent HQ**, the umbrella [GitHub announced on October 28, 2025](https://github.blog/news-insights/company-news/welcome-home-agents/), meant to give every agent vendor one shared surface across Issues, PRs, and Actions.
