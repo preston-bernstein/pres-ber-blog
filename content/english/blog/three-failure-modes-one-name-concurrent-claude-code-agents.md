@@ -17,7 +17,7 @@ tags: [
   "Claude Code",
   "Developer Workflow"
 ]
-draft: false
+draft: true
 ---
 
 Three failure modes were hiding behind one name, and only one of them was actually about drift. I run four or five Claude Code agents at once, each in its own repo, and for months every mess that came out of it got filed under the same complaint: things drifting out of state while I wasn't watching. Pulled apart, the three landed in very different places:

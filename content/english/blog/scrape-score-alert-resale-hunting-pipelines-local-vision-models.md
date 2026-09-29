@@ -20,7 +20,7 @@ tags: [
   "Home Lab",
   "Automation"
 ]
-draft: false
+draft: true
 featureimage: "/images/dutch-thrift-store-knick-knacks.jpg"
 showHero: true
 ---

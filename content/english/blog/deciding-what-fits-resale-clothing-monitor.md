@@ -18,7 +18,7 @@ tags: [
   "Home Lab",
   "Automation"
 ]
-draft: false
+draft: true
 featureimage: "/images/resale-clothing-monitor-thrift-rack.jpg"
 showHero: true
 ---

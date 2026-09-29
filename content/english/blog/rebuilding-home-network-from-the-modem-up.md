@@ -17,7 +17,7 @@ tags: [
   "Pi-hole",
   "Home Lab"
 ]
-draft: false
+draft: true
 ---
 
 I rebuilt my home network from the ISP modem outward instead of dropping in a new router and hoping the rest of the stack sorted itself out. The order was fixed:

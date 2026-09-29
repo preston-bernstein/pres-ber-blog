@@ -2,7 +2,7 @@
 title: "Run One Observability Stack, Not One Per Repo"
 meta_title: "Grafana and Prometheus: One Shared Stack vs. One Per Repo"
 description: "At ~30 repos and 15-20 always-on services, run one shared Grafana/Prometheus/Loki stack with an Alloy agent per host, not a stack per repo."
-date: 2026-08-10T12:10:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",

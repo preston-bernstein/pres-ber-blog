@@ -2,7 +2,7 @@
 title: "Not Every Docker Container Belongs on the NAS"
 meta_title: "NAS vs Desktop Docker Placement: A RAM-Constrained Home Lab Framework"
 description: "Storage-coupled services stay on the NAS; compute-heavy projects move to a host with real memory. An 8GB DS1522+ under 35 containers forced the split."
-date: 2026-08-10T11:55:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Home Lab",
