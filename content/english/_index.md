@@ -1,6 +1,6 @@
 ---
 title: "Home"
-description: "Preston Bernstein is an Atlanta-based full-stack developer writing about home-lab infrastructure, self-hosted services, and AI agent engineering."
+description: "Preston Bernstein is an Atlanta-based full-stack developer writing about home-lab infrastructure, self-hosted services, and AI engineering."
 ---
 
 I'm Preston Bernstein, a full-stack developer in Atlanta with over a decade building and running web applications and the infrastructure under them.

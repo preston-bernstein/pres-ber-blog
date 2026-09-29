@@ -35,7 +35,7 @@ Checks (any FAIL exits non-zero):
 4. Every built post page (`public/blog/<slug>/index.html`) carries parseable JSON-LD with `@type: BlogPosting`, `datePublished`, and `dateModified >= datePublished`.
 5. Every published post's front-matter `description` is 80–160 characters.
 6. Every published post body has at least 1 internal link.
-7. Site-wide in-body external links across all published posts total at least 40 (regression floor, deliberately not per-post).
+7. Site-wide in-body external links across all published posts total at least 30 (regression floor, deliberately not per-post; was 40 before the 2026-09-28 scale-back).
 8. `data/geo-battery.json` exists, parses, has `date`/`engine`/`hits`/`total`, and `date` is within 45 days of the build.
 
 Battery refresh flow: run `~/dev/geo-prompt-battery/run_battery.sh`, then `sync_snapshot.sh <blog-repo>`, and commit the updated `data/geo-battery.json`. If the gate fails on snapshot age, that is the fix — do not hand-edit the date.
