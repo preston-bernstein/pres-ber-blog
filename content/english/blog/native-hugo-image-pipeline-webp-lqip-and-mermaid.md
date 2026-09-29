@@ -2,7 +2,7 @@
 title: "A Native Hugo Image Pipeline: WebP, LQIP Blur-Up, and Mermaid Diagrams"
 meta_title: "Native WebP, LQIP, and Mermaid Diagrams in Hugo Without a CDN"
 description: "Hugo render hooks gave this blog automatic WebP, srcset, and blur-up placeholders, plus Mermaid diagrams from plain fenced code blocks. No CDN, no theme fork."
-date: 2026-08-10T18:00:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T03:18:03Z
 categories: [
   "Software Architecture",

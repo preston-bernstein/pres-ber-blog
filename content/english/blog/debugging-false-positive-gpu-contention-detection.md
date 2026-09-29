@@ -2,7 +2,7 @@
 title: "My GPU Broker Kept Killing Inference Jobs for Games That Weren't Running"
 meta_title: "Fixing a False-Positive GPU Contention Bug in a Home-Lab Broker"
 description: "A GPU broker false-canceled inference over phantom games and Plex maintenance; the debounce plus session-API fix has run clean since it shipped August 2, 2026."
-date: 2026-08-10T11:00:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T12:00:00Z
 categories: [
   "Home Lab",
@@ -26,7 +26,7 @@ The debounce and Plex session-API fix for my GPU broker's false-positive content
 
 ## Two Different Bugs Were Causing the Same Failure
 
-The broker is a Go service I run at home, arbitrating my desktop's one GPU between gaming, Plex transcoding, and [Ollama](https://ollama.com/) inference; it later grew [a parking layer for embedding requests caught mid-yield](/blog/surviving-a-gpu-yield-window-embedding-servers/), too. Detection used to poll `/proc` every three seconds for process-name matches: `Plex Transcoder`, Steam's launch marker, Heroic's and Lutris's runner patterns, a bare `wine .exe`. One matching poll was enough: it canceled whatever inference job was running and unloaded the model from VRAM. No debounce, no second signal, one sample as ground truth.
+The broker is a Go service I run at home, arbitrating my desktop's one GPU between gaming, Plex transcoding, and [Ollama](https://ollama.com/) inference; it later grew a parking layer for embedding requests caught mid-yield, too. Detection used to poll `/proc` every three seconds for process-name matches: `Plex Transcoder`, Steam's launch marker, Heroic's and Lutris's runner patterns, a bare `wine .exe`. One matching poll was enough: it canceled whatever inference job was running and unloaded the model from VRAM. No debounce, no second signal, one sample as ground truth.
 
 [Plex's own support docs](https://support.plex.tv/articles/credits-detection/) confirm its transcoder binary runs background maintenance (Skip Intro, Credits detection, chapter thumbnails, loudness analysis) on a server-scheduled cadence, completely independent of anyone watching something, and a bare process match couldn't tell that apart from real playback. Gaming launchers threw a different kind of false positive: three-to-six-second process-match blips from background housekeeping, not sustained play.
 

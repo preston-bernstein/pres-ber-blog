@@ -2,7 +2,7 @@
 title: "A Clean ClamAV Scan Doesn't Mean the File Is Safe"
 meta_title: "Closing ClamAV's Signature Gap in a Home-Lab Download Scan Gate"
 description: "ClamAV only matches known signatures. My download scan gate layers PUA detection, third-party feeds, YARA rules, and hash-only lookups on top of it."
-date: 2026-08-10T12:20:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T16:00:00Z
 featureimage: "/images/clamav-antu-logo.svg"
 showHero: true

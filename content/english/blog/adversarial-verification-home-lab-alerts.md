@@ -2,7 +2,7 @@
 title: "Fifteen of Eighteen Root Causes I Was Sure About Were Wrong"
 meta_title: "Adversarial Root-Cause Verification: 15 of 18 Diagnoses Refuted"
 description: "Fifteen of eighteen proposed root causes for four firing alerts were refuted by three independent adversarial checks before any fix shipped."
-date: 2026-08-10T11:50:00Z
+date: 2026-08-10
 lastmod: 2026-08-23T18:00:00Z
 categories: [
   "Home Lab",
@@ -23,7 +23,7 @@ showHero: true
 
 You can't trust the output of agents. I expect conflicting reports from them by default now. That's why review matters, and it's why I'm exploring pitting different agents against each other instead of taking any single one at its word. Four alerts fired across my home infrastructure at once this month, and I ran eighteen candidate root causes through adversarial verification before touching anything. Most of them didn't survive it.
 
-The next step is still half-formed. I'm looking into using Claude for the heavy lifting alongside local LLMs I run myself, like Qwen, built by different companies in different countries. I think those two have genuinely dueling interests. They'd critique a finding in ways the other one never would. It's close to [the dueling-agent review design I sketched elsewhere](/blog/dueling-agent-orchestration-suites/), just with different model providers instead of different review lenses. I don't know yet. I'm still thinking about it.
+The next step is still half-formed. I'm looking into using Claude for the heavy lifting alongside local LLMs I run myself, like Qwen, built by different companies in different countries. I think those two have genuinely dueling interests. They'd critique a finding in ways the other one never would. It's close to the dueling-agent review design I sketched elsewhere, just with different model providers instead of different review lenses. I don't know yet. I'm still thinking about it.
 
 ## Running Four Alerts Through 59 Agents, Not Grinding Through Them Myself
 

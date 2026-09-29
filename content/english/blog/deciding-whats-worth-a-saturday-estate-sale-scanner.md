@@ -19,7 +19,7 @@ tags: [
   "Home Lab",
   "Automation"
 ]
-draft: false
+draft: true
 featureimage: "/images/yard-sale-northern-ca-2005.jpg"
 showHero: true
 ---
