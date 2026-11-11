@@ -11,28 +11,16 @@ const { test, expect } = require("@playwright/test");
 // mermaid.spec.js already proves the render MECHANISM works generically,
 // on the demo post; this file proves each of the 20 new diagrams' own
 // CONTENT actually parses, since that's specific to what each diagram says,
-// not the shared mechanism.
+// not the shared mechanism. The 2026-09-28 scale-back set 13 of those posts
+// to draft (see curated-archive.spec.js); only the 7 still built are listed.
 const POSTS_WITH_NEW_DIAGRAMS = [
   "adversarial-verification-home-lab-alerts",
-  "auditing-what-an-agent-pipeline-shipped-in-an-afternoon",
   "clamav-clean-scan-doesnt-mean-safe",
   "debugging-false-positive-gpu-contention-detection",
-  "deciding-what-fits-resale-clothing-monitor",
-  "deciding-whats-worth-a-saturday-estate-sale-scanner",
-  "dueling-agent-orchestration-suites",
-  "gaming-desktop-vs-dedicated-compute-box-idle-power",
   "nine-fixes-lightrag-embedding-crash-one-afternoon",
   "not-every-docker-container-belongs-on-the-nas",
   "one-observability-stack-not-one-per-repo",
   "proxmox-for-the-xps-17-offload-box",
-  "rebuilding-home-network-from-the-modem-up",
-  "runpod-vs-gemini-vlm-inference-idle-auto-stop-gap",
-  "scrape-score-alert-resale-hunting-pipelines-local-vision-models",
-  "self-throttling-claude-max-without-a-published-ceiling",
-  "surviving-a-gpu-yield-window-embedding-servers",
-  "three-failure-modes-one-name-concurrent-claude-code-agents",
-  "tuning-lightrag-ingestion-concurrency-against-gemini-rate-limits",
-  "what-a-364-dollar-claude-code-session-taught-me-about-agent-hygiene",
 ];
 
 test.describe("2026 content-refresh: new Mermaid diagrams parse and render", () => {

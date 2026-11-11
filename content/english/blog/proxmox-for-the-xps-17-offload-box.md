@@ -2,7 +2,7 @@
 title: "Why the XPS 17 Offload Box Runs Proxmox, Not Plain Ubuntu"
 meta_title: "Proxmox VE vs Ubuntu Server for a Repurposed Laptop Home Server"
 description: "Proxmox VE beat Ubuntu-plus-Docker for a retired XPS 17 running five workloads: per-LXC isolation and snapshot rollback won, at the cost of an extra SSH hop."
-date: 2026-08-10T12:15:00Z
+date: 2026-08-10
 lastmod: 2026-08-15T19:10:00Z
 categories: [
   "Home Lab",
@@ -24,7 +24,7 @@ Proxmox VE, one LXC per workload. I think I made the right choice, and I feel go
 
 The XPS 17 had been sitting there for a year or two. I tried giving it to a friend and he didn't want it. I tried selling it online and it was a whole pain, I kept getting lowballed. Meanwhile my desktop was overloaded and having ethernet in/out issues with all the data transfers going through it, and it was getting annoying. There's a server rack under my desk with some space in it. So I figured, why not.
 
-What moved: [the arr stack](/blog/not-every-docker-container-belongs-on-the-nas/) (Sonarr, Radarr, Prowlarr, qBittorrent, NZBGet), a financial data pipeline, a research-automation pipeline, [a LightRAG knowledge graph](/blog/tuning-lightrag-ingestion-concurrency-against-gemini-rate-limits/), and Prometheus/Grafana. That's some of the compute off my main desktop and onto a laptop nobody wanted, which is the whole point.
+What moved: [the arr stack](/blog/not-every-docker-container-belongs-on-the-nas/) (Sonarr, Radarr, Prowlarr, qBittorrent, NZBGet), a financial data pipeline, a research-automation pipeline, a LightRAG knowledge graph, and Prometheus/Grafana. That's some of the compute off my main desktop and onto a laptop nobody wanted, which is the whole point.
 
 ## Why Proxmox and not Ubuntu plus Docker
 
@@ -60,4 +60,4 @@ The one thing that is finicky is the power plug. I have to jiggle it just right 
 
 ## Nothing is ever perfect
 
-The arr stack and [the resale-clothing monitor](/blog/deciding-what-fits-resale-clothing-monitor/) are running on the box now. The NBA data pipeline is running on both the desktop and this box, and I haven't picked one yet.
+The arr stack and the resale-clothing monitor are running on the box now. The NBA data pipeline is running on both the desktop and this box, and I haven't picked one yet.

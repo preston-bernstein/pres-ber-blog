@@ -16,7 +16,7 @@ tags: [
   "Automation",
   "Cost Engineering"
 ]
-draft: false
+draft: true
 featureimage: "/images/data-center-server-room-cost.jpg"
 showHero: true
 ---

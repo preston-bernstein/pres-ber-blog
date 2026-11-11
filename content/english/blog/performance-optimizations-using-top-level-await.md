@@ -3,7 +3,7 @@ title: "Performance Optimizations Using Top-Level Await: Latest JavaScript Code 
 meta_title: "Optimize Your JavaScript: Performance Enhancements with Top-Level Await"
 description: "Top-level await removes the async wrapper function JavaScript modules used to need, simplifying async module initialization code."
 date: 2024-07-05T20:58:50Z
-lastmod: 2026-08-11T20:34:13Z
+lastmod: 2026-08-23T03:18:03Z
 featureimage: "/images/javascript-logo.svg"
 showHero: true
 categories: [
@@ -38,11 +38,11 @@ draft: true
 
 ECMAScript 2022 added top-level await, and the fix is smaller than it sounds: `await` now works directly at the top of a JavaScript module, no `async` wrapper function required. That kills one specific piece of boilerplate developers have hauled around since async/await first shipped: the self-invoking async function you wrote just so the parser would let you say the word `await`.
 
-Here's what top-level await actually does, where it earns its keep (module initialization that depends on an async result), and where it costs you. Every code example below is real and runnable, not a paraphrase.
+It earns its keep at module initialization, when a module's setup depends on an async result, and costs you elsewhere. Every code example below is real and runnable, not a paraphrase.
 
 ## Top-Level Await Runs `await` Outside an Async Function
 
-Top-level await removes the rule that `await` only works inside an async function. Before ECMAScript 2022, every asynchronous operation at a module's top level had to get wrapped in one just to be legal syntax. Now the module itself can await, and the result reads cleaner for it.
+Top-level await removes the rule that `await` only works inside an async function. Before ECMAScript 2022, every asynchronous operation at a module's top level had to get wrapped in one just to be legal syntax. Now the module itself can await.
 
 ### Async/Await Still Needed a Wrapper Function
 
@@ -58,18 +58,16 @@ Top-level await's most useful trick is running async work during initialization,
 
 * Dynamically importing other modules or dependencies based on runtime conditions.
 
-**The real payoff:** top-level await makes a JavaScript app's startup sequence shorter to write and easier to follow.
-
 ### The Syntax Skips the Async Wrapper Entirely
 
-The syntax itself is nothing new: it's just `await`, sitting at the top of the module with no ceremony around it. Here's what that looks like:
+The syntax is nothing new. It's just `await`, sitting at the top of the module, no ceremony required.
 
 ```javascript
 const response = await fetch(`https://api.example.com/data`);
 const data = await response.json();
 ```
 
-That's it — declaring `await` alone is enough to make those two lines wait their turn, no async wrapper needed.
+Declaring `await` alone is enough to make those two lines wait their turn, no async wrapper needed.
 
 ## Top-Level Await Cuts Boilerplate From Module Setup
 

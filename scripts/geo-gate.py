@@ -28,7 +28,9 @@ LLMS_MIN_LINKS = 10
 DESCRIPTION_MIN = 80
 DESCRIPTION_MAX = 160
 MIN_INTERNAL_LINKS_PER_POST = 1
-MIN_TOTAL_EXTERNAL_LINKS = 40
+# Was 40 with 24 posts live. The 2026-09-28 scale-back left 10 posts and 33
+# links, so the floor now tracks the smaller archive.
+MIN_TOTAL_EXTERNAL_LINKS = 30
 BATTERY_MAX_AGE_DAYS = 45
 BATTERY_FIX = (
     "run ~/dev/geo-prompt-battery/run_battery.sh then sync_snapshot.sh "
