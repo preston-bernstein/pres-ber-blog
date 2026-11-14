@@ -6,7 +6,7 @@ import globals from "globals"
 import { defineConfig } from "eslint/config"
 
 export default defineConfig([
-  { ignores: ["dist", "coverage", "node_modules"] },
+  { ignores: ["dist", "coverage", "node_modules", "public", "resources", "themes"] },
   js.configs.recommended,
   {
     languageOptions: { ecmaVersion: "latest", sourceType: "module", globals: { ...globals.node } },
