@@ -1,0 +1,77 @@
+{
+ "_reason": "Existing over-limit functions accepted on 2026-11-13; new code must stay within the limits. Fix them when touched.",
+ "functions": {
+  "scripts/build-linkblog.py::self_verify": {
+   "nloc": 34,
+   "ccn": 9,
+   "token": 186,
+   "param": 2,
+   "length": 54,
+   "nd": 0
+  },
+  "scripts/build-linkblog.py::validate_entries": {
+   "nloc": 62,
+   "ccn": 26,
+   "token": 375,
+   "param": 1,
+   "length": 71,
+   "nd": 0
+  },
+  "scripts/geo-gate.py::check_jsonld": {
+   "nloc": 43,
+   "ccn": 16,
+   "token": 240,
+   "param": 1,
+   "length": 43,
+   "nd": 0
+  },
+  "scripts/geo-gate.py::check_robots": {
+   "nloc": 34,
+   "ccn": 13,
+   "token": 234,
+   "param": 1,
+   "length": 38,
+   "nd": 0
+  },
+  "scripts/geo-gate.py::find_blogposting": {
+   "nloc": 16,
+   "ccn": 9,
+   "token": 89,
+   "param": 1,
+   "length": 17,
+   "nd": 0
+  },
+  "tests/e2e/blog-post-content.spec.js::(anonymous)": {
+   "nloc": 11,
+   "ccn": 1,
+   "token": 101,
+   "param": 0,
+   "length": 102,
+   "nd": 0
+  },
+  "tests/e2e/dark-mode.spec.js::(anonymous)": {
+   "nloc": 6,
+   "ccn": 1,
+   "token": 58,
+   "param": 0,
+   "length": 57,
+   "nd": 0
+  },
+  "tests/e2e/image-pipeline.spec.js::(anonymous)": {
+   "nloc": 10,
+   "ccn": 1,
+   "token": 87,
+   "param": 0,
+   "length": 86,
+   "nd": 0
+  },
+  "tests/e2e/linkblog.spec.js::(anonymous)": {
+   "nloc": 12,
+   "ccn": 1,
+   "token": 99,
+   "param": 0,
+   "length": 104,
+   "nd": 0
+  }
+ }
+}
