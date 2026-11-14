@@ -9,13 +9,21 @@
     "build": "hugo --gc --minify --templateMetrics --templateMetricsHints --forceSyncStatic",
     "preview": "hugo server --disableFastRender --navigateToChanged --templateMetrics --templateMetricsHints --watch --forceSyncStatic -e production --minify",
     "format": "prettier -w .",
-    "test": "playwright test"
+    "test": "playwright test",
+    "lint": "eslint ."
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
+    "eslint": "^10.14.0",
     "fallow": "^3.14.0",
+    "globals": "^17.14.0",
     "http-server": "^14.1.1",
     "prettier": "^3.2.5",
     "prettier-plugin-go-template": "0.0.15"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
   }
 }
