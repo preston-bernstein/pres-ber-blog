@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Shared pre-commit hook. Run once per clone: git config core.hooksPath .githooks
+# It runs every pack gate. CI runs the same scripts, because a hook can be skipped.
+# Gate tools live outside the repo: put them on PATH (scripts/install-gate-tools.sh, scripts/gate-requirements.txt).
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+export PATH="$root/node_modules/.bin:$PATH"
+for gate in core gha shell writing js; do
+  bash "$root/scripts/$gate-validate.sh" "$root"
+done

@@ -19,6 +19,7 @@
     "fallow": "^3.14.0",
     "globals": "^17.14.0",
     "http-server": "^14.1.1",
+    "jscpd": "5.4.2",
     "prettier": "^3.2.5",
     "prettier-plugin-go-template": "0.0.15"
   },

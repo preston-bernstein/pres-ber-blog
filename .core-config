@@ -1,0 +1,2 @@
+# Vendored pack gate scripts, copied unchanged. The pack owns their complexity.
+CORE_EXCLUDE=*/scripts/*c*.py  # matches the four vendored checkers (all have a c); geo-gate.py and build-linkblog.py have none, so stay checked
