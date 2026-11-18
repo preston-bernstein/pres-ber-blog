@@ -123,6 +123,14 @@ def classify_link(url):
     return "internal"  # root-relative or relative path
 
 
+def json_children(node):
+    if isinstance(node, dict):
+        return node.values()
+    if isinstance(node, list):
+        return node
+    return []
+
+
 def find_blogposting(node):
     """Recursively find a JSON-LD node whose @type is/contains BlogPosting."""
     if isinstance(node, dict):
@@ -130,28 +138,17 @@ def find_blogposting(node):
         types = t if isinstance(t, list) else [t]
         if "BlogPosting" in types:
             return node
-        for value in node.values():
-            found = find_blogposting(value)
-            if found:
-                return found
-    elif isinstance(node, list):
-        for item in node:
-            found = find_blogposting(item)
-            if found:
-                return found
+    for child in json_children(node):
+        found = find_blogposting(child)
+        if found:
+            return found
     return None
 
 
 # ---------------------------------------------------------------- checks ----
 
-def check_robots(root):
-    errors = []
-    path = root / "public" / "robots.txt"
-    if not path.is_file():
-        return [f"{path.relative_to(root)} does not exist"]
-    text = path.read_text(encoding="utf-8")
-
-    # Parse into stanzas: user-agent line(s) followed by directives.
+def parse_robots_stanzas(text):
+    """Map each user-agent to its directive lines. Grouped agents share lines."""
     stanzas = {}  # agent -> list of directive lines
     current_agents = []
     expecting_agents = False
@@ -171,6 +168,16 @@ def check_robots(root):
         expecting_agents = False
         for agent in current_agents:
             stanzas[agent].append(line)
+    return stanzas
+
+
+def check_robots(root):
+    errors = []
+    path = root / "public" / "robots.txt"
+    if not path.is_file():
+        return [f"{path.relative_to(root)} does not exist"]
+    text = path.read_text(encoding="utf-8")
+    stanzas = parse_robots_stanzas(text)
 
     for bot in REQUIRED_BOTS:
         directives = stanzas.get(bot)
@@ -206,48 +213,64 @@ def check_sitemap(root):
     return []
 
 
-def check_jsonld(root):
+def find_posting_in_blobs(blobs):
+    """Return (first BlogPosting or None, count of blobs that were not JSON)."""
+    posting = None
+    parse_errors = 0
+    for blob in blobs:
+        try:
+            data = json.loads(blob)
+        except json.JSONDecodeError:
+            parse_errors += 1
+            continue
+        posting = posting or find_blogposting(data)
+    return posting, parse_errors
+
+
+def posting_date_errors(rel, posting):
+    pub_raw = posting.get("datePublished")
+    mod_raw = posting.get("dateModified")
     errors = []
+    if not pub_raw:
+        errors.append(f"{rel}: BlogPosting missing datePublished")
+    if not mod_raw:
+        errors.append(f"{rel}: BlogPosting missing dateModified")
+    if not (pub_raw and mod_raw):
+        return errors
+    pub, mod = parse_iso(pub_raw), parse_iso(mod_raw)
+    if pub is None:
+        errors.append(f"{rel}: unparseable datePublished {pub_raw!r}")
+    elif mod is None:
+        errors.append(f"{rel}: unparseable dateModified {mod_raw!r}")
+    elif mod < pub:
+        errors.append(
+            f"{rel}: dateModified {mod_raw} is before datePublished {pub_raw}"
+        )
+    return errors
+
+
+def page_jsonld_errors(rel, html):
+    blobs = JSONLD_RE.findall(html)
+    if not blobs:
+        return [f"{rel}: no <script type=\"application/ld+json\"> block"]
+    posting, parse_errors = find_posting_in_blobs(blobs)
+    if posting is not None:
+        return posting_date_errors(rel, posting)
+    errors = []
+    if parse_errors:
+        errors.append(f"{rel}: {parse_errors} JSON-LD block(s) failed to parse as JSON")
+    errors.append(f"{rel}: no JSON-LD object with @type BlogPosting")
+    return errors
+
+
+def check_jsonld(root):
     pages = built_post_pages(root)
     if not pages:
         return ["no built post pages found under public/blog/*/index.html"]
+    errors = []
     for page in pages:
-        rel = page.relative_to(root)
         html = page.read_text(encoding="utf-8")
-        blobs = JSONLD_RE.findall(html)
-        if not blobs:
-            errors.append(f"{rel}: no <script type=\"application/ld+json\"> block")
-            continue
-        posting = None
-        parse_errors = 0
-        for blob in blobs:
-            try:
-                data = json.loads(blob)
-            except json.JSONDecodeError:
-                parse_errors += 1
-                continue
-            posting = posting or find_blogposting(data)
-        if posting is None:
-            if parse_errors:
-                errors.append(f"{rel}: {parse_errors} JSON-LD block(s) failed to parse as JSON")
-            errors.append(f"{rel}: no JSON-LD object with @type BlogPosting")
-            continue
-        pub_raw = posting.get("datePublished")
-        mod_raw = posting.get("dateModified")
-        if not pub_raw:
-            errors.append(f"{rel}: BlogPosting missing datePublished")
-        if not mod_raw:
-            errors.append(f"{rel}: BlogPosting missing dateModified")
-        if pub_raw and mod_raw:
-            pub, mod = parse_iso(pub_raw), parse_iso(mod_raw)
-            if pub is None:
-                errors.append(f"{rel}: unparseable datePublished {pub_raw!r}")
-            elif mod is None:
-                errors.append(f"{rel}: unparseable dateModified {mod_raw!r}")
-            elif mod < pub:
-                errors.append(
-                    f"{rel}: dateModified {mod_raw} is before datePublished {pub_raw}"
-                )
+        errors.extend(page_jsonld_errors(page.relative_to(root), html))
     return errors
 
 

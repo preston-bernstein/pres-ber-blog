@@ -8,14 +8,33 @@ const { test, expect } = require("@playwright/test");
 // this migration added the color-scheme meta/CSS on top (layouts/partials/extend-head.html).
 const HOME = "/";
 
+// The callbacks run in the browser, where `document` is a property of the global object.
+function readRootColorScheme(page) {
+  return page.evaluate(() =>
+    globalThis.getComputedStyle(globalThis.document.documentElement).colorScheme
+  );
+}
+
+// Reads the class at DOMContentLoaded, so a class added after a visible delay would not pass.
+function readRootClassAtDomContentLoaded(page) {
+  return page.evaluate(() => {
+    const root = globalThis.document.documentElement;
+    return new Promise((resolve) => {
+      if (globalThis.document.readyState !== "loading") {
+        resolve(root.className);
+      } else {
+        globalThis.document.addEventListener("DOMContentLoaded", () => resolve(root.className));
+      }
+    });
+  });
+}
+
 test.describe("Dark/light mode", () => {
   test("sets a color-scheme meta tag and CSS property", async ({ page }) => {
     await page.goto(HOME);
     const metaContent = await page.locator('meta[name="color-scheme"]').getAttribute("content");
     expect(metaContent).toBe("light dark");
-    const rootColorScheme = await page.evaluate(
-      () => getComputedStyle(document.documentElement).colorScheme
-    );
+    const rootColorScheme = await readRootColorScheme(page);
     expect(rootColorScheme).toContain("light");
   });
 
@@ -26,9 +45,7 @@ test.describe("Dark/light mode", () => {
     await page.locator("#appearance-switcher").click();
 
     await expect(page.locator("html")).toHaveClass(/dark/);
-    const rootColorScheme = await page.evaluate(
-      () => getComputedStyle(document.documentElement).colorScheme
-    );
+    const rootColorScheme = await readRootColorScheme(page);
     expect(rootColorScheme).toContain("dark");
   });
 
@@ -51,17 +68,7 @@ test.describe("Dark/light mode", () => {
 
     // Check the class is present at DOMContentLoaded, not applied after a visible
     // delay -- Blowfish's appearance.js runs synchronously in <head>, before <body>.
-    const classAtDomContentLoaded = await page.evaluate(() => {
-      return new Promise((resolve) => {
-        if (document.readyState !== "loading") {
-          resolve(document.documentElement.className);
-        } else {
-          document.addEventListener("DOMContentLoaded", () =>
-            resolve(document.documentElement.className)
-          );
-        }
-      });
-    });
+    const classAtDomContentLoaded = await readRootClassAtDomContentLoaded(page);
     expect(classAtDomContentLoaded).toContain("dark");
   });
 });

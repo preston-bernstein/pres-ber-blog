@@ -34,7 +34,9 @@ test.describe("Reading-progress bar", () => {
   test("reaches (or nears) 100% at the bottom of the article", async ({ page }) => {
     await page.goto(POST);
     const bar = page.locator("#reading-progress-bar");
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.evaluate(() =>
+      globalThis.scrollTo(0, globalThis.document.documentElement.scrollHeight)
+    );
     await page.waitForTimeout(200);
     const widthAtBottom = parseFloat(await bar.evaluate((el) => el.style.width));
     expect(widthAtBottom).toBeGreaterThanOrEqual(95);

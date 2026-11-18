@@ -31,11 +31,5 @@
   // build or runtime. It is vendored, read-only code, the same category as
   // node_modules, and fallow's own dead-code output confirmed 93% of "unused
   // file" noise and all "unlisted dependency" findings trace back to it.
-  "ignorePatterns": ["themes/**"],
-  // Verified false positive. Confirmed 2026-08-10: spec/helpers/*.js are loaded
-  // by Jasmine's own config file (jasmine.json's "helpers" glob), not via
-  // import/require -- a framework-magic file-loading convention static analysis
-  // can't trace through a reachability graph. Genuinely used (npm test depends
-  // on them); not dead code.
-  "ignoreFindings": ["spec/helpers/**/*.js"]
+  "ignorePatterns": ["themes/**"]
 }

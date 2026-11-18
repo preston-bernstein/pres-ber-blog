@@ -101,6 +101,73 @@ def load_entries(path):
     return data
 
 
+def non_empty_string(value):
+    return isinstance(value, str) and bool(value.strip())
+
+
+def entry_label(index, entry):
+    """Prefix for an error message: `file[index] (url or "no url")`."""
+    raw_url = entry.get("url")
+    url_label = raw_url.strip() if non_empty_string(raw_url) else "no url"
+    return f"{DATA_FILE}[{index}] ({url_label})"
+
+
+def field_errors(label, entry):
+    errors = []
+    for field in REQUIRED_STRING_FIELDS:
+        if not non_empty_string(entry.get(field)):
+            errors.append(f"{label}: missing or empty required field '{field}'")
+    return errors
+
+
+def url_errors(label, entry):
+    raw_url = entry.get("url")
+    if not non_empty_string(raw_url):
+        return []
+    if raw_url.strip().startswith(("http://", "https://")):
+        return []
+    return [f"{label}: url must start with 'http://' or 'https://'"]
+
+
+def published_errors(label, entry):
+    published = entry.get("published")
+    if not non_empty_string(published) or parse_iso(published) is not None:
+        return []
+    return [
+        f"{label}: 'published' must be a "
+        f"timezone-aware ISO 8601 datetime (e.g. "
+        f"'2026-08-15T10:00:00+00:00', not a bare date or a "
+        f"tz-naive datetime): {published!r}"
+    ]
+
+
+def tags_errors(label, entry):
+    if "tags" not in entry:
+        return []
+    tags = entry["tags"]
+    if isinstance(tags, list) and all(isinstance(t, str) for t in tags):
+        return []
+    return [f"{label}: 'tags' must be a list of strings if present"]
+
+
+ENTRY_CHECKS = (field_errors, url_errors, published_errors, tags_errors)
+
+
+def duplicate_url_errors(seen_urls):
+    errors = []
+    for url, indices in seen_urls.items():
+        if len(indices) < 2:
+            continue
+        for index in indices:
+            others = [i for i in indices if i != index]
+            errors.append(
+                f"{DATA_FILE}[{index}] ({url}): duplicate url, also used "
+                f"by entr{'y' if len(others) == 1 else 'ies'} at index "
+                f"{', '.join(str(i) for i in others)}"
+            )
+    return errors
+
+
 def validate_entries(entries):
     """Validate every entry. Returns a list of error strings (empty = all valid)."""
     errors = []
@@ -114,64 +181,13 @@ def validate_entries(entries):
             )
             continue
 
-        raw_url = entry.get("url")
-        url_label = (
-            raw_url.strip()
-            if isinstance(raw_url, str) and raw_url.strip()
-            else "no url"
-        )
+        label = entry_label(index, entry)
+        for check in ENTRY_CHECKS:
+            errors.extend(check(label, entry))
+        if non_empty_string(entry.get("url")):
+            seen_urls.setdefault(entry["url"].strip(), []).append(index)
 
-        for field in REQUIRED_STRING_FIELDS:
-            value = entry.get(field)
-            if not isinstance(value, str) or not value.strip():
-                errors.append(
-                    f"{DATA_FILE}[{index}] ({url_label}): missing or empty "
-                    f"required field '{field}'"
-                )
-
-        if isinstance(raw_url, str) and raw_url.strip():
-            stripped_url = raw_url.strip()
-            if not (
-                stripped_url.startswith("http://")
-                or stripped_url.startswith("https://")
-            ):
-                errors.append(
-                    f"{DATA_FILE}[{index}] ({url_label}): url must start with "
-                    f"'http://' or 'https://'"
-                )
-            seen_urls.setdefault(stripped_url, []).append(index)
-
-        published = entry.get("published")
-        if isinstance(published, str) and published.strip():
-            if parse_iso(published) is None:
-                errors.append(
-                    f"{DATA_FILE}[{index}] ({url_label}): 'published' must be a "
-                    f"timezone-aware ISO 8601 datetime (e.g. "
-                    f"'2026-08-15T10:00:00+00:00', not a bare date or a "
-                    f"tz-naive datetime): {published!r}"
-                )
-
-        if "tags" in entry:
-            tags = entry["tags"]
-            if not isinstance(tags, list) or not all(
-                isinstance(t, str) for t in tags
-            ):
-                errors.append(
-                    f"{DATA_FILE}[{index}] ({url_label}): 'tags' must be a list "
-                    f"of strings if present"
-                )
-
-    for url, indices in seen_urls.items():
-        if len(indices) > 1:
-            for index in indices:
-                others = [i for i in indices if i != index]
-                errors.append(
-                    f"{DATA_FILE}[{index}] ({url}): duplicate url, also used "
-                    f"by entr{'y' if len(others) == 1 else 'ies'} at index "
-                    f"{', '.join(str(i) for i in others)}"
-                )
-
-    return errors
+    return errors + duplicate_url_errors(seen_urls)
 
 
 def wipe_generated_content(content_dir):
@@ -193,6 +209,34 @@ def wipe_generated_content(content_dir):
             continue
         if GENERATED_FILENAME_RE.match(path.name):
             path.unlink()
+
+
+def run_linkblog_commons(args, command, failure_text):
+    """Run `args` and return the `result` of linkblog-commons' JSON envelope.
+
+    Raises RuntimeError on unparseable stdout, a non-"ok" status or a
+    non-zero exit code. `command` and `failure_text` name the call in the
+    message.
+    """
+    proc = subprocess.run(args, capture_output=True, text=True)
+
+    try:
+        envelope = json.loads(proc.stdout)
+    except (json.JSONDecodeError, ValueError) as exc:
+        raise RuntimeError(
+            f"could not parse linkblog_commons {command} output as JSON "
+            f"(exit code {proc.returncode}): {exc}\n"
+            f"stdout: {proc.stdout!r}\nstderr: {proc.stderr!r}"
+        ) from exc
+
+    if envelope.get("status") != "ok" or proc.returncode != 0:
+        error = envelope.get("error")
+        raise RuntimeError(
+            f"linkblog_commons {failure_text} (exit code {proc.returncode}): "
+            f"{error!r}\nstderr: {proc.stderr!r}"
+        )
+
+    return envelope.get("result")
 
 
 def render_entry(entry, content_dir):
@@ -223,25 +267,7 @@ def render_entry(entry, content_dir):
         args.extend(["--tag", tag])
     args.extend(["--output-dir", str(content_dir)])
 
-    proc = subprocess.run(args, capture_output=True, text=True)
-
-    try:
-        envelope = json.loads(proc.stdout)
-    except (json.JSONDecodeError, ValueError) as exc:
-        raise RuntimeError(
-            f"could not parse linkblog_commons render output as JSON "
-            f"(exit code {proc.returncode}): {exc}\n"
-            f"stdout: {proc.stdout!r}\nstderr: {proc.stderr!r}"
-        ) from exc
-
-    if envelope.get("status") != "ok" or proc.returncode != 0:
-        error = envelope.get("error")
-        raise RuntimeError(
-            f"linkblog_commons render failed (exit code {proc.returncode}): "
-            f"{error!r}\nstderr: {proc.stderr!r}"
-        )
-
-    return envelope.get("result")
+    return run_linkblog_commons(args, "render", "render failed")
 
 
 def rename_url_field(md_path):
@@ -396,40 +422,10 @@ def generate_feed(entries_path, feed_out):
         FEED_LINK,
     ]
 
-    proc = subprocess.run(args, capture_output=True, text=True)
-
-    try:
-        envelope = json.loads(proc.stdout)
-    except (json.JSONDecodeError, ValueError) as exc:
-        raise RuntimeError(
-            f"could not parse linkblog_commons feed output as JSON "
-            f"(exit code {proc.returncode}): {exc}\n"
-            f"stdout: {proc.stdout!r}\nstderr: {proc.stderr!r}"
-        ) from exc
-
-    if envelope.get("status") != "ok" or proc.returncode != 0:
-        error = envelope.get("error")
-        raise RuntimeError(
-            f"linkblog_commons feed generation failed (exit code "
-            f"{proc.returncode}): {error!r}\nstderr: {proc.stderr!r}"
-        )
-
-    return envelope.get("result")
+    return run_linkblog_commons(args, "feed", "feed generation failed")
 
 
-def self_verify(feed_out, rendered_paths):
-    """Self-verify this run's freshly-written output before declaring success.
-
-    Two checks, either of which raises RuntimeError with a clear message on
-    failure (this matches this repo's deterministic-release-gate culture —
-    see scripts/geo-gate.py — rather than leaving new output unchecked):
-
-    1. `feed_out` parses as well-formed XML via `ET.parse`.
-    2. Each path in `rendered_paths` (the files `render_all` just wrote) has
-       front matter containing a `date:` field whose value itself parses
-       via `parse_iso`.
-    """
-    feed_out = Path(feed_out)
+def verify_feed(feed_out):
     try:
         ET.parse(feed_out)
     except ET.ParseError as exc:
@@ -438,39 +434,60 @@ def self_verify(feed_out, rendered_paths):
             f"well-formed XML: {exc}"
         ) from exc
 
+
+def strip_matching_quotes(value):
+    """Strip one pair of matching surrounding quotes, as a YAML parser would.
+
+    linkblog-commons writes front matter values as YAML double-quoted strings
+    (e.g. `date: "2026-08-15T00:00:00+00:00"`, copied verbatim from
+    `published:` by inject_date_field). Rejecting a validly-quoted value as
+    unparseable would be wrong.
+    """
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1]
+    return value
+
+
+def verify_post_date(md_path):
+    md_path = Path(md_path)
+    text = md_path.read_text(encoding="utf-8")
+
+    match = FRONT_MATTER_RE.match(text)
+    if not match:
+        raise RuntimeError(
+            f"{md_path}: self-verification failed — could not find "
+            f"'---'-delimited front matter"
+        )
+    front_matter = match.group(2)
+
+    date_match = DATE_VALUE_RE.search(front_matter)
+    if not date_match:
+        raise RuntimeError(
+            f"{md_path}: self-verification failed — no 'date:' field "
+            f"found in front matter"
+        )
+    if parse_iso(strip_matching_quotes(date_match.group(1))) is None:
+        raise RuntimeError(
+            f"{md_path}: self-verification failed — 'date:' field is "
+            f"not a parseable timezone-aware ISO 8601 datetime: "
+            f"{date_match.group(1)!r}"
+        )
+
+
+def self_verify(feed_out, rendered_paths):
+    """Self-verify this run's freshly-written output before declaring success.
+
+    Two checks, either of which raises RuntimeError with a clear message on
+    failure. This matches the release-gate culture of scripts/geo-gate.py:
+
+    1. `feed_out` parses as well-formed XML via `ET.parse`.
+    2. Each path in `rendered_paths` (the files `render_all` just wrote) has
+       front matter containing a `date:` field whose value itself parses
+       via `parse_iso`.
+    """
+    verify_feed(Path(feed_out))
     for md_path in rendered_paths:
-        md_path = Path(md_path)
-        text = md_path.read_text(encoding="utf-8")
-
-        match = FRONT_MATTER_RE.match(text)
-        if not match:
-            raise RuntimeError(
-                f"{md_path}: self-verification failed — could not find "
-                f"'---'-delimited front matter"
-            )
-        _, front_matter, _, _ = match.groups()
-
-        date_match = DATE_VALUE_RE.search(front_matter)
-        if not date_match:
-            raise RuntimeError(
-                f"{md_path}: self-verification failed — no 'date:' field "
-                f"found in front matter"
-            )
-        date_value = date_match.group(1)
-        # linkblog-commons writes front matter values as YAML
-        # double-quoted strings (e.g. `date: "2026-08-15T00:00:00+00:00"`,
-        # copied verbatim from `published:` by inject_date_field). Strip a
-        # single matching pair of surrounding quotes before parsing, same
-        # as a YAML parser would, rather than rejecting a validly-quoted
-        # value as unparseable.
-        if len(date_value) >= 2 and date_value[0] == date_value[-1] and date_value[0] in "\"'":
-            date_value = date_value[1:-1]
-        if parse_iso(date_value) is None:
-            raise RuntimeError(
-                f"{md_path}: self-verification failed — 'date:' field is "
-                f"not a parseable timezone-aware ISO 8601 datetime: "
-                f"{date_match.group(1)!r}"
-            )
+        verify_post_date(md_path)
 
 
 def main():
