@@ -1,0 +1,7 @@
+{
+  "scripts/package-check.mjs": {
+    "no-console": {
+      "count": 4
+    }
+  }
+}

@@ -34,6 +34,73 @@ let serverProcess;
 /** @type {string} */
 let slug;
 
+function writeFixtureEntry() {
+  const entry = {
+    url: FIXTURE_URL,
+    published: FIXTURE_PUBLISHED,
+    comment: FIXTURE_COMMENT,
+    tags: ["e2e-fixture"],
+  };
+  fs.writeFileSync(DATA_FILE, JSON.stringify([entry], null, 2) + "\n");
+}
+
+function buildLinkblogContent() {
+  execFileSync("python3", ["scripts/build-linkblog.py"], { cwd: REPO_ROOT, stdio: "inherit" });
+}
+
+function findGeneratedSlug() {
+  const generated = fs.readdirSync(CONTENT_DIR).filter((f) => f !== "_index.md");
+  if (generated.length !== 1) {
+    throw new Error(`Expected exactly 1 generated link post, found ${generated.length}`);
+  }
+  return generated[0].replace(/\.md$/, "");
+}
+
+function buildIsolatedSite() {
+  execFileSync("hugo", ["--gc", "--minify", "--destination", DEST_DIR], {
+    cwd: REPO_ROOT,
+    stdio: "inherit",
+  });
+}
+
+async function fetchStatusOrNull() {
+  try {
+    const res = await fetch(BASE);
+    return res.status;
+  } catch {
+    return null;
+  }
+}
+
+async function serveIsolatedSite() {
+  const server = spawn("npx", ["http-server", DEST_DIR, "-p", String(PORT), "-s"], {
+    cwd: REPO_ROOT,
+    stdio: "ignore",
+  });
+  await expect.poll(fetchStatusOrNull, { timeout: 15000 }).toBe(200);
+  return server;
+}
+
+// Restore the clean, empty-data state Task 14 established -- the same
+// regenerate-from-empty cycle used before merge.
+function restoreEmptyLinkblog() {
+  fs.writeFileSync(DATA_FILE, "[]\n");
+  buildLinkblogContent();
+  fs.rmSync(DEST_DIR, { recursive: true, force: true });
+}
+
+async function expectLinkPostPage(page) {
+  await page.goto(`${BASE}/links/${slug}/`);
+  const anchor = page.locator("h1 a");
+  await expect(anchor).toHaveAttribute("href", FIXTURE_URL);
+  await expect(anchor).toHaveAttribute("target", "_blank");
+  await expect(anchor).toHaveText(FIXTURE_URL);
+  await expect(page.locator(".article-content")).toContainText(FIXTURE_COMMENT);
+  // Real published date rendered, not Hugo's zero-date fallback -- proves the
+  // date-front-matter-injection workaround (linkblog-commons omits `date`) works.
+  await expect(page.locator("time").first()).toHaveAttribute("datetime", FIXTURE_PUBLISHED);
+}
+
 test.describe("Linkblog pipeline (real build, isolated destination)", () => {
   // fullyParallel shards individual tests across workers by default, which would run
   // beforeAll/afterAll more than once concurrently (racing writes to data/linkposts.json
@@ -42,62 +109,16 @@ test.describe("Linkblog pipeline (real build, isolated destination)", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeAll(async () => {
-    fs.writeFileSync(
-      DATA_FILE,
-      JSON.stringify(
-        [
-          {
-            url: FIXTURE_URL,
-            published: FIXTURE_PUBLISHED,
-            comment: FIXTURE_COMMENT,
-            tags: ["e2e-fixture"],
-          },
-        ],
-        null,
-        2
-      ) + "\n"
-    );
-
-    execFileSync("python3", ["scripts/build-linkblog.py"], { cwd: REPO_ROOT, stdio: "inherit" });
-
-    const generated = fs.readdirSync(CONTENT_DIR).filter((f) => f !== "_index.md");
-    if (generated.length !== 1) {
-      throw new Error(`Expected exactly 1 generated link post, found ${generated.length}`);
-    }
-    slug = generated[0].replace(/\.md$/, "");
-
-    execFileSync("hugo", ["--gc", "--minify", "--destination", DEST_DIR], {
-      cwd: REPO_ROOT,
-      stdio: "inherit",
-    });
-
-    serverProcess = spawn("npx", ["http-server", DEST_DIR, "-p", String(PORT), "-s"], {
-      cwd: REPO_ROOT,
-      stdio: "ignore",
-    });
-
-    await expect
-      .poll(
-        async () => {
-          try {
-            const res = await fetch(BASE);
-            return res.status;
-          } catch {
-            return null;
-          }
-        },
-        { timeout: 15000 }
-      )
-      .toBe(200);
+    writeFixtureEntry();
+    buildLinkblogContent();
+    slug = findGeneratedSlug();
+    buildIsolatedSite();
+    serverProcess = await serveIsolatedSite();
   });
 
-  test.afterAll(async () => {
+  test.afterAll(() => {
     serverProcess?.kill();
-    // Restore the clean, empty-data state Task 14 established -- the same
-    // regenerate-from-empty cycle used before merge.
-    fs.writeFileSync(DATA_FILE, "[]\n");
-    execFileSync("python3", ["scripts/build-linkblog.py"], { cwd: REPO_ROOT, stdio: "inherit" });
-    fs.rmSync(DEST_DIR, { recursive: true, force: true });
+    restoreEmptyLinkblog();
   });
 
   test("home feed does not leak the link post (Task 6 -- home-RSS scoping fix)", async () => {
@@ -122,15 +143,7 @@ test.describe("Linkblog pipeline (real build, isolated destination)", () => {
   test("rendered link post title is a real clickable anchor to the source URL (Task 7 fix)", async ({
     page,
   }) => {
-    await page.goto(`${BASE}/links/${slug}/`);
-    const anchor = page.locator("h1 a");
-    await expect(anchor).toHaveAttribute("href", FIXTURE_URL);
-    await expect(anchor).toHaveAttribute("target", "_blank");
-    await expect(anchor).toHaveText(FIXTURE_URL);
-    await expect(page.locator(".article-content")).toContainText(FIXTURE_COMMENT);
-    // Real published date rendered, not Hugo's zero-date fallback -- proves the
-    // date-front-matter-injection workaround (linkblog-commons omits `date`) works.
-    await expect(page.locator("time").first()).toHaveAttribute("datetime", FIXTURE_PUBLISHED);
+    await expectLinkPostPage(page);
   });
 
   test("section index page lists the post", async ({ page }) => {

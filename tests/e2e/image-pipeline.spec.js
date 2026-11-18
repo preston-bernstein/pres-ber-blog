@@ -39,7 +39,9 @@ test.describe("Image pipeline (WebP, srcset, LQIP, zoom)", () => {
     expect(srcset).toMatch(/\.webp 800w/);
     expect(srcset).toMatch(/\.webp 1280w/);
   });
+});
 
+test.describe("Image pipeline: LQIP placeholder", () => {
   test("LQIP data URI is present in the markup, and the real image loads and clears it", async ({
     page,
   }) => {
@@ -71,7 +73,9 @@ test.describe("Image pipeline (WebP, srcset, LQIP, zoom)", () => {
       .poll(() => img.evaluate((el) => /** @type {HTMLImageElement} */ (el).style.backgroundImage))
       .toBe("none");
   });
+});
 
+test.describe("Image pipeline: markup (figure, zoom)", () => {
   test("demo image is wrapped in a figure with a figcaption", async ({ page }) => {
     await page.goto(POST);
     const figure = page.locator(".article-content figure").first();

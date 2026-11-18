@@ -50,7 +50,7 @@ jobs:
         run: npm install
 
       - name: Set up Python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: '3.11'
 
@@ -58,6 +58,9 @@ jobs:
       # branch, so an unrelated upstream change can't silently break the push-to-main deploy.
       - name: Install linkblog-commons
         run: pip install "git+https://github.com/preston-bernstein/linkblog-commons.git@f12f008aed587d7d643db8ec5b787f60474ee96a"
+
+      - name: Lint
+        run: npm run lint
 
       - name: Build linkblog content
         run: python3 scripts/build-linkblog.py
@@ -75,7 +78,7 @@ jobs:
         run: npm test
 
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
+        uses: SamKirkland/FTP-Deploy-Action@3a9c65ae0fc12ac924ccef8afc26941cc43aad0b # v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}

@@ -81,7 +81,7 @@ test.describe("Mermaid visual rendering", () => {
     const nodeShape = page.locator("pre.mermaid").first().locator("svg .node rect, svg .node polygon, svg .node circle").first();
     await expect(nodeShape).toHaveCount(1);
 
-    const lightFill = await nodeShape.evaluate((el) => getComputedStyle(el).fill);
+    const lightFill = await nodeShape.evaluate((el) => globalThis.getComputedStyle(el).fill);
 
     await page.locator("#appearance-switcher").click();
 
@@ -96,7 +96,7 @@ test.describe("Mermaid visual rendering", () => {
       .first();
     await expect(darkNodeShape).toHaveCount(1);
 
-    const darkFill = await darkNodeShape.evaluate((el) => getComputedStyle(el).fill);
+    const darkFill = await darkNodeShape.evaluate((el) => globalThis.getComputedStyle(el).fill);
 
     expect(darkFill).not.toBe(lightFill);
   });
