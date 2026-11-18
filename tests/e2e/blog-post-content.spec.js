@@ -6,7 +6,7 @@ const { test, expect } = require("@playwright/test");
 // wired up (not silently dropped), and analytics (GTM) fires.
 const POST = "/blog/secure-services-docker-compose-and-nordvpn/";
 
-test.describe("Blog post content surfaces", () => {
+test.describe("Blog post content surfaces: images", () => {
   test("all 4 migrated images render with real src and non-zero size", async ({ page }) => {
     await page.goto(POST);
     const images = page.locator(".article-content img");
@@ -40,7 +40,9 @@ test.describe("Blog post content surfaces", () => {
     const allFigures = page.locator(".article-content figure");
     await expect(allFigures).toHaveCount(4);
   });
+});
 
+test.describe("Blog post content surfaces: comments, analytics, structured data", () => {
   test("comments widget is wired up (Disqus container present)", async ({ page }) => {
     await page.goto(POST);
     await expect(page.locator("#disqus_thread")).toBeAttached();
@@ -74,7 +76,9 @@ test.describe("Blog post content surfaces", () => {
     const data = Array.isArray(parsed) ? parsed[0] : parsed;
     expect(data.author?.name).toBe("Preston Bernstein");
   });
+});
 
+test.describe("Blog post content surfaces: code blocks", () => {
   // docs/markup-2026-baseline/: the docker-compose example's fenced code block was
   // given a Chroma `hl_lines=[22,34]` attribute so the two `network_mode: service:vpn`
   // lines the surrounding prose calls out by name render highlighted. Confirmed by

@@ -8,6 +8,7 @@ This repo is a Hugo blog on the Blowfish theme. CLAUDE.md holds the voice and GE
 - GitHub Actions gate: `bash scripts/gha-validate.sh` (workflow-check.py, actionlint, zizmor).
 - JavaScript gate: `bash scripts/js-validate.sh` (package-check, eslint, `npm test`). Install with `npm ci`. `npm install` is not allowed.
 - Shell gate: `bash scripts/shell-validate.sh` (bash -n, shell-check.py, shellcheck, shfmt, bats).
+- Python script tests: `python3 -m unittest discover -s tests/py -t tests/py` (build-linkblog.py and geo-gate.py).
 - Writing gate: `bash scripts/writing-validate.sh` (Vale on the files that changed against main).
 - Hook: `git config core.hooksPath .githooks`. It runs all five gates. Never commit with `--no-verify`.
 - Tools: `pip install --require-hashes -r scripts/gate-requirements.txt` (lizard, zizmor), `npm ci` (jscpd), `bash scripts/install-gate-tools.sh DIR` (actionlint, shellcheck, shfmt, vale, bats, hugo).
